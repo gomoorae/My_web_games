@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="민트색 안전 영역에서 선을 그어 영역을 확보하는 땅따먹기 게임 도식">
+  <defs>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#203346" stroke-width=".6"/></pattern>
+    <pattern id="claimed" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 8L8 0" stroke="#72fbd6" stroke-opacity=".13"/></pattern>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4"/></filter>
+  </defs>
+  <rect width="640" height="400" fill="#0b1220"/>
+  <rect width="640" height="400" fill="url(#grid)"/>
+  <g fill="#173e3c" stroke="#72fbd6" stroke-width="2">
+    <path d="M30 30H230V110H170V210H290V370H30Z"/>
+    <path d="M430 30H610V130H530V90H430Z"/>
+  </g>
+  <path d="M30 30H230V110H170V210H290V370H30Z" fill="url(#claimed)"/>
+  <rect x="30" y="30" width="580" height="340" rx="2" fill="none" stroke="#72fbd6" stroke-width="2"/>
+  <path d="M290 290H390V190H470" fill="none" stroke="#d4fa73" stroke-width="10" opacity=".35" filter="url(#glow)"/>
+  <path d="M290 290H390V190H470" fill="none" stroke="#d4fa73" stroke-width="3"/>
+  <rect x="464" y="184" width="12" height="12" fill="#f4ffe3"/>
+  <rect x="458" y="178" width="24" height="24" fill="none" stroke="#d4fa73" stroke-opacity=".5"/>
+  <g fill="#ff668c">
+    <circle cx="342" cy="112" r="14" opacity=".4" filter="url(#glow)"/><circle cx="342" cy="112" r="5"/>
+    <circle cx="526" cy="288" r="14" opacity=".4" filter="url(#glow)"/><circle cx="526" cy="288" r="5"/>
+    <circle cx="444" cy="330" r="14" opacity=".4" filter="url(#glow)"/><circle cx="444" cy="330" r="5"/>
+  </g>
+  <g stroke="#ff668c" stroke-width="1" fill="none" opacity=".75"><circle cx="342" cy="112" r="10"/><circle cx="526" cy="288" r="10"/><circle cx="444" cy="330" r="10"/></g>
+</svg>

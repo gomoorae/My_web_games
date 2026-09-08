@@ -1,22 +1,32 @@
-﻿[
+[
+  {
+    "title": "NEON TERRITORY",
+    "description": "선을 잇고, 나만의 영역을 넓혀봐. 적의 움직임을 피해 10개의 스테이지를 돌파하는 땅따먹기.",
+    "thumbnail": "thumbs/neon_territory.svg",
+    "url": "games/neon_territory/index.html",
+    "category": "TERRITORY · 땅따먹기",
+    "detail": "10 STAGES",
+    "featured": true
+  },
   {
     "title": "매치3 퍼즐",
+    "category": "PUZZLE",
     "description": "같은 블록을 3개 이상 맞춰 터뜨리는 퍼즐 게임",
     "thumbnail": "thumbs/match3_puzzle_v1.svg",
     "url": "games/match3_puzzle/index.html"
   },
   {
     "title": "Brick Breaker",
+    "category": "ARCADE",
     "description": "패들로 공을 튕겨 벽돌을 깨는 게임",
     "thumbnail": "thumbs/brick_breaker_v2.svg",
     "url": "games/brick_breaker/index.html"
   },
   {
     "title": "바이크 칼치기",
+    "category": "RACING",
     "description": "바이크로 칼치기하며 달리는 게임",
     "thumbnail": "thumbs/bike_game_v1.svg",
     "url": "games/bike_game/index.html"
   }
 ]
-
-

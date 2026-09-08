@@ -1,31 +1,38 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>My Games</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <main class="wrap">
-      <section class="intro">
-        <p class="tag">INDIE GAME MAKER</p>
-        <h1>안녕하세요, 제가 만든 웹 게임 모음입니다.</h1>
-        <p>
-          가볍게 즐길 수 있는 미니 게임들을 직접 만들고 있습니다.
-          아래 썸네일을 누르면 바로 게임이 실행됩니다.
-        </p>
-      </section>
-
-      <section>
-        <h2>My Games</h2>
-        <div id="gameGrid" class="grid"></div>
-      </section>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101211">
+  <meta name="description" content="땅따먹기, 매치3 퍼즐, 벽돌깨기, 바이크 레이싱. gomoorae가 만든 웹 게임을 바로 플레이하세요.">
+  <title>My Games · gomoorae의 웹 아케이드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#games">게임 목록으로 건너뛰기</a>
+  <div class="wrap">
+    <header class="site-header">
+      <a class="brand" href="./index.html" aria-label="My Games 홈">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span>GOMOORAE<span class="brand-caption">INDEPENDENT WEB ARCADE</span></span>
+      </a>
+      <span class="header-note"><span class="status-dot" aria-hidden="true"></span>설치 없이, 바로 플레이</span>
+    </header>
+    <main id="games">
+      <div class="collection-heading">
+        <h1>MY GAMES<span class="title-period">.</span></h1>
+        <p class="collection-label">SELECT YOUR GAME <span aria-hidden="true">↙</span></p>
+      </div>
+      <div id="gameGrid" class="game-library" aria-busy="true">
+        <p class="load-state" role="status">게임 목록을 불러오는 중…</p>
+      </div>
+      <noscript><p class="load-state">게임 선택에는 JavaScript가 필요해요. <a href="games/neon_territory/index.html">NEON TERRITORY</a> · <a href="games/match3_puzzle/index.html">매치3 퍼즐</a> · <a href="games/brick_breaker/index.html">Brick Breaker</a> · <a href="games/bike_game/index.html">바이크 칼치기</a></p></noscript>
     </main>
-
-    <script src="app.js"></script>
-  </body>
+    <footer class="site-footer"><span>MY GAMES <span class="footer-divider">/</span> MADE BY GOMOORAE</span><span>한 판 더, 즐겁게.</span></footer>
+  </div>
+</body>
 </html>
