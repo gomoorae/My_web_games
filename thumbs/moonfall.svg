@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-labelledby="title desc">
+  <title id="title">월하무쌍</title>
+  <desc id="desc">큰 달 아래, 죽림의 무사가 은빛 검기로 몰려드는 적을 가르는 장면</desc>
+  <defs>
+    <linearGradient id="night" x2=".8" y2="1"><stop stop-color="#10242b"/><stop offset="1" stop-color="#080e17"/></linearGradient>
+    <radialGradient id="mist"><stop stop-color="#8bcdb7" stop-opacity=".2"/><stop offset="1" stop-color="#8bcdb7" stop-opacity="0"/></radialGradient>
+    <linearGradient id="moon" x2=".7" y2="1"><stop stop-color="#eff4d9"/><stop offset="1" stop-color="#94b8a8"/></linearGradient>
+    <linearGradient id="blade" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#75d6c1" stop-opacity="0"/><stop offset=".4" stop-color="#83d7c8"/><stop offset=".8" stop-color="#f1fff0"/><stop offset="1" stop-color="#f1fff0" stop-opacity=".12"/></linearGradient>
+    <linearGradient id="shade" x2="0" y2="1"><stop stop-color="#080e17" stop-opacity="0"/><stop offset="1" stop-color="#080e17" stop-opacity=".85"/></linearGradient>
+    <g id="bamboo" fill="none" stroke="#284237">
+      <path d="M0 400L12 32M22 400L34 91" stroke-width="5"/>
+      <path d="M8 115l10 1M6 195l10 1M3 276l10 1M28 198l10 1M25 283l10 1" stroke-width="2"/>
+      <path d="M9 124Q-16 75-42 82Q-7 87 9 124M10 116Q31 63 58 59Q35 84 10 116M28 209Q-7 164-27 171Q8 180 28 209M28 200Q63 145 79 153Q59 180 28 200" fill="#284237" stroke="none"/>
+    </g>
+    <g id="foe"><ellipse cy="25" rx="19" ry="6" fill="#030a0f" opacity=".7"/><path d="M-12 23L-8-4L0-11L9-4L14 23L3 17L-2 24Z" fill="#5e3c46"/><circle cy="-14" r="6" fill="#93545b"/><path d="M-13 2L-21 18M12 3L21 14" fill="none" stroke="#78515a" stroke-width="4"/><path d="M20 13L29-7" stroke="#d0877d" stroke-width="2"/></g>
+  </defs>
+  <rect width="640" height="400" fill="url(#night)"/>
+  <ellipse cx="375" cy="192" rx="310" ry="190" fill="url(#mist)"/>
+  <circle cx="396" cy="123" r="74" fill="url(#moon)"/>
+  <g fill="#668e83" opacity=".13"><circle cx="363" cy="94" r="21"/><circle cx="424" cy="143" r="27"/><circle cx="391" cy="164" r="12"/></g>
+  <path d="M0 252Q85 214 163 236T348 239T640 215V400H0Z" fill="#142b2b"/>
+  <path d="M0 295Q150 225 332 263T640 271V400H0Z" fill="#102123"/>
+  <g opacity=".68"><use href="#bamboo" x="24"/><use href="#bamboo" x="581"/><use href="#bamboo" x="80" transform="translate(15 80) scale(.8)"/><use href="#bamboo" x="595" transform="translate(0 50) scale(.9)"/></g>
+  <g opacity=".68"><use href="#foe" x="217" y="210"/><use href="#foe" x="289" y="166"/><use href="#foe" x="484" y="202"/><use href="#foe" x="532" y="273"/><use href="#foe" x="170" y="293"/><use href="#foe" x="251" y="338"/><use href="#foe" x="468" y="343"/></g>
+  <g fill="none" stroke="#45685c" stroke-opacity=".25"><ellipse cx="356" cy="284" rx="140" ry="44"/><ellipse cx="356" cy="284" rx="194" ry="66"/></g>
+  <path d="M228 305C431 359 535 227 474 163C524 244 398 293 228 305Z" fill="url(#blade)"/>
+  <path d="M233 299C406 329 520 240 477 172" fill="none" stroke="#befff0" stroke-opacity=".5" stroke-width="1.5"/>
+  <path d="M271 234C248 184 281 152 329 151C294 165 280 194 291 214Z" fill="url(#blade)" opacity=".5"/>
+  <ellipse cx="356" cy="289" rx="35" ry="10" fill="#03090d" opacity=".8"/>
+  <path d="M347 219L337 242L323 267L341 261L334 288L350 276L358 288L377 274L386 280L371 239L361 219Z" fill="#152334" stroke="#6d9292" stroke-width="1.3"/>
+  <path d="M350 227L345 251L370 247L362 225Z" fill="#bbcfc7"/>
+  <path d="M344 246L370 240L372 248L342 254Z" fill="#a2b18e"/>
+  <path d="M363 225L377 235L399 223" fill="none" stroke="#91b8b0" stroke-width="8" stroke-linecap="round"/>
+  <path d="M393 228L449 188L401 224Z" fill="#e9ffee"/>
+  <path d="M394 220L402 230" stroke="#ceb887" stroke-width="3"/>
+  <circle cx="354" cy="211" r="11" fill="#bac2ad"/>
+  <path d="M344 211Q336 192 355 195Q371 198 364 215L357 205Z" fill="#0c1621"/>
+  <path d="M347 201Q327 186 310 206Q329 195 344 208" fill="#0c1621"/>
+  <g fill="#d9f9de"><path d="M451 247l4-10l-1 11Z"/><path d="M430 270l9-3l-8 6Z"/><path d="M312 309l10 1l-8 2Z"/></g>
+  <rect y="302" width="640" height="98" fill="url(#shade)"/>
+  <g font-family="Georgia, 'Noto Serif KR', 'AppleMyungjo', serif">
+    <text x="41" y="69" fill="#dbe7ce" font-size="36" letter-spacing="5" font-weight="700">월하무쌍</text>
+    <text x="43" y="91" fill="#83ad9e" font-size="10" letter-spacing="4">MOONFALL</text>
+  </g>
+  <path d="M42 346H66" stroke="#b8cf92"/>
+  <text x="77" y="350" fill="#b5c6b9" font-family="Arial, sans-serif" font-size="11" letter-spacing="2">WUXIA SURVIVOR</text>
+  <text x="597" y="350" text-anchor="end" fill="#b5c6b9" font-family="Arial, sans-serif" font-size="10" letter-spacing="1.5">3 STAGES · 6 MIN</text>
+</svg>

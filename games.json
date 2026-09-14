@@ -9,6 +9,13 @@
     "featured": true
   },
   {
+    "title": "월하무쌍",
+    "category": "SURVIVOR · 무협 액션",
+    "description": "검기와 비도를 엮어 몰려드는 적을 돌파하세요. 세 전장, 여섯 합성 비기, 6분의 생존. PC 키보드로 플레이합니다.",
+    "thumbnail": "thumbs/moonfall.svg",
+    "url": "games/moonfall/index.html"
+  },
+  {
     "title": "매치3 퍼즐",
     "category": "PUZZLE",
     "description": "같은 블록을 3개 이상 맞춰 터뜨리는 퍼즐 게임",
