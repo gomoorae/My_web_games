@@ -24,6 +24,8 @@
     h1 { font-size:19px; letter-spacing:.13em; margin:0; font-family:"AppleMyungjo","Noto Serif KR",serif; }
     .edition { display:block; color:var(--muted); font-size:10px; font-weight:400; letter-spacing:.2em; line-height:1.2; }
     .pc { color:var(--muted); font-size:12px; }
+    .mobile-link { color:#b9f0dc; border:1px solid #639980; border-radius:6px; padding:7px 12px; font-weight:700; white-space:nowrap; }
+    .mobile-link:hover { background:#203e32; }
     .quiet { color:var(--text); background:transparent; border:1px solid var(--line); border-radius:6px; padding:7px 12px; white-space:nowrap; }
     .quiet:hover { background:#24322a; border-color:#698a78; }
     .arena { position:relative; width:100%; height:min(62.5vw,calc(100svh - 162px)); min-height:360px; overflow:hidden; background:#070e12; border:1px solid var(--line); border-radius:9px; }
@@ -37,10 +39,13 @@
     .lede { color:#c0d1c5; margin:0 auto 22px; font-size:15px; line-height:1.9; text-wrap:balance; }
     .facts { display:flex; justify-content:center; flex-wrap:wrap; gap:8px 20px; margin:0 0 30px; color:#c4cbbc; font-size:12px; }
     .facts span + span::before { content:"·"; margin-right:20px; color:#667d70; }
-    .start { border:1px solid #b9dbc1; border-radius:6px; background:#d2ebcc; color:#15271e; padding:13px 40px; font-weight:700; font-size:16px; box-shadow:0 6px 28px #0004; }
+    .platform-choices { display:flex; justify-content:center; flex-wrap:wrap; gap:12px; }
+    .start,.mobile-start { display:inline-flex; align-items:center; justify-content:center; min-width:190px; min-height:52px; border-radius:6px; padding:13px 22px; font-weight:700; font-size:16px; box-shadow:0 6px 28px #0004; }
+    .start { border:1px solid #b9dbc1; background:#d2ebcc; color:#15271e; }
     .start:hover { background:#e1f4d9; }
+    .mobile-start { border:1px solid #8ee7c7; background:#1b5945; color:#ecfff5; }
+    .mobile-start:hover { background:#26765a; }
     .download { color:#a5b5ab; margin:17px auto 0; max-width:410px; font-size:12px; }
-    .mobile-note { display:none; color:#dec49e; font-size:12px; margin:14px 0 0; }
     .underbar { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:48px; }
     #status { margin:0; color:var(--muted); font-size:12px; }
     .reload { border:0; padding:6px 0 6px 12px; background:none; color:var(--muted); font-size:12px; white-space:nowrap; }
@@ -61,13 +66,13 @@
     .keys dd { margin:0; color:#dce7dc; font-size:12px; text-align:right; }
     kbd { font:inherit; white-space:nowrap; }
     .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-    @media (pointer:coarse) { .mobile-note { display:block; } }
     @media (max-width:760px) {
       .shell { width:calc(100% - 24px); } header { min-height:68px; gap:10px; }
       .identity { gap:12px; } .actions { gap:10px; } .pc,.quick { display:none; }
       .arena { height:65svh; min-height:400px; } .cover { padding:22px; } .guide { grid-template-columns:1fr; }
       h1 { font-size:17px; } .back { font-size:12px; } .quiet { font-size:12px; padding:6px 9px; }
-      .mobile-note { display:block; } .lede { font-size:14px; } .facts { gap:7px 14px; margin-bottom:24px; }
+      .lede { font-size:14px; } .facts { gap:7px 14px; margin-bottom:24px; }
+      .platform-choices { flex-direction:column; } .mobile-start { order:-1; }
       .facts span + span::before { margin-right:14px; } .underbar { align-items:flex-start; padding:10px 0; }
     }
     @media (max-width:390px) { .divider,.edition { display:none; } .facts { font-size:11px; } .keys { gap:8px 16px; } }
@@ -81,7 +86,7 @@
         <span class="divider" aria-hidden="true"></span>
         <h1>월하무쌍<span class="edition">MOONFALL</span></h1>
       </div>
-      <div class="actions"><span class="pc">PC · 키보드 플레이</span><button class="quiet" id="fullscreen" type="button">전체 화면 ↗</button></div>
+      <div class="actions"><a class="mobile-link" href="../moonfall-mobile/">📱 모바일판</a><button class="quiet" id="fullscreen" type="button">전체 화면 ↗</button></div>
     </header>
     <main>
       <div class="arena" id="arena" aria-label="월하무쌍 게임 화면">
@@ -91,10 +96,12 @@
             <h2>월하무쌍</h2>
             <p class="lede">달 아래 쏟아지는 검기, 끝없이 몰려오는 적.<br>6분을 버티고 마지막 고수를 쓰러뜨리세요.</p>
             <p class="facts"><span>서로 다른 세 전장</span><span>여덟 기본 무공</span><span>아홉 합성 비기</span></p>
-            <button class="start" id="start" type="button">게임 시작 →</button>
+            <div class="platform-choices">
+              <button class="start" id="start" type="button">PC에서 시작 →</button>
+              <a class="mobile-start" href="../moonfall-mobile/">📱 모바일판 시작 →</a>
+            </div>
             <p class="download" id="download">처음 시작하면 약 77MB의 게임 파일을 내려받습니다.<br>연결 속도에 따라 잠시 걸릴 수 있어요.</p>
-            <p class="mobile-note">휴대폰에서는 <a href="../moonfall-mobile/" style="text-decoration:underline">모바일 시험판</a>을 이용해 주세요.</p>
-            <noscript><p class="mobile-note" style="display:block">게임을 시작하려면 브라우저의 JavaScript를 켜 주세요.</p></noscript>
+            <noscript><p class="download">PC 게임을 시작하려면 브라우저의 JavaScript를 켜 주세요.</p></noscript>
           </div>
         </div>
       </div>
@@ -109,6 +116,7 @@
             <p><strong>Enter → 전장 선택 → 시작 무공 선택 → Enter</strong>로 출전합니다. 월하정원·청죽림·적염관 모두 처음부터 열려 있습니다.</p>
             <p>공격은 자동입니다. 경험치를 모으며 무공을 강화하세요. 재료 무공 두 개를 모두 5단계로 완성한 뒤 수련에서 <strong>합성 카드</strong>를 고르면 비기가 추가됩니다. 조합은 Tab으로 열고 좌우 키로 넘겨 확인하세요.</p>
             <p><strong>1.5.1 보상 조정</strong> · 일반 적의 영약과 흡성 출현을 줄이고, 전투 후반에는 더 드물게 했습니다. 고수를 쓰러뜨리면 영약과 흡성을 모두 얻습니다.</p>
+            <p><strong>1.5.2 모바일 조작</strong> · 모바일판에서는 이동 패드를 살짝 밀어도 그 방향으로 최대 속도로 움직입니다. 위쪽의 모바일판 버튼이나 시작 화면에서 바로 열 수 있습니다.</p>
             <p>영약 생성 확률이 3분부터 서서히 낮아져 6분에는 시작 때의 절반이 됩니다. 영약 하나는 기혈 28을 회복합니다.</p>
             <p>키가 반응하지 않으면 게임 화면을 클릭하세요. 다른 창으로 나가면 전투가 멈추며 <strong>Esc 또는 계속</strong>으로 재개합니다. 비급을 닫은 뒤에도 일시정지를 풀어 주세요.</p>
             <p>화면이 멈추거나 시작되지 않으면 연결을 확인하고 <strong>다시 불러오기</strong>를 눌러 주세요. 진행 중인 전투는 처음부터 시작합니다. 일시정지 메뉴에서 화면 효과를 줄일 수 있습니다.</p>
