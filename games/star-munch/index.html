@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eaf3ed">
+  <meta name="description" content="별을 냠, 하늘로 폴짝! 키보드로 즐기는 별 수집 상승 게임, 별냠.">
+  <title>별냠 · Star Munch</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='20' fill='%232c6c62'/%3E%3Cpath d='m32 9 7 15 17 3-12 12 3 17-15-8-15 8 3-17L8 27l17-3Z' fill='%23ffdc77'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="masthead">
+      <a class="brand" href="#" aria-label="별냠 처음 화면" id="home-button"><span class="brand-mark" aria-hidden="true">✦</span><span>별냠<small>STAR MUNCH</small></span></a>
+      <div class="header-note">별을 냠, 하늘로 폴짝.</div>
+      <div class="header-actions">
+        <a class="icon-button" id="arcade-link" href="https://gomoorae.github.io/My_web_games/" aria-label="게임 목록으로" title="게임 목록으로"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 5-7 7 7 7M3 12h18"/></svg></a>
+        <div class="record"><span>최고 높이</span><strong id="best-height">0<small> m</small></strong></div>
+        <button class="icon-button" id="sound-button" aria-label="소리 끄기" title="소리 끄기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/><path class="sound-wave" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/><path class="sound-slash" d="m15 9 6 6m0-6-6 6"/></svg></button>
+        <button class="icon-button" id="pause-button" aria-label="일시정지" title="일시정지 (Esc)" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="game-shell" aria-label="별냠 게임">
+        <div class="stage" id="stage" data-phase="ready">
+          <canvas id="game" tabindex="0" aria-label="별냠 게임 화면. A와 D 또는 방향키로 이동, 스페이스로 충전 도약, Esc로 일시정지."></canvas>
+          <div class="hud" id="hud" aria-hidden="true">
+            <div class="altitude"><span id="zone-name">구름 정원</span><div><strong id="height">0</strong><span>m</span></div></div>
+            <div class="star-count"><span>✦</span><strong id="stars">0</strong></div>
+          </div>
+          <div class="effects-hud" id="effects-hud" aria-hidden="true"></div>
+          <div class="toast" id="toast" role="status" aria-live="polite"></div>
+          <div class="charge-hud" id="charge-hud" aria-hidden="true"><div class="charge-label"><span id="charge-label">도약 준비 완료</span><kbd>SPACE</kbd></div><div class="charge-dots" id="charge-dots"></div></div>
+          <div class="screen-overlay" id="start-screen">
+            <div class="intro panel">
+              <div class="eyebrow">A LITTLE HIGHER, A LITTLE HAPPIER</div>
+              <img class="intro-hero" src="assets/hero.webp" alt="두 팔과 두 다리, 청록색 스카프를 가진 노란 별 토끼" width="138" height="138">
+              <h1>한 입 더,<br>한 뼘 높이.</h1>
+              <p>별 하나 먹고, 크게 폴짝!<br>공중에서 다음 별을 골라요.</p>
+              <button class="primary-button" id="start-button" disabled>준비하는 중…</button>
+              <div class="start-hint"><span class="desktop-hint"><kbd>←</kbd> <kbd>→</kbd> 이동 · <kbd>SPACE</kbd> 도약</span><span class="touch-hint">아래 방향 버튼으로 이동 · ✦ 버튼으로 도약</span></div>
+            </div>
+          </div>
+          <div class="screen-overlay" id="pause-screen" hidden>
+            <div class="panel pause-panel"><span class="panel-symbol">☁</span><div class="eyebrow">TAKE A LITTLE BREATH</div><h2>구름 위에서 쉬는 중</h2><p>준비되면 별길을 이어 가요.</p><button class="primary-button" id="resume-button">계속 날아가기 <span>↗</span></button><button class="text-button" id="pause-restart-button">처음부터 다시</button></div>
+          </div>
+          <div class="screen-overlay" id="over-screen" hidden>
+            <div class="panel result-panel"><div class="eyebrow" id="result-eyebrow">A LOVELY LITTLE FLIGHT</div><h2 id="result-title">멋진 비행이었어요!</h2><div class="result-height"><strong id="result-height">0</strong><span>m</span></div><p id="result-tip">별을 먹으면 다시 떠올라요.</p><div class="result-stats"><div><span>모은 별</span><strong id="result-stars">0</strong></div><div><span>점수</span><strong id="result-score">0</strong></div><div><span>최고 높이</span><strong id="result-best">0 m</strong></div></div><button class="primary-button" id="restart-button">한 번 더 날아가기 <span>↗</span></button><div class="result-key desktop-hint"><kbd>R</kbd> 또는 <kbd>SPACE</kbd> 다시 시작</div></div>
+          </div>
+          <div class="touch-controls" id="touch-controls" aria-label="터치 조작">
+            <div class="direction-controls"><button id="touch-left" aria-label="왼쪽 이동">←</button><button id="touch-right" aria-label="오른쪽 이동">→</button></div><button id="touch-jump" class="touch-jump" aria-label="충전 도약"><span>✦</span><small>도약</small></button>
+          </div>
+          <div class="stage-corner" aria-hidden="true">CLOUD GARDEN <span>01</span></div>
+        </div>
+        <div class="game-footer"><span><i></i> 별 하나, 큰 도약. 부스트에선 별줄을 쭉!</span><span class="desktop-hint"><kbd>ESC</kbd> 잠깐 쉬기 <span class="footer-separator">/</span> <kbd>R</kbd> 다시 시작</span></div>
+      </section>
+
+      <aside class="flight-guide" aria-label="게임 방법">
+        <div class="guide-top"><span class="eyebrow">YOUR FIRST FLIGHT</span><span class="guide-number">01 / 03</span></div>
+        <h2>별 하나를 먹고,<br>다음 별로 폴짝.</h2>
+        <p class="guide-intro">흩어진 별 사이를 크게 도약해요.<br>공중에서 다음 목표를 골라 보세요.</p>
+        <div class="guide-rule"></div>
+        <div class="control-row"><div class="key-pair"><kbd>A</kbd><kbd>D</kbd></div><div><strong>좌우로 사뿐</strong><span>방향키 ← →도 사용할 수 있어요</span></div></div>
+        <div class="control-row"><kbd class="space-key">SPACE</kbd><div><strong>놓쳤을 땐 한 번 더!</strong><span>별 8개마다 충전 도약 한 번</span></div></div>
+        <div class="guide-rule"></div>
+        <span class="eyebrow item-eyebrow">하늘에서 만나는 선물</span>
+        <ul class="item-list">
+          <li><span class="item-icon comet-icon">✦</span><div><strong>별똥별 부스트</strong><span>빠르게 올라가며 별줄로 직접 이동해요</span></div></li>
+          <li><span class="item-icon shield-icon">◇</span><div><strong>포근한 보호막</strong><span>먹구름 충돌을 한 번 막아 줘요</span></div></li>
+        </ul>
+        <div class="guide-tip"><span>✧</span><p>큰 별은 3개 값. 높이 갈수록<br>먹구름이 많아지고 움직여요.</p></div>
+        <div class="guide-bottom">조금 더 높이, 조금 더 멀리.<span>✦</span></div>
+      </aside>
+    </main>
+    <footer class="page-footer"><span>별냠 <span class="footer-dot">·</span> STAR MUNCH</span><span>별 하나, 큰 도약 <span class="footer-dot">·</span> v0.3.0</span></footer>
+  </div>
+  <script src="src/engine.js"></script>
+  <script src="src/game.js"></script>
+</body>
+</html>

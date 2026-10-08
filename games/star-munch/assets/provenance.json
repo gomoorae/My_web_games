@@ -1,0 +1,10 @@
+{
+  "created": "2026-10-08",
+  "tool": "OpenAI built-in image_gen",
+  "usage": "Original Star Munch character designed in this chat; reused with user approval for the game.",
+  "character": "Cream-yellow star spirit, teal neckerchief, large head, two arms and two legs.",
+  "atlas": "12 poses: idle, blink, drift A/B, crouch, takeoff, apex, fall, boost anticipation, launch, cruise A/B.",
+  "source_character": "exec-dc3c1d77-a122-4a2d-a591-919456469426.png",
+  "source_atlas": "exec-79bc79b8-caea-4e23-be03-27089e941a03.png",
+  "encoding": "Lossless WebP; original pixel and alpha equality verified in the concept stage."
+}

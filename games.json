@@ -1,12 +1,20 @@
 [
   {
+    "title": "별냠 · STAR MUNCH",
+    "description": "별 하나 먹고 크게 폴짝! 흩어진 별을 골라 도약하고, 부스트로 별줄을 쓸어 담으며 더 높은 하늘에 도전하세요.",
+    "thumbnail": "thumbs/star-munch.svg",
+    "url": "games/star-munch/index.html",
+    "category": "JUMP · 별 수집",
+    "detail": "KEYBOARD + TOUCH",
+    "featured": true
+  },
+  {
     "title": "NEON TERRITORY",
     "description": "선을 잇고, 나만의 영역을 넓혀봐. 적의 움직임을 피해 10개의 스테이지를 돌파하는 땅따먹기.",
     "thumbnail": "thumbs/neon_territory.svg",
     "url": "games/neon_territory/index.html",
     "category": "TERRITORY · 땅따먹기",
-    "detail": "10 STAGES",
-    "featured": true
+    "detail": "10 STAGES"
   },
   {
     "title": "월하무쌍",

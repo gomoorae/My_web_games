@@ -1,9 +1,10 @@
 # My Games
 
-gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 페이지에서 게임을 선택하면 바로 이동합니다. NEON TERRITORY를 상단에 소개하고 월하무쌍과 기존 게임은 아래 카드로 제공합니다.
+gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 페이지에서 게임을 선택하면 바로 이동합니다. 별냠을 상단에 소개하고 NEON TERRITORY, 월하무쌍과 기존 게임은 아래 카드로 제공합니다.
 
 | 게임 | 경로 |
 |---|---|
+| 별냠 · 별 수집 도약 게임 | [게임](games/star-munch/index.html) · [규칙과 소스 안내](games/star-munch/README.md) |
 | NEON TERRITORY · 10스테이지 땅따먹기 | [게임](games/neon_territory/index.html) · [규칙과 조작](games/neon_territory/README.md) |
 | 월하무쌍 · 세 전장의 무협 생존 액션 | [게임과 조작 안내](games/moonfall/index.html) |
 | 매치3 퍼즐 | [게임](games/match3_puzzle/index.html) |
@@ -11,6 +12,14 @@ gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 
 | 바이크 칼치기 | [게임](games/bike_game/index.html) |
 
 각 게임의 메인으로/게임 목록으로 링크로 돌아올 수 있습니다.
+
+## 별냠
+
+별 하나를 먹고 크게 도약해 다음 별로 건너가는 상승 게임입니다. 부스트를 얻으면 같은 하늘을 빠르게 올라가며, 좌우로 직접 별줄에 진입해 연속 수집합니다. 높이에 따라 먹구름이 늘고 움직이기 시작합니다.
+
+**[별냠 플레이](https://gomoorae.github.io/My_web_games/games/star-munch/)** — A/D 또는 방향키로 이동, Space로 충전 도약, Esc로 일시정지, R로 다시 시작합니다. 휴대폰에는 터치 버튼을 제공합니다. 현재 버전은 **0.3.0**입니다.
+
+`games/star-munch/`에 게임 소스, 그림, 빌드·검사 스크립트를 함께 보관합니다. 해당 폴더에서 `node scripts/build.cjs`를 실행하면 오프라인 실행용 단일 HTML을 만들 수 있습니다.
 
 ## 월하무쌍
 

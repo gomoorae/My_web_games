@@ -1,0 +1,11 @@
+{
+  "name": "star-munch",
+  "version": "0.3.0",
+  "private": true,
+  "description": "별냠 — PC 우선 별 수집 상승 게임",
+  "scripts": {
+    "test": "node --test tests/engine.test.cjs",
+    "build": "node scripts/build.cjs",
+    "start": "python3 scripts/serve.py"
+  }
+}
