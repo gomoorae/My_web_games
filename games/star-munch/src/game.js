@@ -15,7 +15,10 @@
   let toastUntil = 0, toastPriority = 0, lastMilestone = 0;
   let particles = [], floatingLabels = [], trail = [], rings = [];
   let queuedJump = false, touchDetected = matchMedia('(pointer: coarse)').matches;
-  const keys = new Set(), touchDirections = new Map();
+  const keys = new Set(), jumpPointers = new Set();
+  const stick = { pointerId: null, axis: 0, centerX: 0, travel: 0 };
+  const stickPad = $('touch-stick'), jumpButton = $('touch-jump');
+  const STICK_DEAD_ZONE = 6; // CSS pixels; a small tilt always means full directional input.
   let best = { height: 0, score: 0, flights: 0 }, muted = false;
   try {
     const record = JSON.parse(localStorage.getItem('star-munch-record-v1') || '{}');
@@ -82,13 +85,25 @@
     $('toast').textContent = text; $('toast').classList.add('visible');
     toastUntil = world.time + duration; toastPriority = priority;
   }
+  function resetStick() {
+    const pointerId = stick.pointerId;
+    stick.pointerId = null; stick.axis = 0;
+    stickPad.classList.remove('pressed'); stickPad.dataset.direction = 'neutral';
+    stickPad.style.setProperty('--stick-x', '0px');
+    if (pointerId !== null && stickPad.hasPointerCapture(pointerId)) stickPad.releasePointerCapture(pointerId);
+  }
+  function clearTouchInputs() {
+    resetStick();
+    const pointers = [...jumpPointers]; jumpPointers.clear();
+    jumpButton.classList.remove('pressed');
+    for (const id of pointers) if (jumpButton.hasPointerCapture(id)) jumpButton.releasePointerCapture(id);
+  }
   function clearInputs() {
-    keys.clear(); touchDirections.clear(); queuedJump = false;
-    document.querySelectorAll('.touch-controls .pressed').forEach(button => button.classList.remove('pressed'));
+    keys.clear(); clearTouchInputs(); queuedJump = false;
   }
   function getAxis() {
     let left = keys.has('ArrowLeft') || keys.has('KeyA'), right = keys.has('ArrowRight') || keys.has('KeyD');
-    for (const dir of touchDirections.values()) { if (dir < 0) left = true; if (dir > 0) right = true; }
+    if (stick.axis < 0) left = true; if (stick.axis > 0) right = true;
     return Number(right) - Number(left);
   }
   function syncPhase() {
@@ -109,7 +124,7 @@
     sound.unlock();
     if (world.phase === 'playing' || world.phase === 'paused') saveRecord();
     // Retain keyboard directions held through takeoff; jump is an independent input.
-    touchDirections.clear(); queuedJump = false;
+    clearTouchInputs(); queuedJump = false;
     particles = []; floatingLabels = []; trail = []; rings = [];
     accumulator = 0; shake = 0; toastUntil = 0; toastPriority = 0; lastMilestone = 0;
     previousBest = best.height;
@@ -173,20 +188,43 @@
       touchDetected = true; document.body.classList.add('touch-enabled');
     }
   }, { passive: true });
-  function bindTouch(button, direction) {
-    button.addEventListener('pointerdown', event => {
-      event.preventDefault(); if (world.phase !== 'playing') return;
-      button.setPointerCapture(event.pointerId); button.classList.add('pressed');
-      if (direction) touchDirections.set(event.pointerId, direction); else requestLeap();
-    });
-    const release = event => {
-      touchDirections.delete(event.pointerId); button.classList.remove('pressed');
-    };
-    button.addEventListener('pointerup', release);
-    button.addEventListener('pointercancel', release);
-    button.addEventListener('lostpointercapture', release);
+  function moveStick(event) {
+    if (event.pointerId !== stick.pointerId) return;
+    const dx = event.clientX - stick.centerX;
+    stick.axis = Math.abs(dx) < STICK_DEAD_ZONE ? 0 : Math.sign(dx);
+    stickPad.dataset.direction = stick.axis < 0 ? 'left' : stick.axis > 0 ? 'right' : 'neutral';
+    stickPad.style.setProperty('--stick-x', `${clamp(dx, -stick.travel, stick.travel)}px`);
   }
-  bindTouch($('touch-left'), -1); bindTouch($('touch-right'), 1); bindTouch($('touch-jump'), 0);
+  stickPad.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    if (world.phase !== 'playing' || stick.pointerId !== null || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    const rect = stickPad.getBoundingClientRect();
+    stick.pointerId = event.pointerId; stick.centerX = rect.left + rect.width / 2;
+    stick.travel = Math.min(30, rect.height * .25);
+    stickPad.setPointerCapture(event.pointerId); stickPad.classList.add('pressed');
+    moveStick(event);
+  });
+  stickPad.addEventListener('pointermove', moveStick);
+  const releaseStick = event => { if (event.pointerId === stick.pointerId) resetStick(); };
+  for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) stickPad.addEventListener(type, releaseStick);
+  jumpButton.addEventListener('pointerdown', event => {
+    event.preventDefault(); if (world.phase !== 'playing') return;
+    jumpPointers.add(event.pointerId); jumpButton.setPointerCapture(event.pointerId);
+    jumpButton.classList.add('pressed'); requestLeap();
+  });
+  const releaseJump = event => {
+    jumpPointers.delete(event.pointerId);
+    jumpButton.classList.toggle('pressed', jumpPointers.size > 0);
+  };
+  for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) jumpButton.addEventListener(type, releaseJump);
+  $('touch-controls').addEventListener('contextmenu', event => event.preventDefault());
+  let touchViewportWidth = innerWidth;
+  window.addEventListener('resize', () => {
+    // Rotation changes the pad's horizontal anchor; a collapsing browser
+    // address bar changes only height and must not interrupt the held stick.
+    if (innerWidth !== touchViewportWidth) { clearTouchInputs(); queuedJump = false; }
+    touchViewportWidth = innerWidth;
+  });
 
   function burst(x, y, color, count = 8, intensity = 1) {
     for (let i = 0; i < count; i++) {
@@ -488,7 +526,7 @@
   // Read/write harness is only exposed in an explicitly requested local QA session.
   if (new URLSearchParams(location.search).has('test')) {
     window.__starMunchTest = {
-      get world() { return world; }, get controls() { return { axis: getAxis(), keys: [...keys], touches: [...touchDirections] }; },
+      get world() { return world; }, get controls() { return { axis: getAxis(), keys: [...keys], touches: stick.pointerId === null ? [] : [[stick.pointerId, stick.axis]] }; },
       get snapshot() { return { phase: world.phase, height: world.height, score: world.score, stars: world.stars, time: world.time, player: { ...world.player }, animation: world.animation(), best: { ...best } }; },
       start: newFlight, pause, resume, sync: () => { syncPhase(); updateHUD(); render(); },
       emit: processEvents,
