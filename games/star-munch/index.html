@@ -7,7 +7,7 @@
   <meta name="description" content="별을 냠, 하늘로 폴짝! 키보드로 즐기는 별 수집 상승 게임, 별냠.">
   <title>별냠 · Star Munch</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='20' fill='%232c6c62'/%3E%3Cpath d='m32 9 7 15 17 3-12 12 3 17-15-8-15 8 3-17L8 27l17-3Z' fill='%23ffdc77'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="src/style.css?v=0.3.1">
+  <link rel="stylesheet" href="src/style.css?v=0.3.2">
 </head>
 <body>
   <div class="app">
@@ -32,7 +32,7 @@
           </div>
           <div class="effects-hud" id="effects-hud" aria-hidden="true"></div>
           <div class="toast" id="toast" role="status" aria-live="polite"></div>
-          <div class="charge-hud" id="charge-hud" aria-hidden="true"><div class="charge-label"><span id="charge-label">도약 준비 완료</span><kbd>SPACE</kbd></div><div class="charge-dots" id="charge-dots"></div></div>
+          <div class="charge-hud" id="charge-hud"><div class="charge-label"><span id="charge-label">도약 준비 완료</span><kbd>SPACE</kbd></div><div class="charge-dots" id="charge-dots" aria-hidden="true"></div><small class="touch-hint">양쪽 함께 · 여기를 눌러도 도약</small><button type="button" id="touch-jump" aria-label="충전 도약 사용"></button></div>
           <div class="screen-overlay" id="start-screen">
             <div class="intro panel">
               <div class="eyebrow">A LITTLE HIGHER, A LITTLE HAPPIER</div>
@@ -40,7 +40,7 @@
               <h1>한 입 더,<br>한 뼘 높이.</h1>
               <p>별 하나 먹고, 크게 폴짝!<br>공중에서 다음 별을 골라요.</p>
               <button class="primary-button" id="start-button" disabled>준비하는 중…</button>
-              <div class="start-hint"><span class="desktop-hint"><kbd>←</kbd> <kbd>→</kbd> 이동 · <kbd>SPACE</kbd> 도약</span><span class="touch-hint">조이스틱을 좌우로 살짝 · ✦ 버튼으로 도약</span></div>
+              <div class="start-hint"><span class="desktop-hint"><kbd>←</kbd> <kbd>→</kbd> 이동 · <kbd>SPACE</kbd> 도약</span><span class="touch-hint">화면 왼쪽·오른쪽을 눌러 이동<br>양쪽을 함께 누르면 도약</span></div>
             </div>
           </div>
           <div class="screen-overlay" id="pause-screen" hidden>
@@ -49,8 +49,9 @@
           <div class="screen-overlay" id="over-screen" hidden>
             <div class="panel result-panel"><div class="eyebrow" id="result-eyebrow">A LOVELY LITTLE FLIGHT</div><h2 id="result-title">멋진 비행이었어요!</h2><div class="result-height"><strong id="result-height">0</strong><span>m</span></div><p id="result-tip">별을 먹으면 다시 떠올라요.</p><div class="result-stats"><div><span>모은 별</span><strong id="result-stars">0</strong></div><div><span>점수</span><strong id="result-score">0</strong></div><div><span>최고 높이</span><strong id="result-best">0 m</strong></div></div><button class="primary-button" id="restart-button">한 번 더 날아가기 <span>↗</span></button><div class="result-key desktop-hint"><kbd>R</kbd> 또는 <kbd>SPACE</kbd> 다시 시작</div></div>
           </div>
-          <div class="touch-controls" id="touch-controls" aria-label="터치 조작">
-            <div id="touch-stick" class="touch-stick" role="group" aria-label="좌우 이동 조이스틱. 가운데에서 좌우로 살짝 밀어 이동하고 손을 떼면 멈춥니다." data-direction="neutral"><span class="stick-base" aria-hidden="true"><span class="stick-arrow stick-left">‹</span><span class="stick-arrow stick-right">›</span><span class="stick-knob"><i></i></span></span><span class="stick-caption" aria-hidden="true">좌우로 살짝</span></div><button id="touch-jump" class="touch-jump" aria-label="충전 도약"><span>✦</span><small>도약</small></button>
+          <div class="touch-controls" id="touch-controls" role="group" aria-label="화면 양쪽으로 이동. 한쪽을 누른 채 반대쪽도 누르면 도약합니다." data-direction="neutral">
+            <button type="button" id="touch-left" class="touch-half touch-left" aria-label="화면 왼쪽을 누르는 동안 왼쪽 이동" aria-pressed="false" tabindex="-1"><span aria-hidden="true">‹<small>왼쪽</small></span></button>
+            <button type="button" id="touch-right" class="touch-half touch-right" aria-label="화면 오른쪽을 누르는 동안 오른쪽 이동" aria-pressed="false" tabindex="-1"><span aria-hidden="true">›<small>오른쪽</small></span></button>
           </div>
           <div class="stage-corner" aria-hidden="true">CLOUD GARDEN <span>01</span></div>
         </div>
@@ -74,9 +75,9 @@
         <div class="guide-bottom">조금 더 높이, 조금 더 멀리.<span>✦</span></div>
       </aside>
     </main>
-    <footer class="page-footer"><span>별냠 <span class="footer-dot">·</span> STAR MUNCH</span><span>별 하나, 큰 도약 <span class="footer-dot">·</span> v0.3.1</span></footer>
+    <footer class="page-footer"><span>별냠 <span class="footer-dot">·</span> STAR MUNCH</span><span>별 하나, 큰 도약 <span class="footer-dot">·</span> v0.3.2</span></footer>
   </div>
-  <script src="src/engine.js?v=0.3.1"></script>
-  <script src="src/game.js?v=0.3.1"></script>
+  <script src="src/engine.js?v=0.3.2"></script>
+  <script src="src/game.js?v=0.3.2"></script>
 </body>
 </html>

@@ -15,10 +15,10 @@
   let toastUntil = 0, toastPriority = 0, lastMilestone = 0;
   let particles = [], floatingLabels = [], trail = [], rings = [];
   let queuedJump = false, touchDetected = matchMedia('(pointer: coarse)').matches;
-  const keys = new Set(), jumpPointers = new Set();
-  const stick = { pointerId: null, axis: 0, centerX: 0, travel: 0 };
-  const stickPad = $('touch-stick'), jumpButton = $('touch-jump');
-  const STICK_DEAD_ZONE = 6; // CSS pixels; a small tilt always means full directional input.
+  const keys = new Set(), touchPointers = new Map(), jumpPointers = new Set();
+  const touchControls = $('touch-controls'), jumpButton = $('touch-jump');
+  let chordStartedAt = null, chordFired = false;
+  const CHORD_DELAY = 100; // Ignore brief thumb overlap when changing direction.
   let best = { height: 0, score: 0, flights: 0 }, muted = false;
   try {
     const record = JSON.parse(localStorage.getItem('star-munch-record-v1') || '{}');
@@ -29,7 +29,11 @@
   const chargeDots = Array.from({ length: C.chargeMax }, () => {
     const dot = document.createElement('i'); $('charge-dots').appendChild(dot); return dot;
   });
-  document.body.classList.toggle('touch-enabled', touchDetected);
+  function syncTouchMode() {
+    document.body.classList.toggle('touch-enabled', touchDetected);
+    jumpButton.tabIndex = touchDetected ? 0 : -1;
+  }
+  syncTouchMode();
 
   class Sound {
     constructor() { this.context = null; this.lastCoin = -1; }
@@ -85,15 +89,28 @@
     $('toast').textContent = text; $('toast').classList.add('visible');
     toastUntil = world.time + duration; toastPriority = priority;
   }
-  function resetStick() {
-    const pointerId = stick.pointerId;
-    stick.pointerId = null; stick.axis = 0;
-    stickPad.classList.remove('pressed'); stickPad.dataset.direction = 'neutral';
-    stickPad.style.setProperty('--stick-x', '0px');
-    if (pointerId !== null && stickPad.hasPointerCapture(pointerId)) stickPad.releasePointerCapture(pointerId);
+  function touchAxis() {
+    // Keep the first held direction when the other thumb joins for a leap.
+    return touchPointers.values().next().value ?? 0;
+  }
+  function syncTouchControls() {
+    const directions = [...touchPointers.values()];
+    const left = directions.includes(-1), right = directions.includes(1);
+    for (const [id, pressed] of [['touch-left', left], ['touch-right', right]]) {
+      $(id).classList.toggle('pressed', pressed);
+      $(id).setAttribute('aria-pressed', String(pressed));
+    }
+    touchControls.dataset.direction = touchAxis() < 0 ? 'left' : touchAxis() > 0 ? 'right' : 'neutral';
+    $('charge-hud').classList.toggle('chord-held', left && right);
+    if (left && right) {
+      if (chordStartedAt === null) chordStartedAt = performance.now();
+    } else {
+      chordStartedAt = null; chordFired = false;
+    }
   }
   function clearTouchInputs() {
-    resetStick();
+    const directions = [...touchPointers.keys()]; touchPointers.clear(); syncTouchControls();
+    for (const id of directions) if (touchControls.hasPointerCapture(id)) touchControls.releasePointerCapture(id);
     const pointers = [...jumpPointers]; jumpPointers.clear();
     jumpButton.classList.remove('pressed');
     for (const id of pointers) if (jumpButton.hasPointerCapture(id)) jumpButton.releasePointerCapture(id);
@@ -103,7 +120,7 @@
   }
   function getAxis() {
     let left = keys.has('ArrowLeft') || keys.has('KeyA'), right = keys.has('ArrowRight') || keys.has('KeyD');
-    if (stick.axis < 0) left = true; if (stick.axis > 0) right = true;
+    if (touchAxis() < 0) left = true; if (touchAxis() > 0) right = true;
     return Number(right) - Number(left);
   }
   function syncPhase() {
@@ -185,30 +202,33 @@
   document.addEventListener('visibilitychange', () => { if (document.hidden) { clearInputs(); pause(); } });
   window.addEventListener('pointerdown', event => {
     if (event.pointerType === 'touch' && !touchDetected) {
-      touchDetected = true; document.body.classList.add('touch-enabled');
+      touchDetected = true; syncTouchMode();
     }
   }, { passive: true });
-  function moveStick(event) {
-    if (event.pointerId !== stick.pointerId) return;
-    const dx = event.clientX - stick.centerX;
-    stick.axis = Math.abs(dx) < STICK_DEAD_ZONE ? 0 : Math.sign(dx);
-    stickPad.dataset.direction = stick.axis < 0 ? 'left' : stick.axis > 0 ? 'right' : 'neutral';
-    stickPad.style.setProperty('--stick-x', `${clamp(dx, -stick.travel, stick.travel)}px`);
+  function sideAt(clientX) {
+    const rect = touchControls.getBoundingClientRect();
+    return clientX < rect.left + rect.width / 2 ? -1 : 1;
   }
-  stickPad.addEventListener('pointerdown', event => {
+  touchControls.addEventListener('pointerdown', event => {
     event.preventDefault();
-    if (world.phase !== 'playing' || stick.pointerId !== null || (event.pointerType === 'mouse' && event.button !== 0)) return;
-    const rect = stickPad.getBoundingClientRect();
-    stick.pointerId = event.pointerId; stick.centerX = rect.left + rect.width / 2;
-    stick.travel = Math.min(30, rect.height * .25);
-    stickPad.setPointerCapture(event.pointerId); stickPad.classList.add('pressed');
-    moveStick(event);
+    if (world.phase !== 'playing' || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    sound.unlock();
+    touchPointers.set(event.pointerId, sideAt(event.clientX));
+    touchControls.setPointerCapture(event.pointerId); syncTouchControls();
   });
-  stickPad.addEventListener('pointermove', moveStick);
-  const releaseStick = event => { if (event.pointerId === stick.pointerId) resetStick(); };
-  for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) stickPad.addEventListener(type, releaseStick);
+  touchControls.addEventListener('pointermove', event => {
+    if (!touchPointers.has(event.pointerId)) return;
+    touchPointers.set(event.pointerId, sideAt(event.clientX)); syncTouchControls();
+  });
+  const releaseDirection = event => {
+    if (!touchPointers.delete(event.pointerId)) return;
+    syncTouchControls();
+    if (touchControls.hasPointerCapture(event.pointerId)) touchControls.releasePointerCapture(event.pointerId);
+  };
+  for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) touchControls.addEventListener(type, releaseDirection);
   jumpButton.addEventListener('pointerdown', event => {
-    event.preventDefault(); if (world.phase !== 'playing') return;
+    event.preventDefault();
+    if (world.phase !== 'playing' || (event.pointerType === 'mouse' && event.button !== 0)) return;
     jumpPointers.add(event.pointerId); jumpButton.setPointerCapture(event.pointerId);
     jumpButton.classList.add('pressed'); requestLeap();
   });
@@ -217,11 +237,11 @@
     jumpButton.classList.toggle('pressed', jumpPointers.size > 0);
   };
   for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) jumpButton.addEventListener(type, releaseJump);
-  $('touch-controls').addEventListener('contextmenu', event => event.preventDefault());
+  jumpButton.addEventListener('click', event => { if (event.detail === 0) requestLeap(); });
+  for (const el of [touchControls, jumpButton]) el.addEventListener('contextmenu', event => event.preventDefault());
   let touchViewportWidth = innerWidth;
   window.addEventListener('resize', () => {
-    // Rotation changes the pad's horizontal anchor; a collapsing browser
-    // address bar changes only height and must not interrupt the held stick.
+    // Rotation changes the screen halves; browser toolbar height changes do not.
     if (innerWidth !== touchViewportWidth) { clearTouchInputs(); queuedJump = false; }
     touchViewportWidth = innerWidth;
   });
@@ -251,7 +271,7 @@
         showToast(`부스트! ${event.direction < 0 ? '←' : '→'} 별줄로 이동해요`, 1.6, 4);
       } else if (event.type === 'boostEnd') {
         showToast('다시 폴짝! 다음 별을 잡아요', 2.2, 3);
-      } else if (event.type === 'charged') showToast(touchDetected ? '도약 충전 완료! ✦ 버튼' : '도약 충전 완료! SPACE', 1.8, 2);
+      } else if (event.type === 'charged') showToast(touchDetected ? '도약 준비 완료! 양쪽을 함께 눌러요' : '도약 충전 완료! SPACE', 1.8, 2);
       else if (event.type === 'shield') showToast('보호막이 생겼어요', 2.1, 3);
       else if (event.type === 'hit') {
         shake = 8; burst(event.x, event.y, '#809695', 15);
@@ -274,7 +294,7 @@
     $('result-height').textContent = format(world.height); $('result-stars').textContent = format(world.stars);
     $('result-score').textContent = format(world.score); $('result-best').textContent = `${format(best.height)} m`;
     $('result-tip').textContent = world.height < 100 ? '공중에서 다음 별로 이동해 기다려 보세요.'
-      : world.player.charge >= C.chargeMax ? (touchDetected ? '떨어질 땐 ✦ 버튼으로 한 번 더 도약해요.' : '떨어질 땐 SPACE로 한 번 더 도약해요.')
+      : world.player.charge >= C.chargeMax ? (touchDetected ? '떨어질 땐 양쪽을 함께 눌러 도약해요.' : '떨어질 땐 SPACE로 한 번 더 도약해요.')
       : world.hits > 0 ? '먹구름을 돌아서 다음 별을 잡아 보세요.' : '별 8개를 모으면 도약이 다시 충전돼요.';
     syncPhase(); updateHUD();
   }
@@ -289,8 +309,7 @@
     $('charge-hud').classList.toggle('ready', charged);
     $('charge-label').textContent = p.boost > 0 ? '별줄을 향해 좌우 이동' : charged ? '도약 준비 완료' : `도약 충전 ${p.charge} / ${C.chargeMax}`;
     chargeDots.forEach((dot, i) => dot.classList.toggle('full', i < p.charge));
-    $('touch-jump').classList.toggle('charging', !charged || p.boost > 0);
-    $('touch-jump').setAttribute('aria-label', p.boost > 0 ? '부스트 중' : charged ? '충전 도약 준비 완료' : `도약 충전 중 ${p.charge} / 8`);
+    jumpButton.setAttribute('aria-label', p.boost > 0 ? '부스트 중' : charged ? '충전 도약 사용. 양쪽 화면을 함께 눌러도 도약합니다.' : `도약 충전 중 ${p.charge} / 8`);
     const pills = [];
     if (p.boost > 0) pills.push(`<span class="effect-pill boost">✦ 부스트 <small>${p.boost.toFixed(1)}s</small></span>`);
     if (p.shield) pills.push('<span class="effect-pill">◇ 보호막</span>');
@@ -507,6 +526,9 @@
     const elapsed = previousTime ? Math.min((now - previousTime) / 1000, .08) : 0;
     previousTime = now; ambientTime += elapsed;
     if (world.phase === 'playing') {
+      if (chordStartedAt !== null && !chordFired && now - chordStartedAt >= CHORD_DELAY) {
+        chordFired = true; requestLeap();
+      }
       accumulator += elapsed;
       while (accumulator >= C.fixedStep && world.phase === 'playing') {
         const jump = queuedJump; queuedJump = false;
@@ -526,7 +548,7 @@
   // Read/write harness is only exposed in an explicitly requested local QA session.
   if (new URLSearchParams(location.search).has('test')) {
     window.__starMunchTest = {
-      get world() { return world; }, get controls() { return { axis: getAxis(), keys: [...keys], touches: stick.pointerId === null ? [] : [[stick.pointerId, stick.axis]] }; },
+      get world() { return world; }, get controls() { return { axis: getAxis(), keys: [...keys], touches: [...touchPointers] }; },
       get snapshot() { return { phase: world.phase, height: world.height, score: world.score, stars: world.stars, time: world.time, player: { ...world.player }, animation: world.animation(), best: { ...best } }; },
       start: newFlight, pause, resume, sync: () => { syncPhase(); updateHUD(); render(); },
       emit: processEvents,
