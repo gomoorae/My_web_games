@@ -49,6 +49,22 @@ function watch(page) {
     await page.keyboard.up('KeyD'); await settle(page, 25);
     check('releasing direction keeps jump pose', (await snapshot(page)).animation.state, 'jump');
     await isolate(page);
+    const starsBeforeLarge = (await snapshot(page)).stars;
+    await page.evaluate(() => {
+      const w = window.__starMunchTest.world; w.player.charge = 0;
+      w.addObject('coin', w.player.x, w.player.y, { value: 3, radius: 17 });
+    });
+    await page.waitForFunction(() => document.querySelector('#charge-label').textContent === '도약 충전 3 / 8');
+    check('collecting a large star adds three stars and three visible charge slots', (await snapshot(page)).stars === starsBeforeLarge + 3 && await page.locator('#charge-dots .full').count() === 3);
+    await page.evaluate(() => {
+      const w = window.__starMunchTest.world; w.player.charge = 7;
+      w.addObject('coin', w.player.x, w.player.y, { value: 3, radius: 17 });
+    });
+    await page.waitForFunction(() => document.querySelector('#charge-hud').classList.contains('ready'));
+    check('a large star caps the visible meter at eight and announces readiness', await page.locator('#charge-dots .full').count() === 8 && (await page.locator('#toast').innerText()).includes('도약 충전 완료'));
+    await page.keyboard.press('Space'); await settle(page, 35);
+    check('a charge completed by a large star can immediately power a leap', (await snapshot(page)).player.charge === 0 && (await snapshot(page)).animation.state === 'jump');
+    await isolate(page);
     await page.evaluate(() => { const p = window.__starMunchTest.world.player; p.vy = -100; p.impulseKind = 'coin'; });
     await page.keyboard.down('ArrowLeft'); await settle(page);
     check('left input keeps fall pose', (await snapshot(page)).animation.state, 'fall');

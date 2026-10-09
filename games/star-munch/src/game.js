@@ -160,7 +160,7 @@
     if (world.phase === 'playing') {
       if (world.player.boost > 0) return;
       if (world.player.charge >= C.chargeMax) queuedJump = true;
-      else showToast(`별 ${C.chargeMax - world.player.charge}개 더 모으면 도약!`, 1.2, 1);
+      else showToast(`도약까지 ${C.chargeMax - world.player.charge}칸 더 충전해요`, 1.2, 1);
     }
   }
   $('start-button').addEventListener('click', newFlight);
@@ -295,7 +295,7 @@
     $('result-score').textContent = format(world.score); $('result-best').textContent = `${format(best.height)} m`;
     $('result-tip').textContent = world.height < 100 ? '공중에서 다음 별로 이동해 기다려 보세요.'
       : world.player.charge >= C.chargeMax ? (touchDetected ? '떨어질 땐 양쪽을 함께 눌러 도약해요.' : '떨어질 땐 SPACE로 한 번 더 도약해요.')
-      : world.hits > 0 ? '먹구름을 돌아서 다음 별을 잡아 보세요.' : '별 8개를 모으면 도약이 다시 충전돼요.';
+      : world.hits > 0 ? '먹구름을 돌아서 다음 별을 잡아 보세요.' : '작은 별은 1칸, 큰 별은 3칸 충전돼요.';
     syncPhase(); updateHUD();
   }
   let hudStamp = '';

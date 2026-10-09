@@ -234,7 +234,7 @@
       if (object.step) this.lastStepLayer = Math.max(this.lastStepLayer, object.layer);
       if (object.type === 'coin') {
         this.stars += object.value; this.pickups++;
-        const before = p.charge; p.charge = Math.min(C.chargeMax, p.charge + 1);
+        const before = p.charge; p.charge = Math.min(C.chargeMax, p.charge + object.value);
         if (before < C.chargeMax && p.charge === C.chargeMax) this.emit('charged');
         if (!p.boost && object.kind !== 'boost') this.bounce();
         this.emit('coin', { x: object.x, y: object.y, value: object.value, ribbon: object.kind === 'boost' });

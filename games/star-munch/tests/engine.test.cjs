@@ -28,16 +28,31 @@ test('a star turns a fall into an ascent and counts only once', () => {
   assert.ok(w.player.vy > 0); assert.equal(w.stars, 1);
   w.collect(object); assert.equal(w.stars, 1); assert.equal(w.pickups, 1);
 });
-test('charged leap costs one charge and requires eight star pickups', () => {
+test('charged leap spends its charge and refills with eight small stars', () => {
   const w = emptyFlight(); assert.ok(w.jump()); assert.equal(w.player.charge, 0);
   assert.equal(w.jump(), false);
   for (let i = 0; i < 7; i++) w.collect(coin(w));
   assert.equal(w.jump(), false); w.collect(coin(w));
   assert.ok(w.jump()); assert.equal(w.player.charge, 0);
 });
-test('large stars give three points of star value but one pickup of charge', () => {
-  const w = emptyFlight(); w.jump(); w.collect(coin(w, { value: 3 }));
-  assert.equal(w.stars, 3); assert.equal(w.player.charge, 1);
+test('a large star gives three star value and three charge slots only once', () => {
+  const w = emptyFlight(); w.jump();
+  const large = coin(w, { value: 3 }); w.collect(large); w.collect(large);
+  assert.equal(w.stars, 3); assert.equal(w.player.charge, 3); assert.equal(w.pickups, 1);
+  w.collect(coin(w)); w.collect(coin(w, { value: 3 }));
+  assert.equal(w.player.charge, 7); assert.equal(w.jump(), false);
+  w.collect(coin(w)); assert.ok(w.jump()); assert.equal(w.player.charge, 0);
+});
+test('large stars cap charge at eight and emit ready only when crossing the threshold', () => {
+  for (const initialCharge of [5, 6, 7, 8]) {
+    const w = emptyFlight(); w.player.charge = initialCharge;
+    w.collect(coin(w, { value: 3 }));
+    assert.equal(w.player.charge, 8);
+    assert.equal(w.takeEvents().filter(e => e.type === 'charged').length, initialCharge < 8 ? 1 : 0);
+    w.collect(coin(w, { value: 3 }));
+    assert.equal(w.player.charge, 8);
+    assert.equal(w.takeEvents().filter(e => e.type === 'charged').length, 0);
+  }
 });
 test('one star creates a visible takeoff, apex and descent', () => {
   const w = emptyFlight(); w.player.vy = -300; w.collect(coin(w));
