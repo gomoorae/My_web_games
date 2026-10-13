@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const { World, C, difficultyAt } = window.StarMunch;
+  const { World, C, environmentAt } = window.StarMunch;
   const $ = id => document.getElementById(id);
   const canvas = $('game'), ctx = canvas.getContext('2d', { alpha: false });
   const stage = $('stage');
@@ -12,7 +12,7 @@
   let world = new World(), loaded = false;
   let width = 1, height = 1, scale = 1, offsetX = 0, offsetY = 0;
   let accumulator = 0, previousTime = 0, ambientTime = 0, shake = 0;
-  let toastUntil = 0, toastPriority = 0, lastMilestone = 0;
+  let toastUntil = 0, toastPriority = 0, lastMilestone = 0, lastBiome = 0;
   let particles = [], floatingLabels = [], trail = [], rings = [];
   let queuedJump = false, touchDetected = matchMedia('(pointer: coarse)').matches;
   const keys = new Set(), touchPointers = new Map(), jumpPointers = new Set();
@@ -143,7 +143,7 @@
     // Retain keyboard directions held through takeoff; jump is an independent input.
     clearTouchInputs(); queuedJump = false;
     particles = []; floatingLabels = []; trail = []; rings = [];
-    accumulator = 0; shake = 0; toastUntil = 0; toastPriority = 0; lastMilestone = 0;
+    accumulator = 0; shake = 0; toastUntil = 0; toastPriority = 0; lastMilestone = 0; lastBiome = 0;
     previousBest = best.height;
     world = new World(); world.start();
     syncPhase(); processEvents(); updateHUD();
@@ -275,7 +275,8 @@
       else if (event.type === 'shield') showToast('보호막이 생겼어요', 2.1, 3);
       else if (event.type === 'hit') {
         shake = 8; burst(event.x, event.y, '#809695', 15);
-        showToast(world.player.charge === C.chargeMax ? '먹구름 조심! 도약으로 다시 올라가요' : '먹구름 조심! 가까운 별을 찾아요', 2.3, 3);
+        const obstacle = event.kind === 'asteroid' ? '운석' : event.kind === 'satellite' ? '위성 잔해' : '먹구름';
+        showToast(`${obstacle} 조심! ${world.player.charge === C.chargeMax ? '도약으로 다시 올라가요' : '가까운 별을 찾아요'}`, 2.3, 3);
       } else if (event.type === 'shieldBreak') {
         burst(event.x, event.y, '#b2efe3', 20); shake = 3; showToast('보호막이 막아 줬어요!', 1.7, 2);
       } else if (event.type === 'smash') burst(event.x, event.y, '#b1ccd5', 16, 1.8);
@@ -295,7 +296,7 @@
     $('result-score').textContent = format(world.score); $('result-best').textContent = `${format(best.height)} m`;
     $('result-tip').textContent = world.height < 100 ? '공중에서 다음 별로 이동해 기다려 보세요.'
       : world.player.charge >= C.chargeMax ? (touchDetected ? '떨어질 땐 양쪽을 함께 눌러 도약해요.' : '떨어질 땐 SPACE로 한 번 더 도약해요.')
-      : world.hits > 0 ? '먹구름을 돌아서 다음 별을 잡아 보세요.' : '작은 별은 1칸, 큰 별은 3칸 충전돼요.';
+      : world.hits > 0 ? '장애물을 돌아서 다음 별을 잡아 보세요.' : '작은 별은 1칸, 큰 별은 3칸 충전돼요.';
     syncPhase(); updateHUD();
   }
   let hudStamp = '';
@@ -314,8 +315,13 @@
     if (p.boost > 0) pills.push(`<span class="effect-pill boost">✦ 부스트 <small>${p.boost.toFixed(1)}s</small></span>`);
     if (p.shield) pills.push('<span class="effect-pill">◇ 보호막</span>');
     $('effects-hud').innerHTML = pills.join('');
-    const tier = difficultyAt(world.maxY).tier;
-    $('zone-name').textContent = ['구름 정원 · 1단계', '먹구름 산책길 · 2단계', '바람 숲 · 3단계', '높은 하늘 · 4단계'][tier];
+    const env = environmentAt(world.height);
+    $('zone-name').textContent = `${env.name} · ${env.index + 1}구간`;
+    $('stage').querySelector('.stage-corner').innerHTML = `${env.id.replaceAll('-', ' ').toUpperCase()} <span>${String(env.index + 1).padStart(2, '0')}</span>`;
+    stage.dataset.biome = env.id; stage.dataset.dark = String(world.height >= 2800);
+    if (world.phase === 'playing' && env.index > lastBiome && !p.boost) {
+      lastBiome = env.index; showToast(`${env.name}에 도착했어요!`, 2.6, 3);
+    }
     if (world.phase === 'playing' && world.height >= lastMilestone + 100) {
       lastMilestone = Math.floor(world.height / 100) * 100;
       showToast(`${format(lastMilestone)} m · 조금 더 높이!`, 1.7, 1);
@@ -351,48 +357,27 @@
     ctx.fillStyle = color; ctx.fill();
   }
   function drawBackground() {
-    const depth = clamp(world.height / 2400, 0, 1);
-    const gradient = ctx.createLinearGradient(0, 0, 0, height);
-    gradient.addColorStop(0, depth < .55 ? '#b4dedf' : '#c5d3ec');
-    gradient.addColorStop(.58, '#deede0'); gradient.addColorStop(1, '#f8edcc');
-    ctx.fillStyle = gradient; ctx.fillRect(0, 0, width, height);
-    const sunX = width * .77, sunY = height * .18;
-    const glow = ctx.createRadialGradient(sunX, sunY, 2, sunX, sunY, height * .36);
-    glow.addColorStop(0, '#fff9cf99'); glow.addColorStop(1, '#fff9cf00');
-    ctx.fillStyle = glow; ctx.fillRect(0, 0, width, height);
-    ctx.fillStyle = '#fffbee80'; ctx.beginPath(); ctx.arc(sunX, sunY, 31 * scale, 0, Math.PI * 2); ctx.fill();
-    const camera = Math.max(0, world.cameraBottom + 110);
-    for (let i = 0; i < 17; i++) {
-      const span = height + 220;
-      const y = ((i * 139 + camera * (.07 + i % 3 * .035) * scale) % span) - 100;
-      const x = ((i * 197 + Math.sin(ambientTime * .08 + i) * 18) % (width + 160)) - 80;
-      const size = (30 + i % 4 * 16) * scale;
-      cloud(x, y, size, i % 2 ? '#fffff35c' : '#ffffff40');
-    }
+    const env = environmentAt(world.height), camera = Math.max(0, world.cameraBottom + 110);
+    window.StarMunchSky.draw(ctx, width, height, scale, camera, ambientTime, env, world.height);
     ctx.save(); ctx.translate(offsetX, offsetY); ctx.scale(scale, scale);
     // The soft cloud banks mark the horizontal play area on wide desktop screens.
     for (const edge of [-22, C.width + 22]) {
-      ctx.strokeStyle = '#78a59c21'; ctx.lineWidth = 1; ctx.setLineDash([3, 12]);
+      ctx.strokeStyle = env.stars > .15 ? '#b7d7ef36' : '#78a59c21'; ctx.lineWidth = 1; ctx.setLineDash([3, 12]);
       ctx.beginPath(); ctx.moveTo(edge, -200); ctx.lineTo(edge, 1000); ctx.stroke();
       ctx.setLineDash([]);
       for (let i = 0; i < 6; i++) {
         const y = ((i * 183 + camera * .18) % 1080) - 180;
-        cloud(edge + (edge < 0 ? -65 : 65), y, 74 + i % 2 * 15, '#fcffef62');
+        ctx.globalAlpha = env.clouds; cloud(edge + (edge < 0 ? -65 : 65), y, 74 + i % 2 * 15, '#fcffef62');
+        ctx.globalAlpha = 1;
       }
     }
-    for (let i = 0; i < 27; i++) {
-      const x = (i * 137 + 13) % 480, y = ((i * 157 + camera * .35) % 950) - 100;
-      const a = .17 + Math.sin(ambientTime * 1.3 + i) * .1;
-      ctx.globalAlpha = a; star(x, y, i % 3 ? 2 : 4, '#559f93');
-    }
-    ctx.globalAlpha = 1;
     const firstMark = Math.floor(world.cameraBottom / 1000) + 1;
     for (let mark = firstMark; mark <= firstMark + 2; mark++) {
       if (mark <= 0) continue;
       const y = screenY(mark * 1000 + C.startY);
-      ctx.strokeStyle = '#638e7926'; ctx.setLineDash([3, 7]); ctx.lineWidth = 1;
+      ctx.strokeStyle = env.stars > .15 ? '#b5cbe326' : '#638e7926'; ctx.setLineDash([3, 7]); ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(C.width, y); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle = '#628d7c80'; ctx.font = '10px system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.fillText(`${mark * 100} m`, 7, y - 9);
+      ctx.fillStyle = env.stars > .15 ? '#b5cbe380' : '#628d7c80'; ctx.font = '10px system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.fillText(`${mark * 100} m`, 7, y - 9);
     }
     if (world.cameraBottom < 140) {
       const y = screenY(-9);
@@ -416,6 +401,37 @@
   }
   function drawEnemy(obj) {
     const x = obj.x, y = screenY(obj.y) + Math.sin(ambientTime * 2 + obj.id) * 2;
+    if (obj.kind === 'asteroid') {
+      ctx.save(); ctx.translate(x, y); ctx.rotate(ambientTime * .25 * (obj.id % 2 ? 1 : -1) + obj.phase);
+      ctx.fillStyle = '#6e7d96'; ctx.strokeStyle = '#c0a09b'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < 9; i++) {
+        const a = i / 9 * Math.PI * 2, r = obj.radius * (.86 + Math.sin(i * 7 + obj.id) * .11);
+        if (!i) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r); else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      }
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#465672'; ctx.strokeStyle = '#8795ab'; ctx.lineWidth = 1;
+      for (const [cx, cy, r] of [[-7, -5, 5], [8, 5, 4], [-4, 12, 2]]) {
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      }
+      ctx.restore(); return;
+    }
+    if (obj.kind === 'satellite') {
+      ctx.save(); ctx.translate(x, y); ctx.rotate(Math.sin(ambientTime * .7 + obj.phase) * .22);
+      ctx.strokeStyle = '#abb6c8'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(-24, 0); ctx.lineTo(24, 0); ctx.moveTo(0, -10); ctx.lineTo(3, -23); ctx.stroke();
+      ctx.fillStyle = '#4c6684'; ctx.strokeStyle = '#8ea7bb'; ctx.lineWidth = 1.2;
+      for (const px of [-26, 11]) {
+        ctx.fillRect(px, -9, 15, 18); ctx.strokeRect(px, -9, 15, 18);
+        ctx.beginPath(); ctx.moveTo(px + 7.5, -9); ctx.lineTo(px + 7.5, 9); ctx.moveTo(px, 0); ctx.lineTo(px + 15, 0); ctx.stroke();
+      }
+      ctx.fillStyle = '#a7b2bd'; ctx.strokeStyle = '#d2c2b7'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.roundRect(-8, -12, 16, 24, 5); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#5e728b'; ctx.fillRect(-4, -6, 8, 7);
+      ctx.fillStyle = Math.sin(ambientTime * 3) > 0 ? '#f08c79' : '#975f64';
+      ctx.beginPath(); ctx.arc(3, -23, 2.4, 0, Math.PI * 2); ctx.fill();
+      ctx.restore(); return;
+    }
     cloud(x, y + 2, 23, '#788e9b'); cloud(x, y - 3, 22, '#9caeb6');
     ctx.strokeStyle = '#536a77'; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(x - 10, y - 5); ctx.lineTo(x - 4, y - 2); ctx.moveTo(x + 10, y - 5); ctx.lineTo(x + 4, y - 2); ctx.stroke();

@@ -172,6 +172,30 @@ function watch(page) {
       return w.phase === 'playing' && w.height >= 1100 && !w.player.boost && w.objects.some(o => o.step && o.y > w.player.y) && w.objects.some(o => o.type === 'enemy' && o.amplitude > 0);
     }));
     await page.screenshot({ path: path.join(out, 'qa-desktop-high.png') });
+    const skySamples = [];
+    for (const [height, biome] of [[2200, 'upper-sky'], [5600, 'space-edge'], [8800, 'space-edge'], [10500, 'space'], [13000, 'space']]) {
+      await page.evaluate(target => {
+        const w = window.__starMunchTest.world, pilot = new window.QAPilot();
+        w.resume(); let frames = 0;
+        while ((w.height < target || w.player.boost > 0) && w.phase === 'playing' && frames++ < 150000) {
+          w.update(1 / 120, { axis: pilot.axis(w) }); w.takeEvents();
+        }
+        if (w.phase !== 'playing' || w.height < target) throw new Error('Flight stopped before ' + target);
+        window.__starMunchTest.sync(); w.pause(); window.__starMunchTest.sync(); document.querySelector('#pause-screen').hidden = true;
+      }, height);
+      check(`a continuous flight reaches the ${height}m environment`, await page.locator('#stage').getAttribute('data-biome'), biome);
+      skySamples.push(await page.locator('#game').evaluate(c => [...c.getContext('2d').getImageData(20, 20, 1, 1).data].slice(0, 3)));
+      await settle(page, 450);
+      await page.screenshot({ path: path.join(out, `qa-biome-${height}.png`) });
+    }
+    check('sky colors visibly change from upper sky through deep space', JSON.stringify(skySamples[0]) !== JSON.stringify(skySamples[1]) && JSON.stringify(skySamples[1]) !== JSON.stringify(skySamples[4]));
+    check('space has bright HUD text and no remaining cloud enemies', await page.evaluate(() => {
+      const w = window.__starMunchTest.world;
+      return document.querySelector('#stage').dataset.dark === 'true' && getComputedStyle(document.querySelector('.altitude')).color === 'rgb(227, 237, 248)'
+        && w.objects.some(o => o.kind === 'asteroid') && !w.objects.some(o => o.type === 'enemy' && o.kind === 'cloud');
+    }));
+    await page.evaluate(() => { window.__starMunchTest.world.resume(); window.__starMunchTest.sync(); });
+
     await page.keyboard.press('Escape'); await page.setViewportSize({ width: 1366, height: 768 });
     check('laptop controls stay within viewport', await page.locator('#resume-button').evaluate(el => { const r = el.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }));
     await page.reload(); await page.locator('#start-button:not([disabled])').waitFor();
@@ -324,6 +348,26 @@ function watch(page) {
     check('phone landscape keeps the resume button onscreen', await phone.locator('#resume-button').evaluate(el => { const r = el.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }));
     await phone.setViewportSize({ width: 320, height: 568 }); await phone.locator('#resume-button').tap();
     check('small phones keep both movement hints and the charge button onscreen', await phone.evaluate(() => ['#touch-left>span', '#touch-right>span', '#touch-jump'].every(selector => { const r = document.querySelector(selector).getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight; })));
+    await phone.setViewportSize({ width: 390, height: 844 });
+    await phone.addScriptTag({ content: `(function(){${pilotSource}\n})();` });
+    await phone.evaluate(() => {
+      const w = window.__starMunchTest.world, pilot = new window.QAPilot(); w.reset(45); w.start(); let frames = 0;
+      while ((w.height < 11000 || w.player.boost > 0 || w.player.vy < 200) && w.phase === 'playing' && frames++ < 150000) {
+        w.update(1 / 120, { axis: pilot.axis(w) }); w.takeEvents();
+      }
+      if (w.phase !== 'playing' || w.height < 11000) throw new Error('Mobile flight stopped before space');
+      window.__starMunchTest.sync();
+    });
+    check('a phone flight reaches space with the same controls', await phone.locator('#stage').getAttribute('data-biome'), 'space');
+    await phone.screenshot({ path: path.join(out, 'qa-mobile-space.png') });
+    await primeTouch();
+    await touch('touchStart', [left, right]); await settle(phone, 130);
+    check('screen-half movement and two-thumb leap also work in space', await axis() === -1 && (await snapshot(phone)).player.charge === 0 && (await snapshot(phone)).animation.state === 'jump');
+    await touch('touchEnd', []);
+    await phone.locator('#pause-button').tap(); await phone.setViewportSize({ width: 844, height: 390 });
+    await phone.evaluate(() => { document.querySelector('#pause-screen').hidden = true; });
+    await settle(phone, 450);
+    await phone.screenshot({ path: path.join(out, 'qa-mobile-space-landscape.png') });
     await mobile.close();
 
     const offline = await browser.newContext({ viewport: { width: 1280, height: 900 }, offline: true });

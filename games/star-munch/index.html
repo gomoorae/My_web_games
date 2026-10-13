@@ -7,7 +7,7 @@
   <meta name="description" content="별을 냠, 하늘로 폴짝! 키보드로 즐기는 별 수집 상승 게임, 별냠.">
   <title>별냠 · Star Munch</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='20' fill='%232c6c62'/%3E%3Cpath d='m32 9 7 15 17 3-12 12 3 17-15-8-15 8 3-17L8 27l17-3Z' fill='%23ffdc77'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="src/style.css?v=0.3.3">
+  <link rel="stylesheet" href="src/style.css?v=0.4.0">
 </head>
 <body>
   <div class="app">
@@ -27,7 +27,7 @@
         <div class="stage" id="stage" data-phase="ready">
           <canvas id="game" tabindex="0" aria-label="별냠 게임 화면. A와 D 또는 방향키로 이동, 스페이스로 충전 도약, Esc로 일시정지."></canvas>
           <div class="hud" id="hud" aria-hidden="true">
-            <div class="altitude"><span id="zone-name">구름 정원</span><div><strong id="height">0</strong><span>m</span></div></div>
+            <div class="altitude"><span id="zone-name">푸른 하늘 · 1구간</span><div><strong id="height">0</strong><span>m</span></div></div>
             <div class="star-count"><span>✦</span><strong id="stars">0</strong></div>
           </div>
           <div class="effects-hud" id="effects-hud" aria-hidden="true"></div>
@@ -53,7 +53,7 @@
             <button type="button" id="touch-left" class="touch-half touch-left" aria-label="화면 왼쪽을 누르는 동안 왼쪽 이동" aria-pressed="false" tabindex="-1"><span aria-hidden="true">‹<small>왼쪽</small></span></button>
             <button type="button" id="touch-right" class="touch-half touch-right" aria-label="화면 오른쪽을 누르는 동안 오른쪽 이동" aria-pressed="false" tabindex="-1"><span aria-hidden="true">›<small>오른쪽</small></span></button>
           </div>
-          <div class="stage-corner" aria-hidden="true">CLOUD GARDEN <span>01</span></div>
+          <div class="stage-corner" aria-hidden="true">SKY <span>01</span></div>
         </div>
         <div class="game-footer"><span><i></i> 별 하나, 큰 도약. 부스트에선 별줄을 쭉!</span><span class="desktop-hint"><kbd>ESC</kbd> 잠깐 쉬기 <span class="footer-separator">/</span> <kbd>R</kbd> 다시 시작</span></div>
       </section>
@@ -69,15 +69,16 @@
         <span class="eyebrow item-eyebrow">하늘에서 만나는 선물</span>
         <ul class="item-list">
           <li><span class="item-icon comet-icon">✦</span><div><strong>별똥별 부스트</strong><span>빠르게 올라가며 별줄로 직접 이동해요</span></div></li>
-          <li><span class="item-icon shield-icon">◇</span><div><strong>포근한 보호막</strong><span>먹구름 충돌을 한 번 막아 줘요</span></div></li>
+          <li><span class="item-icon shield-icon">◇</span><div><strong>포근한 보호막</strong><span>장애물 충돌을 한 번 막아 줘요</span></div></li>
         </ul>
-        <div class="guide-tip"><span>✧</span><p>작은 별은 1칸, 큰 별은 3칸 충전!<br>높이 갈수록 먹구름이 늘어나요.</p></div>
+        <div class="guide-tip"><span>✧</span><p>작은 별은 1칸, 큰 별은 3칸 충전!<br>10,000m 너머 별빛 우주로 가요.</p></div>
         <div class="guide-bottom">조금 더 높이, 조금 더 멀리.<span>✦</span></div>
       </aside>
     </main>
-    <footer class="page-footer"><span>별냠 <span class="footer-dot">·</span> STAR MUNCH</span><span>별 하나, 큰 도약 <span class="footer-dot">·</span> v0.3.3</span></footer>
+    <footer class="page-footer"><span>별냠 <span class="footer-dot">·</span> STAR MUNCH</span><span>별 하나, 큰 도약 <span class="footer-dot">·</span> v0.4.0</span></footer>
   </div>
-  <script src="src/engine.js?v=0.3.3"></script>
-  <script src="src/game.js?v=0.3.3"></script>
+  <script src="src/engine.js?v=0.4.0"></script>
+  <script src="src/sky.js?v=0.4.0"></script>
+  <script src="src/game.js?v=0.4.0"></script>
 </body>
 </html>

@@ -13,6 +13,23 @@
   });
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const approach = (v, target, amount) => v < target ? Math.min(v + amount, target) : Math.max(v - amount, target);
+  const smooth = (a, b, value) => { const t = clamp((value - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  const BIOMES = Object.freeze([
+    { id: 'sky', name: '푸른 하늘', start: 0, colors: ['#95d8eb', '#d2eee9', '#f5eed2'] },
+    { id: 'cloud-sea', name: '구름바다', start: 500, colors: ['#65b8de', '#b3dfe9', '#e1eef0'] },
+    { id: 'upper-sky', name: '높은 상공', start: 2000, colors: ['#327daa', '#76b2d3', '#c2dceb'] },
+    { id: 'space-edge', name: '우주 문턱', start: 5000, colors: ['#172d59', '#355786', '#789abb'] },
+    { id: 'space', name: '별빛 우주', start: 10000, colors: ['#080e29', '#142345', '#283759'] }
+  ]);
+  function environmentAt(height) {
+    height = Math.max(0, height);
+    let index = 0;
+    while (index + 1 < BIOMES.length && height >= BIOMES[index + 1].start) index++;
+    const current = BIOMES[index], next = BIOMES[Math.min(index + 1, BIOMES.length - 1)];
+    return { ...current, index, next, blend: current === next ? 0 : smooth(current.start, next.start, height),
+      clouds: 1 - smooth(1300, 8800, height), sun: 1 - smooth(1600, 6200, height),
+      stars: smooth(2600, 10000, height), earth: smooth(4500, 9000, height), nebula: smooth(8500, 14000, height) };
+  }
   function makeRandom(seed) {
     let s = seed >>> 0;
     return () => {
@@ -37,8 +54,8 @@
   }
   // Reserve at least one possible arc per source before adding clouds.
   // Delaying lateral movement lets the player avoid the direct approach.
-  function flightPath(from, to, delay = 0) {
-    let x = from.x, y = from.y + 20, vx = 0, vy = C.bounceSpeed;
+  function flightPath(from, to, delay = 0, initialVx = 0) {
+    let x = from.x, y = from.y - 20, vx = initialVx, vy = C.bounceSpeed;
     const path = [{ x, y }], dt = 1 / 60;
     for (let t = 0; t < 1.6; t += dt) {
       const desired = clamp((to.x - x) * 9, -C.moveSpeed, C.moveSpeed);
@@ -65,6 +82,7 @@
       this.bounces = 0; this.lastBounceY = C.startY; this.lastStepLayer = -1;
       this.events = []; this.objects = []; this.nextId = 1; this.layerIndex = 0;
       this.generatedY = C.startY; this.routeNodes = [{ x: C.startX, y: C.startY }]; this.routeHops = []; this.pendingClouds = [];
+      this.phrase = []; this.phraseDirection = 1; this.previousPhrase = -1;
       this.nextCometY = 2250; this.nextShieldY = 1560;
       this.boostRoute = null; this.boostSerial = 0;
       this.player = {
@@ -142,22 +160,80 @@
     ensureCourse(targetY) { while (this.generatedY < targetY) this.generateStep(); }
     generateStep() {
       const index = this.layerIndex++, previous = this.routeNodes;
-      const y = index === 0 ? 170 : this.generatedY + 136 + this.random() * 30;
-      const candidates = [];
-      for (let x = 64; x <= 416; x += 8) {
-        if (previous.every(node => Math.abs(node.x - x) >= 125 && Math.abs(node.x - x) <= 238)) candidates.push(x);
+      if (!this.phrase.length) {
+        const phrases = [
+          [['middle', 1], ['high', 1], ['middle', -1], ['wide', -1]],
+          [['middle', 1], ['middle', -1], ['near', -1], ['middle', 1]],
+          [['wide', 1], ['middle', -1], ['middle', -1]],
+          [['middle', 1], ['high', -1], ['middle', 1]]
+        ];
+        let choice = Math.floor(this.random() * phrases.length);
+        if (choice === this.previousPhrase) choice = (choice + 1) % phrases.length;
+        this.previousPhrase = choice; this.phrase = phrases[choice].slice();
+        this.phraseDirection = this.random() < .5 ? -1 : 1;
       }
-      const x = index === 0 ? C.startX : candidates[Math.floor(this.random() * candidates.length)];
-      if (!Number.isFinite(x)) throw new Error('No reachable step candidate');
+      const [style, turn] = this.phrase.shift();
+      const floorY = Math.max(...previous.map(n => n.y)) + 100, ceilingY = Math.min(...previous.map(n => n.y)) + 232;
+      const ranges = { near: [85, 120, 218, 236], high: [120, 165, 207, 232], middle: [130, 205, 135, 205], wide: [205, 260, 110, 158] };
+      const cache = new Map();
+      const pathsTo = (from, to, vx) => {
+        const key = [from.x, from.y, to.x, to.y, vx].join(',');
+        if (!cache.has(key)) cache.set(key, [0, .18, .3].map(delay => flightPath(from, to, delay, vx)).filter(Boolean));
+        return cache.get(key);
+      };
+      const reachable = (from, to) => to.y - from.y >= 90 && to.y - from.y <= 250
+        && Math.abs(to.x - from.x) <= 280 && [-C.moveSpeed, 0, C.moveSpeed].every(vx => pathsTo(from, to, vx).length);
+      const spaced = (to, nodes, relaxed = false) => nodes.every(n => Math.hypot(n.x - to.x, n.y - to.y) >= 110)
+        && previous.every(n => Math.hypot(n.x - to.x, n.y - to.y) >= 145
+          && Math.abs(n.x - to.x) >= (relaxed ? 0 : to.y - n.y >= 200 ? 85 : 125));
+      const candidate = (from, kind, direction, nodes, levelY = null) => {
+        const [minX, maxX, minY, maxY] = ranges[kind];
+        for (let attempt = 0; attempt < 48; attempt++) {
+          const dx = minX + this.random() * (maxX - minX);
+          let x = from.x + direction * dx;
+          if (x < 64 || x > 416) x = from.x - direction * dx;
+          if (attempt > 23) x = 64 + this.random() * 352;
+          if (x < 64 || x > 416 || Math.abs(x - from.x) < 65) continue;
+          const y = clamp(levelY === null ? from.y + minY + this.random() * (maxY - minY) : levelY + (this.random() - .5) * 28, floorY, ceilingY);
+          const point = { x, y, style: kind };
+          if (spaced(point, nodes) && reachable(from, point)) return point;
+        }
+        return null;
+      };
+      const fallback = (from, nodes, y) => {
+        for (const relaxed of [false, true]) for (const dy of [0, -24, 24, -48, 48]) for (let x = 64; x <= 416; x += 8) {
+          const point = { x, y: clamp(y + dy, floorY, ceilingY), style: 'middle' };
+          if (Math.abs(x - from.x) >= 65 && spaced(point, nodes, relaxed) && reachable(from, point)) return point;
+        }
+        throw new Error('No reachable continuation');
+      };
+      const point = index === 0 ? { x: C.startX, y: 170, style: 'start' }
+        : candidate(previous[0], index < 3 ? 'middle' : style, turn * this.phraseDirection, [])
+          || fallback(previous[0], [], this.generatedY + 170);
+      const { x, y } = point;
       const item = this.nextItem(y);
-      const main = this.addObject(item || 'coin', x, y, { value: 1, step: true, primary: true, layer: index });
+      const value = !item && index > 3 && this.random() < .09 ? 3 : 1;
+      const main = this.addObject(item || 'coin', x, y, { value, radius: item ? 18 : value > 1 ? 17 : 14,
+        step: true, primary: true, layer: index, style: point.style });
       const nodes = [main];
-      const alternatives = candidates.filter(cx => Math.abs(cx - x) >= 190);
-      if (index >= 3 && alternatives.length && this.random() < .52) {
-        const bx = alternatives[Math.floor(this.random() * alternatives.length)];
-        nodes.push(this.addObject('coin', bx, y + (this.random() - .5) * 26, { value: 3, step: true, primary: false, layer: index, radius: 17 }));
+      const addChoice = (p, value = 3) => nodes.push(this.addObject('coin', p.x, p.y, { value, step: true, primary: false, layer: index, radius: value > 1 ? 17 : 14, style: p.style }));
+      // Branches only need their own onward route, rather than all converging
+      // on one fixed-distance star. Every selectable star gets a continuation.
+      for (const from of previous) if (index && !nodes.some(to => reachable(from, to))) {
+        addChoice(candidate(from, 'middle', -turn, nodes, y) || fallback(from, nodes, y), 1);
       }
-      const sources = previous.map(from => ({ from, paths: nodes.flatMap(to => [0, .18, .3].map(delay => flightPath(from, to, delay)).filter(Boolean)) }));
+      if (index >= 3 && nodes.length < 3 && this.random() < .48) {
+        const from = previous[Math.floor(this.random() * previous.length)];
+        const extra = candidate(from, this.random() < .5 ? 'middle' : 'near', -turn * this.phraseDirection, nodes, y);
+        if (extra) addChoice(extra, this.random() < .85 ? 3 : 1);
+        if (nodes.length === 2 && this.random() < .12) {
+          const third = candidate(from, 'wide', turn, nodes, y);
+          if (third) addChoice(third);
+        }
+      }
+      const sources = previous.flatMap(from => [-C.moveSpeed, 0, C.moveSpeed].map(vx => ({
+        from, vx, paths: nodes.flatMap(to => pathsTo(from, to, vx))
+      })));
       this.routeHops.push({ y, sources });
       this.generatedY = y; this.routeNodes = nodes;
       this.pendingClouds.push({ nodes, previous, y });
@@ -166,7 +242,7 @@
       while (this.pendingClouds.length && this.pendingClouds[0].y < y - 360) {
         const pending = this.pendingClouds.shift();
         const count = difficultyAt(pending.y).tier >= 3 ? 2 : 1;
-        for (let i = 0; i < count; i++) this.generateClouds(pending.nodes, pending.previous, pending.y);
+        for (let i = 0; i < count; i++) this.generateObstacles(pending.nodes, pending.previous, pending.y);
       }
       this.routeHops = this.routeHops.filter(hop => hop.y > y - 1450);
     }
@@ -175,7 +251,7 @@
       if (y >= this.nextShieldY) { this.nextShieldY = y + 3000 + this.random() * 800; return 'shield'; }
       return null;
     }
-    generateClouds(nodes, previous, y) {
+    generateObstacles(nodes, previous, y) {
       const difficulty = difficultyAt(y);
       if (this.random() > difficulty.chance) return;
       const nearby = this.objects.filter(o => o.type === 'enemy' && o.y > y - 720);
@@ -185,7 +261,12 @@
       for (let attempt = 0; attempt < 18; attempt++) {
         const x = clamp(attempt < 7 && intercept ? intercept.x + (this.random() - .5) * 65 : 48 + this.random() * 384, 44, 436);
         const cy = attempt < 7 && intercept ? intercept.y + (this.random() - .5) * 38 : y + 35 + this.random() * 95;
-        const cloud = { x, baseX: x, y: cy, radius: 23, amplitude: difficulty.amplitude, speed: difficulty.speed, phase: this.random() * Math.PI * 2 };
+        const meters = (cy - C.startY) * C.metersPerUnit;
+        const kind = meters < 5000 || this.random() > smooth(5000, 8800, meters) ? 'cloud'
+          : meters >= 10300 && this.random() < .32 ? 'satellite' : 'asteroid';
+        const cloud = { x, baseX: x, y: cy, kind, radius: kind === 'satellite' ? 28 : 23,
+          amplitude: kind === 'satellite' ? 40 : difficulty.amplitude, speed: kind === 'satellite' ? .55 : difficulty.speed,
+          phase: this.random() * Math.PI * 2 };
         const steps = this.objects.filter(o => o.step && Math.abs(o.y - cy) < 160);
         if (steps.some(o => Math.hypot(o.x - x, o.y - cy) < o.radius + cloud.radius + cloud.amplitude + 24)) continue;
         if (nearby.some(o => Math.hypot(o.baseX - x, o.y - cy) < 100 + o.amplitude + cloud.amplitude)) continue;
@@ -250,7 +331,7 @@
       p.invulnerable = 1.3;
       if (p.shield) {
         p.shield = false; this.bounce('shield'); this.emit('shieldBreak', { x: p.x, y: p.y });
-      } else { p.vy = -225; p.hitTime = .3; this.hits++; this.emit('hit', { x: p.x, y: p.y }); }
+      } else { p.vy = -225; p.hitTime = .3; this.hits++; this.emit('hit', { x: p.x, y: p.y, kind: enemy.kind || 'cloud' }); }
     }
     end() {
       if (this.phase !== 'playing') return;
@@ -267,5 +348,5 @@
       return { state: 'fall', frame: 7, stretch: 1.025 };
     }
   }
-  return { C, World, difficultyAt, flightPath, arcClear, makeRandom, segmentDistanceSquared };
+  return { C, World, BIOMES, environmentAt, difficultyAt, flightPath, arcClear, makeRandom, segmentDistanceSquared };
 });

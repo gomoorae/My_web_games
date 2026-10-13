@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { World, C, flightPath, arcClear, difficultyAt } = require('../src/engine.js');
+const { World, C, flightPath, arcClear, difficultyAt, environmentAt } = require('../src/engine.js');
 const { Pilot } = require('./pilot.cjs');
 
 function emptyFlight(seed = 1) {
@@ -134,21 +134,25 @@ test('swept collisions collect a star crossed during fast movement', () => {
   const target = w.addObject('coin', w.player.x, w.player.y + 15, { value: 1 });
   w.update(1 / 30); assert.equal(target.collected, true);
 });
-test('ordinary courses have sparse lateral steps, choices and no boost ribbons', () => {
+test('ordinary courses vary both axes, offer one to three choices and keep ribbons exclusive to boost', () => {
   assert.deepEqual(new World(7).objects, new World(7).objects);
   assert.notDeepEqual(new World(7).objects, new World(8).objects);
-  const w = new World(45); w.ensureCourse(24000);
-  const main = w.objects.filter(o => o.primary);
-  for (let i = 1; i < main.length; i++) {
-    const dx = Math.abs(main[i].x - main[i - 1].x), dy = main[i].y - main[i - 1].y;
-    assert.ok(dx >= 125 && dx <= 238); assert.ok(dy >= 136 && dy <= 166);
-  }
-  assert.ok(w.objects.filter(o => o.step && !o.primary).length > 15);
+  const w = new World(45); w.ensureCourse(120000);
+  const main = w.objects.filter(o => o.primary), gaps = main.slice(1).map((n, i) => ({ dx: Math.abs(n.x - main[i].x), dy: n.y - main[i].y }));
+  for (const { dx, dy } of gaps) { assert.ok(dx >= 65 && dx <= 280); assert.ok(dy >= 100 && dy <= 232.001); }
+  assert.ok(gaps.filter(g => g.dx < 130).length > 25, 'short lateral jumps must really occur');
+  assert.ok(gaps.filter(g => g.dx >= 130 && g.dx < 205).length > gaps.length * .4, 'medium distances should dominate');
+  assert.ok(gaps.filter(g => g.dx >= 205).length > 25, 'wide crossings remain a minority choice');
+  assert.ok(gaps.some(g => g.dy < 135) && gaps.some(g => g.dy > 210));
+  const counts = new Map(); for (const n of w.objects.filter(o => o.step)) counts.set(n.layer, (counts.get(n.layer) || 0) + 1);
+  assert.ok([...counts.values()].every(n => n >= 1 && n <= 3));
+  assert.ok([...counts.values()].includes(3));
+  assert.ok(w.objects.some(o => o.primary && o.value === 3), 'large stars also occur on the main route');
   assert.equal(w.objects.some(o => o.kind === 'boost'), false);
 });
-test('all generated choices retain a cloud-free continuation, including later takeoff', () => {
+test('all choices retain a clear next jump from left, neutral and right entry velocities', () => {
   for (let seed = 1; seed <= 16; seed++) {
-    const w = new World(seed); w.ensureCourse(24000);
+    const w = new World(seed); w.ensureCourse(seed <= 4 ? 120000 : 24000);
     const clouds = w.objects.filter(o => o.type === 'enemy');
     const layers = new Map();
     for (const o of w.objects.filter(o => o.step)) {
@@ -156,8 +160,8 @@ test('all generated choices retain a cloud-free continuation, including later ta
       layers.get(o.layer).push(o);
     }
     for (let i = 1; i < w.layerIndex; i++) {
-      for (const from of layers.get(i - 1)) {
-        assert.ok(layers.get(i).some(to => [0, .18, .3].some(delay => arcClear(flightPath(from, to, delay), clouds))),
+      for (const from of layers.get(i - 1)) for (const vx of [-C.moveSpeed, 0, C.moveSpeed]) {
+        assert.ok(layers.get(i).some(to => [0, .18, .3].some(delay => arcClear(flightPath(from, to, delay, vx), clouds))),
           'seed ' + seed + ', layer ' + i + ' must have a reachable way around clouds');
       }
     }
@@ -268,5 +272,51 @@ test('16 seeded full flights reach 1800 m using only left/right, with distinct n
   }
   intervals.sort((a,b) => a-b);
   assert.ok(intervals[Math.floor(intervals.length / 2)] > .8);
-  assert.ok(intervals[Math.floor(intervals.length * .1)] > .45);
+  // New high, nearby stars deliberately give a shorter hop; most arcs still take a full second.
+  assert.ok(intervals[Math.floor(intervals.length * .1)] > .33);
+  assert.ok(intervals.filter(t => t < .25).length < intervals.length * .02);
+});
+
+test('sky progression is continuous and full space remains a high-altitude reward', () => {
+  assert.deepEqual([0, 500, 2000, 5000, 10000].map(h => environmentAt(h).id), ['sky', 'cloud-sea', 'upper-sky', 'space-edge', 'space']);
+  assert.notEqual(environmentAt(9999).id, 'space');
+  assert.equal(environmentAt(10000).clouds, 0); assert.equal(environmentAt(10000).sun, 0);
+  assert.equal(environmentAt(10000).stars, 1);
+  const color = env => env.colors.flatMap((c, i) => [1, 3, 5].map(j => parseInt(c.slice(j, j + 2), 16) * (1 - env.blend) + parseInt(env.next.colors[i].slice(j, j + 2), 16) * env.blend));
+  for (const h of [500, 2000, 5000, 10000]) {
+    const a = environmentAt(h - .1), b = environmentAt(h + .1), ca = color(a), cb = color(b);
+    assert.ok(ca.every((c, i) => Math.abs(c - cb[i]) < .02));
+    for (const k of ['clouds', 'stars', 'sun', 'earth', 'nebula']) assert.ok(Math.abs(a[k] - b[k]) < .001);
+  }
+});
+test('space gradually replaces clouds with asteroids and slow satellite debris', () => {
+  const w = new World(45); w.ensureCourse(140000);
+  const hazards = w.objects.filter(o => o.type === 'enemy');
+  assert.ok(hazards.some(o => o.kind === 'satellite'));
+  assert.ok(hazards.some(o => o.kind === 'asteroid'));
+  for (const o of hazards) {
+    const h = (o.y - C.startY) * C.metersPerUnit;
+    if (h < 5000) assert.equal(o.kind, 'cloud');
+    if (h >= 8800) assert.notEqual(o.kind, 'cloud');
+    if (o.kind === 'satellite') { assert.ok(h >= 10300); assert.ok(o.amplitude * o.speed <= 30); }
+  }
+});
+test('new obstacles obey the same shield and boost collision rules', () => {
+  for (const kind of ['asteroid', 'satellite']) {
+    const w = emptyFlight(), enemy = { kind, x: w.player.x, y: w.player.y };
+    w.player.shield = true; w.hitEnemy(enemy); assert.equal(w.player.shield, false); assert.equal(w.hits, 0);
+    w.player.invulnerable = 0; w.hitEnemy(enemy); assert.equal(w.hits, 1); assert.equal(w.takeEvents().find(e => e.type === 'hit').kind, kind);
+    w.activateBoost(); w.hitEnemy(enemy); assert.equal(enemy.collected, true); assert.equal(w.hits, 1);
+  }
+});
+test('four full flights reach space and beyond without manual leaps or protected collisions', () => {
+  for (const seed of [17, 29, 45, 83]) {
+    const w = new World(seed), pilot = new Pilot(); w.start(); let frames = 0;
+    while (w.phase === 'playing' && w.height < 12000 && frames++ < 150000) {
+      w.update(C.fixedStep, { axis: pilot.axis(w) });
+      assert.ok(!w.takeEvents().some(e => e.type === 'hit' || e.type === 'shieldBreak'), `seed ${seed} at ${w.height}m`);
+      assert.ok(w.objects.length < 180);
+    }
+    assert.ok(w.height >= 12000, `seed ${seed} stopped at ${w.height}m`);
+  }
 });

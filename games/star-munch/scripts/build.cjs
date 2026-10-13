@@ -8,6 +8,7 @@ let html = read('index.html');
 html = html.replace(/<link rel="stylesheet" href="src\/style\.css(?:\?[^"]*)?">/, `<style>\n${read('src/style.css')}\n</style>`);
 html = html.replace('src="assets/hero.webp"', `src="${dataURL('hero.webp')}"`);
 html = html.replace(/<script src="src\/engine\.js(?:\?[^"]*)?"><\/script>/, `<script>\n${read('src/engine.js')}\n</script>`);
+html = html.replace(/<script src="src\/sky\.js(?:\?[^"]*)?"><\/script>/, `<script>\n${read('src/sky.js')}\n</script>`);
 html = html.replace(/<script src="src\/game\.js(?:\?[^"]*)?"><\/script>/, `<script>window.STAR_MUNCH_ASSETS = ${JSON.stringify({ atlas: dataURL('hero-atlas.webp') })};\n${read('src/game.js')}\n</script>`);
 const out = path.join(root, 'build'); fs.mkdirSync(out, { recursive: true });
 const filename = path.join(out, '별냠.html'); fs.writeFileSync(filename, html);
