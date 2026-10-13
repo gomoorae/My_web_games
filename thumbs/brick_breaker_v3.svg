@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="벽돌 깨기: 멀티볼과 연쇄 폭발">
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#172d40"/><stop offset="1" stop-color="#0b1522"/></linearGradient>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="12" cy="12" r=".7" fill="#7794a5" opacity=".25"/></pattern>
+    <filter id="glow"><feGaussianBlur stdDeviation="4"/></filter>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg)"/><rect width="640" height="400" fill="url(#grid)"/>
+  <g fill="none" stroke="#607c9230"><circle cx="320" cy="270" r="110"/><circle cx="320" cy="270" r="165"/></g>
+  <g fill="#ffb45b">
+    <rect x="154" y="50" width="60" height="22" rx="4"/><rect x="222" y="50" width="60" height="22" rx="4"/><rect x="290" y="50" width="60" height="22" rx="4"/><rect x="358" y="50" width="60" height="22" rx="4"/><rect x="426" y="50" width="60" height="22" rx="4"/>
+    <rect x="86" y="80" width="60" height="22" rx="4"/><rect x="154" y="80" width="60" height="22" rx="4"/><rect x="222" y="80" width="60" height="22" rx="4"/><rect x="358" y="80" width="60" height="22" rx="4"/><rect x="426" y="80" width="60" height="22" rx="4"/><rect x="494" y="80" width="60" height="22" rx="4"/>
+  </g>
+  <g fill="#a3dfd4"><rect x="86" y="110" width="60" height="22" rx="4"/><rect x="154" y="110" width="60" height="22" rx="4"/><rect x="222" y="110" width="60" height="22" rx="4"/><rect x="426" y="110" width="60" height="22" rx="4"/><rect x="494" y="110" width="60" height="22" rx="4"/></g>
+  <g fill="#b6adff"><rect x="154" y="140" width="60" height="22" rx="4"/><rect x="222" y="140" width="60" height="22" rx="4"/><rect x="494" y="140" width="60" height="22" rx="4"/></g>
+  <g fill="#ffd688"><rect x="290" y="80" width="60" height="22" rx="4"/><path d="m320 83 2.5 5.5 5.5 2.5-5.5 2.5L320 99l-2.5-5.5L312 91l5.5-2.5Z" fill="#725433"/></g>
+  <g fill="#ffcf84"><rect x="355" y="118" width="7" height="5" rx="1" transform="rotate(-24 355 118)"/><rect x="391" y="146" width="5" height="7" rx="1" transform="rotate(32 391 146)"/><rect x="423" y="169" width="6" height="4" rx="1"/><rect x="333" y="167" width="4" height="6" rx="1"/></g>
+  <g fill="none" stroke-linecap="round"><path d="m323 287 31-75" stroke="#65d6cd" stroke-width="13" opacity=".14"/><path d="m375 214 26-49" stroke="#ffd688" stroke-width="10" opacity=".22"/><path d="m241 245-36-45" stroke="#b6adff" stroke-width="9" opacity=".18"/></g>
+  <g fill="#dcfff3" filter="url(#glow)"><circle cx="357" cy="204" r="13"/><circle cx="405" cy="157" r="11"/><circle cx="199" cy="192" r="10"/></g>
+  <g fill="#fff5d9"><circle cx="357" cy="204" r="9"/><circle cx="405" cy="157" r="8"/><circle cx="199" cy="192" r="7"/></g>
+  <rect x="255" y="333" width="130" height="14" rx="6" fill="#82e0d5"/><rect x="261" y="336" width="118" height="3" rx="1.5" fill="#e5fff5"/>
+  <path d="M30 29V17h12m568 12V17h-12M30 371v12h12m568-12v12h-12" fill="none" stroke="#94b1c1" opacity=".5"/>
+</svg>

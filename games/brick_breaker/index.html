@@ -1,23 +1,69 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>벽돌 깨기</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111b27">
+  <meta name="description" content="각도를 만들고, 연쇄로 부수세요. 10개의 새로운 스테이지와 세 가지 아이템으로 즐기는 벽돌 깨기.">
+  <title>벽돌 깨기 · BRICK BREAKER</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23111b27'/%3E%3Cpath d='M12 14h18v12H12zm22 0h18v12H34zM12 30h18v12H12z' fill='%23ffb45b'/%3E%3Ccircle cx='44' cy='38' r='6' fill='%2365d6cd'/%3E%3Cpath d='M19 51h28v5H19z' fill='%23f4eee2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css?v=2.0.0">
+  <script src="engine.js?v=2.0.0" defer></script>
+  <script src="app.js?v=2.0.0" defer></script>
 </head>
 <body>
-  <main class="game-wrap">
-    <h1>벽돌 깨기</h1>
-    <p class="help">좌/우 화살표로 이동, R 키로 재시작, ESC 키로 일시정지</p>
-    <canvas id="gameCanvas" width="1280" height="832"></canvas>
-    <div class="hud">
-      <span>점수: <strong id="score">0</strong></span>
-      <span>기회: <strong id="lives">3</strong></span>
+  <main class="arcade">
+    <header class="masthead">
+      <a class="back-link" href="../../index.html" aria-label="게임 목록으로 돌아가기"><span aria-hidden="true">↖</span> 게임 목록</a>
+      <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><h1>BRICK <span>BREAKER</span></h1><span class="edition">02</span></div>
+      <button id="sound-button" class="quiet-button" type="button" aria-pressed="true">소리 켜짐</button>
+    </header>
+
+    <section class="scoreboard" aria-label="게임 기록">
+      <div class="score-item primary"><span class="label">SCORE <span>점수</span></span><strong id="score">000000</strong></div>
+      <div class="score-item"><span class="label">BEST <span>최고 기록</span></span><strong id="best">000000</strong></div>
+      <div class="score-item chances"><span class="label">LIVES <span>기회</span></span><strong id="lives" aria-label="남은 기회 3회">● ● ●</strong></div>
+      <div class="score-item stage-number"><span class="label">STAGE</span><strong><span id="stage-number">01</span><small> / 10</small></strong></div>
+    </section>
+
+    <div class="play-layout">
+      <section class="play-column" aria-label="벽돌 깨기">
+        <div class="stage-strip"><span><b id="stage-title">첫 번째 궤도</b><span class="stage-dot">·</span><span id="remaining">40개 남음</span></span><span id="combo">각도를 만들고, 연쇄로 부수세요.</span></div>
+        <div id="court-area" class="court-area">
+          <div id="arena" class="arena" data-state="ready">
+            <canvas id="gameCanvas" width="800" height="640" tabindex="0" aria-label="벽돌 깨기 게임 화면. 방향키 또는 A, D로 이동하고 Space로 발사합니다.">이 게임은 Canvas를 지원하는 브라우저가 필요합니다.</canvas>
+            <div class="court-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <div id="toast" class="toast" role="status"></div>
+            <div id="overlay" class="overlay">
+              <div class="overlay-card">
+                <p id="overlay-kicker" class="eyebrow">STAGE 01 / 10</p>
+                <h2 id="overlay-title">첫 번째 궤도</h2>
+                <p id="overlay-description">가운데를 뚫고, 벽돌 뒤쪽으로 공을 보내보세요.</p>
+                <p id="overlay-result" class="overlay-result" hidden></p>
+                <button id="overlay-action" class="action-button" type="button">발사하기 <span aria-hidden="true">↗</span></button>
+                <button id="overlay-secondary" class="text-button" type="button" hidden>계속 플레이</button>
+                <p id="overlay-shortcut" class="overlay-shortcut">SPACE 또는 화면 클릭으로 발사</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="play-controls">
+          <p class="control-hint"><span class="desktop-hint"><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd> 이동 <span class="hint-separator">·</span> 마우스 지원</span><span class="touch-hint">화면을 좌우로 드래그해 이동</span></p>
+          <div class="control-buttons"><button id="launch-button" class="launch-button" type="button">발사 <span>SPACE</span></button><button id="pause-button" type="button">일시정지 <span>ESC</span></button><button id="restart-button" type="button" aria-label="처음부터 다시 시작">다시 시작 <span>R</span></button></div>
+        </div>
+      </section>
+
+      <aside class="side-panel" aria-label="공략과 아이템">
+        <div class="mission"><p class="eyebrow">THE NEXT BREAK</p><h2>틈을 찾고.<br>시원하게 부수고.</h2><p id="stage-hint">가운데를 뚫고, 벽돌 뒤쪽으로 공을 보내보세요.</p><div class="progress-track"><span id="stage-progress"></span></div><p class="progress-caption"><span>스테이지 진행</span><b id="progress-percent">0%</b></p></div>
+        <div class="powerup-guide"><p class="eyebrow">POWER UPS</p><div><span class="item-icon split">●</span><p><b>멀티볼</b><small>공을 3갈래로 · 최대 9개</small></p></div><div><span class="item-icon wide">↔</span><p><b>와이드 패들</b><small>14초 동안 더 넓게</small></p></div><div><span class="item-icon pierce">↟</span><p><b>관통 공</b><small>9초 동안 벽돌을 관통</small></p></div></div>
+        <div class="tip"><span aria-hidden="true">✦</span><p>빛나는 벽돌은 <b>연쇄 폭발</b>.<br>5개 연속 파괴마다 점수 배율 UP.</p></div>
+        <p class="side-foot">10 STAGES. ONE MORE TRY.</p>
+      </aside>
     </div>
-    <p id="message" class="message"></p>
-    <a class="home-btn" href="../../index.html">메인으로</a>
+
+    <footer class="status-bar"><div id="effects" class="effects" aria-label="현재 아이템 효과"><span class="effect-ball">공 <b id="ball-count">1</b> / 9</span><span id="wide-status" class="effect-chip" hidden>확장 <b></b></span><span id="pierce-status" class="effect-chip fire" hidden>관통 <b></b></span><span id="finish-hint" class="finish-hint" hidden>마지막 3개 · 패들 중앙으로 정밀 조준</span></div><span class="version">벽돌 깨기 <span>v2.0</span></span></footer>
+    <p id="announcement" class="sr-only" aria-live="polite"></p>
+    <noscript><p class="noscript">게임을 실행하려면 JavaScript를 켜주세요.</p></noscript>
   </main>
-  <script src="app.js"></script>
 </body>
 </html>

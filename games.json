@@ -33,8 +33,8 @@
   {
     "title": "Brick Breaker",
     "category": "ARCADE",
-    "description": "패들로 공을 튕겨 벽돌을 깨는 게임",
-    "thumbnail": "thumbs/brick_breaker_v2.svg",
+    "description": "각도를 만들고, 연쇄로 부수세요. 새로운 10개 스테이지와 멀티볼·패들 확장·관통 아이템으로 즐기는 벽돌 깨기.",
+    "thumbnail": "thumbs/brick_breaker_v3.svg",
     "url": "games/brick_breaker/index.html"
   },
   {
