@@ -3,7 +3,7 @@
   else root.Match3 = factory();
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  const SIZE = 8, TYPES = 6, BASE_SECONDS = 60, MAX_BONUS = 30, MOVE_BONUS = 3;
+  const SIZE = 8, TYPES = 6, BASE_SECONDS = 60;
   const row = i => Math.floor(i / SIZE), col = i => i % SIZE;
   const adjacent = (a, b) => Number.isInteger(a) && Number.isInteger(b) && a >= 0 && b >= 0 && a < 64 && b < 64 && Math.abs(row(a) - row(b)) + Math.abs(col(a) - col(b)) === 1;
   const isLine = t => t && (t.special === 'row' || t.special === 'column');
@@ -190,7 +190,7 @@
         before: board, after: collapsed.board, falls: collapsed.falls,
         removed: [...hit], created, activated, chain,
         points: hit.size * 10 * chain + created.length * 50,
-        bonusSeconds: groups.reduce((sum, g) => sum + Math.min(2, Math.max(0, g.cells.size - 3)), 0)
+        bonusSeconds: groups.reduce((sum, g) => sum + Math.max(0, g.cells.size - 3), 0)
       };
     }
     play(board, a, b) {
@@ -213,7 +213,7 @@
       return {
         valid: true, swapped, board: current, frames, shuffled,
         points: frames.reduce((s, f) => s + f.points, 0),
-        bonusSeconds: Math.min(MOVE_BONUS, frames.reduce((s, f) => s + f.bonusSeconds, 0)),
+        bonusSeconds: frames.reduce((s, f) => s + f.bonusSeconds, 0),
         maxChain: frames.length,
         created: frames.reduce((s, f) => s + f.created.length, 0),
         activated: frames.reduce((s, f) => s + f.activated.length, 0)
@@ -243,7 +243,7 @@
       this.pending = ticket;
       if (plan.valid) {
         this.board = plan.board; this.score += plan.points;
-        ticket.bonusGranted = Math.min(MAX_BONUS - this.bonus, plan.bonusSeconds);
+        ticket.bonusGranted = plan.bonusSeconds;
         this.bonus += ticket.bonusGranted; this.deadline += ticket.bonusGranted * 1000;
         this.maxChain = Math.max(this.maxChain, plan.maxChain); this.moveCount++;
         this.created += plan.created; this.activated += plan.activated;
@@ -265,5 +265,5 @@
       this.deadline = this.now() + this.pausedRemaining; this.status = 'running';
     }
   }
-  return { VERSION: '2.0.0', SIZE, TYPES, BASE_SECONDS, MAX_BONUS, MOVE_BONUS, Engine, Round, matches, moves, canSwap, adjacent, specialKind };
+  return { VERSION: '2.0.1', SIZE, TYPES, BASE_SECONDS, Engine, Round, matches, moves, canSwap, adjacent, specialKind };
 });

@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { Engine, Round, matches, moves, canSwap, adjacent, MAX_BONUS } = require('../engine.js');
+const { Engine, Round, matches, moves, canSwap, adjacent } = require('../engine.js');
 function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 const base = engine => Array.from({ length: 64 }, (_, i) => engine.tile((Math.floor(i / 8) + 2 * (i % 8)) % 6));
 function fixture(indices, specialIndex = null, special = null) {
@@ -65,6 +65,21 @@ test('five in a straight line make a color ball', () => {
   assert.equal(step.created[0].tile.special, 'color'); assert.equal(step.created[0].tile.type, -1);
   assert.equal(step.bonusSeconds, 2);
 });
+test('larger matches keep earning one second per tile beyond three', () => {
+  const { engine, board, groups } = fixture([24, 25, 26, 27, 28, 29, 30]);
+  const step = engine.resolveStep(board, groups, [27], null, 1);
+  assert.equal(step.bonusSeconds, 4);
+});
+test('one swap can earn more than three seconds', () => {
+  const engine = new Engine(rng(902)), board = base(engine);
+  [25, 26, 28, 29, 35].forEach(i => { board[i].type = 5; });
+  [27, 33, 34, 36, 37].forEach(i => { board[i].type = 4; });
+  [32, 38].forEach(i => { board[i].type = 2; });
+  assert.equal(matches(board).length, 0);
+  const result = engine.play(board, 27, 35);
+  assert.equal(result.valid, true); assert.equal(result.frames[0].bonusSeconds, 4);
+  assert.ok(result.bonusSeconds >= 4);
+});
 test('T and L shapes make one bomb, without duplicate match cells', () => {
   for (const indices of [[25, 26, 27, 18, 10], [25, 26, 27, 17, 9]]) {
     const { engine, board, groups } = fixture(indices);
@@ -122,7 +137,8 @@ test('cascades multiply only clear points and produce a stable playable board', 
     const result = engine.play(board, ...moves(board)[0]);
     if (result.frames.length >= 2) observed = true;
     result.frames.forEach((f, i) => assert.equal(f.points, f.removed.length * 10 * (i + 1) + 50 * f.created.length));
-    assert.equal(matches(result.board).length, 0); assert.ok(moves(result.board).length); assert.ok(result.bonusSeconds <= 3);
+    assert.equal(matches(result.board).length, 0); assert.ok(moves(result.board).length);
+    assert.equal(result.bonusSeconds, result.frames.reduce((sum, f) => sum + f.bonusSeconds, 0));
   }
   assert.ok(observed);
 });
@@ -162,11 +178,15 @@ test('last accepted move settles before showing a result; later input is rejecte
   now = 100000; assert.equal(round.expire(), false); assert.equal(round.begin(0, 1), null);
   round.finish(ticket); assert.equal(round.status, 'over'); assert.ok(round.score > 0);
 });
-test('time rewards cannot exceed 30 seconds per round', () => {
+test('time rewards continue accumulating beyond thirty seconds without a round cap', () => {
   let now = 0; const round = new Round({ random: rng(9), now: () => now }); round.start();
+  let earned = 0;
   for (let i = 0; i < 500; i++) {
     const ticket = round.begin(...moves(round.board)[i % moves(round.board).length]); round.finish(ticket);
-    assert.ok(round.bonus <= MAX_BONUS); assert.ok(ticket.bonusGranted <= 3);
+    earned += ticket.plan.bonusSeconds;
+    assert.equal(ticket.bonusGranted, ticket.plan.bonusSeconds);
+    assert.equal(round.bonus, earned);
+    assert.equal(round.deadline, 60000 + earned * 1000);
   }
-  assert.equal(round.bonus, 30); assert.equal(round.deadline, 90000);
+  assert.ok(earned > 30); assert.ok(round.deadline > 90000);
 });
