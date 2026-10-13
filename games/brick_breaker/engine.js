@@ -309,5 +309,5 @@
       this.accumulator = Math.max(0, this.accumulator);
     }
   }
-  return { Game, STAGES, sweepCircleRect, W, STEP, R, MAX_BALLS, VERSION: '2.0.0' };
+  return { Game, STAGES, sweepCircleRect, W, STEP, R, MAX_BALLS, VERSION: '2.0.1' };
 });

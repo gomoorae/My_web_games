@@ -80,6 +80,16 @@ test('a second finger cannot take over the active touch and cancellation clears 
   h.pointer('pointercancel', { pointerId: 1 }); assert.equal(h.game.targetX, null);
 });
 
+test('normal drag release reaches the final target while unexpected capture loss cancels', () => {
+  const h = setup({ coarse: true });
+  h.pointer('pointerdown', { clientX: 400 }); h.pointer('pointermove', { clientX: 150 });
+  h.pointer('pointerup', { clientX: 150 }); h.pointer('lostpointercapture');
+  assert.equal(h.game.targetX, 150);
+  h.game.advance(.1); h.game.advance(.1); assert.equal(h.game.paddle.x, 150);
+  h.pointer('pointerdown', { pointerId: 2, clientX: 600 }); h.pointer('lostpointercapture', { pointerId: 2 });
+  assert.equal(h.game.targetX, null);
+});
+
 test('blur and hidden page both pause and clear held keyboard input', () => {
   for (const source of ['blur', 'hidden']) {
     const h = setup(); h.key(' '); h.key('a'); h[source]();

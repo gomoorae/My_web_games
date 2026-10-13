@@ -165,7 +165,10 @@
   });
   function cancelPointer() { pointerId = null; pointerStart = null; game.clearInput(); }
   canvas.addEventListener('pointercancel', cancelPointer);
-  canvas.addEventListener('lostpointercapture', cancelPointer);
+  canvas.addEventListener('lostpointercapture', event => {
+    // Normal release keeps the final target; unexpected capture loss cancels input.
+    if (event.pointerId === pointerId) cancelPointer();
+  });
   function backgroundPause() {
     held.clear(); cancelPointer();
     if (game.state === 'playing') game.pause();
