@@ -1,7 +1,7 @@
-import { Ride, VEHICLES } from './core.mjs?v=3.1.0';
-import { Renderer } from './renderer.mjs?v=3.1.0';
-import { RideAudio } from './audio.mjs?v=3.1.0';
-import { CrashSequence, portraitFrame } from './presentation.mjs?v=3.1.0';
+import { Ride, VEHICLES } from './core.mjs?v=3.1.1';
+import { Renderer } from './renderer.mjs?v=3.1.1';
+import { RideAudio } from './audio.mjs?v=3.1.1';
+import { CrashSequence, portraitFrame } from './presentation.mjs?v=3.1.1';
 const $ = id => document.getElementById(id);
 const storageKey = 'midnight-split-traffic-v1';
 function loadRecord() {
@@ -55,8 +55,9 @@ function screens() {
   $('pause').hidden = state !== 'running'; $('touch-controls').hidden = state !== 'running';
   audio.update(ride);
 }
-function start(sameRoad = false) {
-  const seed = sameRoad ? ride.seed : Date.now();
+function start() {
+  // A nonzero random offset guarantees a different seed, even for rapid retries.
+  const seed = (ride.seed + 1 + Math.floor(Math.random() * 0xffffffff)) >>> 0;
   clearInput(); wreck.clear(); audio.silence(); ride.reset(seed); audio.unlock(); last = performance.now();
   nearUntil = 0; screens(); updateHud();
   notice('← → 로 조향 · 커브에서는 안쪽으로 방향을 잡으세요.', 3);
@@ -83,7 +84,7 @@ function finish() {
   const obstacle = ride.failure.kind === 'rail' ? '가드레일' : (VEHICLES[ride.failure.kind]?.name || '차량');
   const particle = (obstacle.charCodeAt(obstacle.length - 1) - 0xac00) % 28 === 0 ? '와' : '과';
   $('result-title').textContent = '바이크 파손. 주행 종료.';
-  $('result-message').textContent = side + ' ' + obstacle + particle + ' 충돌했습니다. 같은 배치로 다시 도전해보세요.';
+  $('result-message').textContent = side + ' ' + obstacle + particle + ' 충돌했습니다. 다시 도전해보세요.';
   screens(); updateHud(); $('skip-crash').focus({ preventScroll: true });
 }
 function showResult() {
@@ -97,8 +98,8 @@ function updateHud() {
   $('combo-progress').style.width = ride.comboTime / 4.5 * 100 + '%';
 }
 $('start').addEventListener('click', () => start());
-$('retry').addEventListener('click', () => start(true));
-$('retry-pause').addEventListener('click', () => start(true));
+$('retry').addEventListener('click', () => start());
+$('retry-pause').addEventListener('click', () => start());
 $('pause').addEventListener('click', () => pause()); $('resume').addEventListener('click', resume);
 $('to-title').addEventListener('click', () => { clearInput(); wreck.clear(); ride.reset(); ride.status = 'ready'; screens(); titleRecord(); $('start').focus({ preventScroll: true }); });
 $('skip-crash').addEventListener('click', showResult);
@@ -112,8 +113,8 @@ document.addEventListener('keydown', event => {
   if (controlCodes.has(event.code)) { if (ride.status === 'running') event.preventDefault(); keys.add(event.code); }
   if (event.repeat) return;
   if (event.code === 'Escape' || event.code === 'KeyP') { event.preventDefault(); if (ride.status === 'running') pause(); else if (ride.status === 'paused') resume(); }
-  if (event.code === 'KeyR' && ride.status !== 'ready') { event.preventDefault(); start(true); }
-  if (event.code === 'Space' && ride.status === 'crashed') { event.preventDefault(); start(true); }
+  if (event.code === 'KeyR' && ride.status !== 'ready') { event.preventDefault(); start(); }
+  if (event.code === 'Space' && ride.status === 'crashed') { event.preventDefault(); start(); }
 });
 document.addEventListener('keyup', event => keys.delete(event.code));
 for (const button of document.querySelectorAll('[data-control]')) {

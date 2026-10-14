@@ -1,6 +1,6 @@
-import { randomGenerator, VISIBLE_DISTANCE, ROAD_HALF_METERS, roadOffset } from './core.mjs?v=3.1.0';
-import { drawVehicle } from './vehicles.mjs?v=3.1.0';
-import { drawCrash } from './crash-renderer.mjs?v=3.1.0';
+import { randomGenerator, VISIBLE_DISTANCE, ROAD_HALF_METERS, roadOffset } from './core.mjs?v=3.1.1';
+import { drawVehicle } from './vehicles.mjs?v=3.1.1';
+import { drawCrash } from './crash-renderer.mjs?v=3.1.1';
 function clampRoadSample(samples,z){
   if(!samples)return 0;
   const position=Math.max(0,Math.min(samples.length-1,(z+40)/10));
