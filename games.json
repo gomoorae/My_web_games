@@ -39,9 +39,9 @@
   },
   {
     "title": "바이크 칼치기",
-    "category": "RACING",
-    "description": "바이크로 칼치기하며 달리는 게임",
-    "thumbnail": "thumbs/bike_game_v1.svg",
+    "category": "RACING · REMASTER",
+    "description": "밤의 고속도로, 6km의 질주. 아슬아슬한 추월로 콤보를 잇고 부스트를 충전하세요. 강변·터널·도심을 키보드와 터치로 달립니다.",
+    "thumbnail": "thumbs/bike_game_v2.svg",
     "url": "games/bike_game/index.html"
   }
 ]
