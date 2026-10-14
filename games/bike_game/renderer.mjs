@@ -1,5 +1,6 @@
-import { randomGenerator, VISIBLE_DISTANCE, ROAD_HALF_METERS, roadOffset } from './core.mjs?v=3.0.0';
-import { drawVehicle } from './vehicles.mjs?v=3.0.0';
+import { randomGenerator, VISIBLE_DISTANCE, ROAD_HALF_METERS, roadOffset } from './core.mjs?v=3.1.0';
+import { drawVehicle } from './vehicles.mjs?v=3.1.0';
+import { drawCrash } from './crash-renderer.mjs?v=3.1.0';
 function clampRoadSample(samples,z){
   if(!samples)return 0;
   const position=Math.max(0,Math.min(samples.length-1,(z+40)/10));
@@ -20,9 +21,9 @@ export class Renderer {
     this.canvas.width = Math.round(this.w * this.dpr); this.canvas.height = Math.round(this.h * this.dpr);
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     this.horizon = this.h * .24;
-    const touchLayout = this.w <= 900 || matchMedia('(any-pointer: coarse)').matches;
+    const touchLayout = matchMedia('(any-pointer: coarse), (max-width: 900px)').matches;
     this.ground = this.h < 500 ? this.h * .76 : Math.min(this.h * .84, this.h - (touchLayout ? 132 : 90));
-    this.halfRoad = this.w * (this.w < 600 ? .55 : .48);
+    this.halfRoad = this.w * .55;
     this.backgroundSector = -1;
   }
   project(z, x = 0) {
@@ -125,8 +126,9 @@ export class Renderer {
     if(car.z>VISIBLE_DISTANCE||car.z<-car.length-20)return;
     drawVehicle(this,car,time);
   }
+  bikeUnit() { return Math.max(26,this.halfRoad*.10)*Math.min(1,this.w/360); }
   bike(state,time) {
-    const c=this.ctx,p=this.project(0,state.x),u=Math.max(26,this.halfRoad*.10)*Math.min(1,this.h/this.w*1.6);
+    const c=this.ctx,p=this.project(0,state.x),u=this.bikeUnit();
     c.save();c.translate(p.x,p.y);c.rotate(state.lean*.55);
     c.fillStyle='#0008';c.beginPath();c.ellipse(0,1,u*.85,u*.29,0,0,Math.PI*2);c.fill();
     c.fillStyle='#03070f';c.fillRect(-u*.18,-u*.78,u*.36,u*.86);c.fillStyle='#495569';c.fillRect(-u*.075,-u*.64,u*.15,u*.66);
@@ -145,20 +147,19 @@ export class Renderer {
     c.fillStyle='#8bd8d7';c.fillRect(-u*.19,-u*2.15,u*.38,u*.075);c.fillStyle='#ff776d';c.shadowColor='#ff665b';c.shadowBlur=15;c.fillRect(-u*.20,-u*.43,u*.4,u*.10);c.shadowBlur=0;
     c.restore();
   }
-  draw(state,time) {
+  draw(state,time,scene=null) {
     this.crashCarId=state.crashCarId;this.sector=state.sector;this.distance=state.status==='ready'?time*13:state.distance;this.playerX=state.x;
     this.roadSamples=Array.from({length:65},(_,i)=>roadOffset(this.distance,i*10-40));
     if(this.backgroundSector!==this.sector)this.makeBackground(this.sector);
     const c=this.ctx;c.setTransform(this.dpr,0,0,this.dpr,0,0);c.drawImage(this.backdrop,0,0,this.w,this.h);
     c.save();
-    if(state.status==='crashed'&&this.lastStatus!=='crashed')this.crashTime=time;
-    this.lastStatus=state.status;
-    const impact=state.status==='crashed'?Math.max(0,1-(time-(this.crashTime??time))*3):0;
-    if(!this.reduced&&impact>0)c.translate(Math.sin(time*91)*impact*7,Math.cos(time*73)*impact*4);
+    const impact=scene?.impact||0;
+    if(!this.reduced&&impact>0)c.translate(Math.sin(scene.age*91)*impact*8,Math.cos(scene.age*73)*impact*5);
     this.tunnelWalls();this.road();this.roadside(time);
-    const objects=state.cars.map(car=>({z:car.z,car}));objects.push({z:0});objects.sort((a,b)=>b.z-a.z);
+    const objects=state.cars.map(car=>({z:car.z,car}));if(!scene||scene.phase==='impact')objects.push({z:0});objects.sort((a,b)=>b.z-a.z);
     for(const object of objects){if(object.car)this.car(object.car,time);else this.bike(state,time);}
+    if(scene&&scene.phase!=='impact')drawCrash(this,scene);
     c.restore();
-    if(impact>0){c.fillStyle='rgba(255,85,75,'+impact*.18+')';c.fillRect(0,0,this.w,this.h);}
+    if(!this.reduced&&impact>0){c.fillStyle='rgba(255,164,88,'+impact*.16+')';c.fillRect(0,0,this.w,this.h);}
   }
 }
