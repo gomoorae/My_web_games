@@ -1,5 +1,11 @@
-import { randomGenerator, VISIBLE_DISTANCE } from './core.mjs?v=3.0.0-a2';
-import { drawVehicle } from './vehicles.mjs?v=3.0.0-a2';
+import { randomGenerator, VISIBLE_DISTANCE, ROAD_HALF_METERS, roadOffset } from './core.mjs?v=3.0.0-a3';
+import { drawVehicle } from './vehicles.mjs?v=3.0.0-a3';
+function clampRoadSample(samples,z){
+  if(!samples)return 0;
+  const position=Math.max(0,Math.min(samples.length-1,(z+40)/10));
+  const index=Math.min(samples.length-2,Math.floor(position)),fraction=position-index;
+  return samples[index]+(samples[index+1]-samples[index])*fraction;
+}
 export class Renderer {
   constructor(canvas) {
     this.canvas = canvas; this.ctx = canvas.getContext('2d', { alpha: false });
@@ -21,7 +27,8 @@ export class Renderer {
   }
   project(z, x = 0) {
     const scale = 34 / Math.max(8, z + 34);
-    const bend = (Math.sin((this.distance + z) / 740) - Math.sin(this.distance / 740)) * this.w * .22 * (1 - Math.min(scale,1));
+    const sample=clampRoadSample(this.roadSamples,z);
+    const bend=sample*this.halfRoad/ROAD_HALF_METERS*scale;
     const center = this.w / 2 + bend - this.playerX * this.halfRoad * .25 * Math.min(scale, 1);
     return { x: center + x * this.halfRoad * scale, y: this.horizon + (this.ground - this.horizon) * scale, scale, center, half: this.halfRoad * scale };
   }
@@ -140,6 +147,7 @@ export class Renderer {
   }
   draw(state,time) {
     this.crashCarId=state.crashCarId;this.sector=state.sector;this.distance=state.status==='ready'?time*13:state.distance;this.playerX=state.x;
+    this.roadSamples=Array.from({length:65},(_,i)=>roadOffset(this.distance,i*10-40));
     if(this.backgroundSector!==this.sector)this.makeBackground(this.sector);
     const c=this.ctx;c.setTransform(this.dpr,0,0,this.dpr,0,0);c.drawImage(this.backdrop,0,0,this.w,this.h);
     c.save();

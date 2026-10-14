@@ -11,7 +11,7 @@ function bodiesOverlap(a,b){
  }
  return true;
 }
-const result={roads:32,secondsPerRoad:90,mergeStarts:0,mergeCompletions:0,activeAtEnd:0,peakCars:0,types:{},passiveSamples:[]};
+const result={roads:32,secondsPerRoad:90,mergeStarts:0,mergeCompletions:0,activeAtEnd:0,peakCars:0,types:{},passiveSamples:[],centerHolding:[]};
 for(let seed=1;seed<=32;seed++){
  const r=new Ride(seed);r.reset(seed);
  for(let frame=0;frame<90/STEP;frame++){
@@ -23,7 +23,7 @@ for(let seed=1;seed<=32;seed++){
    if(previous&&car.change){assert.ok(Math.abs(car.x-previous.x)>0);assert.ok(Math.abs(car.x-previous.target)<Math.abs(previous.x-previous.target));}
    {result.types[car.kind]=true;for(const other of r.cars){if(car.id>=other.id||Math.abs(car.z-other.z)>20||Math.abs(car.x-other.x)>.65)continue;assert.equal(bodiesOverlap(car,other),false,'Traffic body overlap: seed '+seed+' at '+r.time);}}
   }
-  r.cars=r.cars.filter(c=>c.z>-c.length-24);r.ensureTraffic();r.drainEvents();
+  r.pruneTraffic();r.ensureTraffic();r.drainEvents();
   result.peakCars=Math.max(result.peakCars,r.cars.length);
   assert.ok(r.cars.length<36);
  }
@@ -31,11 +31,20 @@ for(let seed=1;seed<=32;seed++){
  assert.equal(r.mergeStarts-r.mergeCompletions,active,'A lane change disappeared without completion');
  result.mergeStarts+=r.mergeStarts;result.mergeCompletions+=r.mergeCompletions;result.activeAtEnd+=active;
 }
-// Observe passive survival as a diagnostic, without manufacturing a forced opening or a wall.
+// Idle inputs now include curve drift; separately test a controller that only holds the center.
 for(const x of[-.5,0,.5]){
  let survivors=0,total=0;
  for(let seed=1;seed<=24;seed++){const r=new Ride(seed);r.reset(seed);r.x=x;for(let frame=0;frame<90*60&&r.status==='running';frame++)r.advance(1/60);survivors+=r.status==='running'?1:0;total+=r.time;}
- result.passiveSamples.push({x,runs:24,survivors90Seconds:survivors,averageSeconds:Number((total/24).toFixed(2))});
+ result.passiveSamples.push({initialX:x,runs:24,survivors90Seconds:survivors,averageSeconds:Number((total/24).toFixed(2))});
 }
+let heldSurvivors=0,heldLongest=0;
+for(let seed=1;seed<=48;seed++){
+ const r=new Ride(seed);r.reset(seed);
+ for(let f=0;f<120*60&&r.status==='running';f++){const dx=-r.x-r.vx*.05;r.advance(1/60,{left:dx<-.008,right:dx>.008});}
+ heldSurvivors+=r.status==='running'?1:0;heldLongest=Math.max(heldLongest,r.time);
+}
+result.centerHolding={runs:48,survivors120Seconds:heldSurvivors,longestSeconds:Number(heldLongest.toFixed(2))};
+assert.equal(result.passiveSamples.find(s=>s.initialX===0).survivors90Seconds,0);
+assert.ok(heldSurvivors<5,'Curve correction alone should not be a reliable traffic solution');
 assert.equal(Object.keys(result.types).length,4);assert.ok(result.mergeStarts>500);
 console.log(JSON.stringify(result,null,2));

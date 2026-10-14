@@ -1,6 +1,6 @@
-import { Ride, VEHICLES } from './core.mjs?v=3.0.0-a2';
-import { Renderer } from './renderer.mjs?v=3.0.0-a2';
-import { RideAudio } from './audio.mjs?v=3.0.0-a2';
+import { Ride, VEHICLES } from './core.mjs?v=3.0.0-a3';
+import { Renderer } from './renderer.mjs?v=3.0.0-a3';
+import { RideAudio } from './audio.mjs?v=3.0.0-a3';
 const $ = id => document.getElementById(id);
 const storageKey = 'midnight-split-traffic-v1';
 function loadRecord() {
@@ -30,9 +30,9 @@ function notice(text, seconds = 2.5) {
   $('notice').textContent = text; noticeUntil = performance.now() + seconds * 1000;
 }
 function updateSound() {
-  $('sound').textContent = record.muted ? '소리 OFF' : '소리 ON';
+  $('sound').textContent = record.muted ? '효과음 OFF' : '효과음 ON';
   $('sound').setAttribute('aria-pressed', String(!record.muted));
-  $('sound').setAttribute('aria-label', record.muted ? '소리 켜기' : '소리 끄기');
+  $('sound').setAttribute('aria-label', record.muted ? '효과음 켜기' : '효과음 끄기');
 }
 function titleRecord() {
   $('start-best').textContent = record.best ? '최고 ' + number(record.best) + '점 · 최장 ' + record.time.toFixed(1) + '초' : '첫 번째 생존 기록을 남겨보세요.';
@@ -48,7 +48,7 @@ function start(sameRoad = false) {
   const seed = sameRoad ? ride.seed : Date.now();
   clearInput(); ride.reset(seed); audio.unlock(); last = performance.now();
   nearUntil = 0; screens(); updateHud();
-  notice('← → 로 추월하세요. 옆 차의 끼어들기를 조심!', 2.6);
+  notice('← → 로 조향 · 커브에서는 안쪽으로 방향을 잡으세요.', 3);
   document.activeElement?.blur();
 }
 function pause(reason = '앞의 틈을 읽고, 준비되면 이어 달리세요.') {
@@ -120,6 +120,7 @@ function frame(now) {
       $('near-label').textContent = event.type === 'double' ? 'DOUBLE SPLIT' : event.perfect ? 'PERFECT SPLIT' : 'CLOSE CALL';
       $('near-points').textContent = '+' + number(event.points) + ' / ×' + event.combo; nearUntil = now + 700;
     }
+    if (event.type === 'curve') notice(event.direction > 0 ? '우커브 → 오른쪽으로 방향을 잡으세요' : '← 좌커브 · 왼쪽으로 방향을 잡으세요', 1.7);
     if (event.type === 'finish') finish();
   }
   audio.update(ride); renderer.draw(ride, now / 1000);

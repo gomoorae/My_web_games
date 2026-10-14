@@ -1,4 +1,4 @@
-import {ROAD_HALF_METERS} from './core.mjs?v=3.0.0-a2';
+import {ROAD_HALF_METERS} from './core.mjs?v=3.0.0-a3';
 const PAINT=[['#d47b73','#7d3d45','#ed9c85'],['#89b9d3','#395977','#b2d5df'],['#d9dbce','#747f87','#f1ead5'],['#79b9a9','#35605e','#b0d9bf'],['#d7b66b','#78623a','#f7d890'],['#ad96c7','#5b4879','#d1b5dc']];
 export function drawVehicle(renderer,car,time){
   const c=renderer.ctx,center=renderer.project(car.z,car.x);

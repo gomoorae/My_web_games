@@ -1,21 +1,42 @@
-export const VERSION = '3.0.0-alpha.2';
+export const VERSION = '3.0.0-alpha.3';
 export const STEP = 1 / 120;
 export const ROAD_HALF_METERS = 7;
 export const LANES = [-.75, -.25, .25, .75];
-export const STEER_SPEED = 1.35;
+export const STEER_SPEED = .92;
+export const STEER_RESPONSE = 12;
+export const STEER_RELEASE = 32;
+export const CURVE_PULL = .085;
+export const ROAD_RADIUS = 1700;
 export const PLAYER_HALF_WIDTH = .049;
 export const PLAYER_HALF_LENGTH = 1.15;
 export const BIKE_SPEED = 225;
 export const VISIBLE_DISTANCE = 260;
 export const VEHICLES = Object.freeze({
-  compact: Object.freeze({name:'경차',width:1.62,length:3.35,height:1.60,speed:[91,111],merge:[.72,1.02],chance:.65}),
-  sedan: Object.freeze({name:'승용차',width:1.98,length:4.70,height:1.46,speed:[78,99],merge:[.86,1.20],chance:.58}),
+  compact: Object.freeze({name:'경차',width:1.62,length:3.35,height:1.60,speed:[91,111],merge:[1.10,1.30],chance:.65}),
+  sedan: Object.freeze({name:'승용차',width:1.98,length:4.70,height:1.46,speed:[78,99],merge:[1.15,1.40],chance:.58}),
   bus: Object.freeze({name:'버스',width:2.48,length:11.5,height:3.12,speed:[63,78],merge:[1.40,1.80],chance:.32}),
   truck: Object.freeze({name:'트럭',width:2.52,length:9.20,height:3.32,speed:[58,75],merge:[1.30,1.65],chance:.34}),
 });
 export const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 export const approach=(v,target,rate,dt)=>v+(target-v)*(1-Math.exp(-rate*dt));
 export function randomGenerator(seed){let value=seed>>>0;return()=>{value+=0x6d2b79f5;let t=Math.imul(value^value>>>15,1|value);t^=t+Math.imul(t^t>>>7,61|t);return((t^t>>>14)>>>0)/4294967296;};}
+// Shared by physics and rendering: straight lead-in, right bend, straight, left bend.
+export function roadTurn(distance){
+  const phase=Math.max(0,distance)%3000;
+  const profile=(start,end,sign)=>{
+    const t=clamp(Math.min((phase-start)/150,(end-phase)/150),0,1);
+    return sign*t*t*(3-2*t);
+  };
+  return profile(260,1160,1)+profile(1520,2550,-.9);
+}
+export function roadOffset(distance,ahead){
+  // Integrate curvature relative to the tangent at the bike. Eight midpoint slices
+  // keep the preview continuous when a bend begins or ends inside the view.
+  let offset=0;
+  const step=ahead/8;
+  for(let i=0;i<8;i++){const u=(i+.5)*step;offset+=(ahead-u)*roadTurn(distance+u)*step/ROAD_RADIUS;}
+  return offset;
+}
 export const collisionHalfWidth=car=>car.halfWidth-.006;
 export function vehiclePose(car,seconds=0){
   if(!car.change)return{x:car.x,z:car.z+(car.speed-BIKE_SPEED)/3.6*seconds};
@@ -41,7 +62,7 @@ export class Ride {
   reset(seed=Date.now()){
     this.seed=seed>>>0;this.random=randomGenerator(this.seed);this.status='running';
     this.time=0;this.accumulator=0;this.distance=0;this.speed=BIKE_SPEED;this.score=0;
-    this.x=0;this.vx=0;this.lean=0;this.impact=0;this.sector=0;
+    this.x=0;this.vx=0;this.lean=0;this.impact=0;this.sector=0;this.turn=0;this.curveDirection=0;
     this.combo=0;this.comboTime=0;this.maxCombo=0;this.nearCount=0;this.doubleCount=0;this.passed=0;
     this.cars=[];this.events=[];this.nextId=1;this.failure=null;this.crashCarId=null;
     this.nextMergeAt=2.2;this.mergeStarts=0;this.mergeCompletions=0;this.recentLeft=null;this.recentRight=null;
@@ -73,9 +94,10 @@ export class Ride {
       cruise,speed:cruise,color:Math.floor(this.random()*6),yaw:0,vx:0,
       change:null,signal:0,changing:false,wantsChange:this.random()<model.chance,
       attempted:false,preferredLane,changeDuration:duration,
-      triggerRatio:.86+this.random()*.40,scored:false,minGap:Infinity,minSide:0};
+      triggerRatio:.68+this.random()*.14,scored:false,minGap:Infinity,minSide:0};
     this.cars.push(car);return car;
   }
+  pruneTraffic(){this.cars=this.cars.filter(car=>car.change||car.z>-car.length-24);}
   ensureTraffic(){
     for(let lane=0;lane<4;lane++){
       const members=this.cars.filter(c=>c.lane===lane||c.change?.targetLane===lane);
@@ -113,7 +135,7 @@ export class Ride {
       if(!car.wantsChange||car.attempted||car.change||car.z<18)return false;
       const relative=(BIKE_SPEED-car.speed)/3.6,ttc=car.z/relative;
       const crossings=Math.abs(car.preferredLane-car.lane),duration=car.changeDuration*(crossings>1?1.55:1);
-      const lower=Math.max(.85,duration*.6),upper=Math.max(lower+.25,duration*car.triggerRatio+.15);
+      const lower=Math.max(.82,duration*.55),upper=Math.max(lower+.10,duration*car.triggerRatio+.10);
       return ttc>=lower&&ttc<=upper;
     });
     if(!eligible.length)return;
@@ -174,8 +196,17 @@ export class Ride {
   }
   tick(dt,input){
     this.time+=dt;this.comboTime=Math.max(0,this.comboTime-dt);if(this.comboTime===0)this.combo=0;
-    const steer=Number(!!input.right)-Number(!!input.left);this.vx=steer*STEER_SPEED;
-    this.x=clamp(this.x+this.vx*dt,-.97,.97);this.lean=approach(this.lean,steer*.34,15,dt);
+    const steer=Number(!!input.right)-Number(!!input.left);
+    const response=!steer?STEER_RELEASE:this.vx*steer<0?20:STEER_RESPONSE;
+    this.vx=approach(this.vx,steer*STEER_SPEED,response,dt);
+    if(!steer&&Math.abs(this.vx)<.004)this.vx=0;
+    this.turn=roadTurn(this.distance);
+    const outward=-this.turn*CURVE_PULL;
+    this.x=clamp(this.x+(this.vx+outward)*dt,-.97,.97);
+    this.lean=approach(this.lean,this.vx/STEER_SPEED*.30+this.turn*.06,12,dt);
+    const curveDirection=Math.abs(this.turn)>.22?Math.sign(this.turn):0;
+    if(curveDirection&&curveDirection!==this.curveDirection)this.emit('curve',{direction:curveDirection});
+    this.curveDirection=curveDirection;
     if(Math.abs(this.x)>.945){this.crash();return;}
     this.distance+=BIKE_SPEED/3.6*dt;this.score+=dt*5;
     this.updateTraffic(dt);
@@ -185,6 +216,6 @@ export class Ride {
       if(hit.nearWindow&&hit.gap>=0&&hit.gap<car.minGap){car.minGap=hit.gap;car.minSide=hit.side;}
       if(!car.scored&&car.z<-car.length/2-PLAYER_HALF_LENGTH-1)this.reward(car);
     }
-    this.cars=this.cars.filter(car=>car.z>-car.length-24);this.ensureTraffic();
+    this.pruneTraffic();this.ensureTraffic();
   }
 }
