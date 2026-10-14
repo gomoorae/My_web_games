@@ -1,4 +1,4 @@
-import { clamp, LANES, randomGenerator } from './core.mjs?v=2.0.0-3';
+import { randomGenerator, VISIBLE_DISTANCE } from './core.mjs?v=3.0.0-a1';
 const CAR_COLORS = [['#e27870','#7b363f'],['#92b9d0','#354f74'],['#e0dcca','#737887'],['#79c0b6','#315e67'],['#d1a870','#74603f'],['#b292be','#57465f']];
 export class Renderer {
   constructor(canvas) {
@@ -13,15 +13,15 @@ export class Renderer {
     this.dpr = Math.min(devicePixelRatio || 1, 2);
     this.canvas.width = Math.round(this.w * this.dpr); this.canvas.height = Math.round(this.h * this.dpr);
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    this.horizon = this.h * (this.h < 500 ? .25 : .30);
+    this.horizon = this.h * (this.h < 500 ? .24 : .24);
     const touchLayout = this.w <= 900 || matchMedia('(any-pointer: coarse)').matches;
-    this.ground = this.h < 500 ? this.h * .55 : Math.min(this.h * .82, this.h - (touchLayout ? 230 : 170));
+    this.ground = this.h < 500 ? this.h * .76 : Math.min(this.h * .84, this.h - (touchLayout ? 132 : 90));
     this.halfRoad = this.w * (this.w < 600 ? .55 : .48);
     this.backgroundSector = -1;
   }
   project(z, x = 0) {
     const scale = 34 / Math.max(8, z + 34);
-    const bend = (Math.sin((this.distance + z) / 740) - Math.sin(this.distance / 740)) * this.w * .58 * (1 - Math.min(scale,1));
+    const bend = (Math.sin((this.distance + z) / 740) - Math.sin(this.distance / 740)) * this.w * .22 * (1 - Math.min(scale,1));
     const center = this.w / 2 + bend - this.playerX * this.halfRoad * .25 * Math.min(scale, 1);
     return { x: center + x * this.halfRoad * scale, y: this.horizon + (this.ground - this.horizon) * scale, scale, center, half: this.halfRoad * scale };
   }
@@ -115,8 +115,8 @@ export class Renderer {
     }
   }
   car(car,time) {
-    const c=this.ctx,p=this.project(car.z,car.x);if(p.y>this.h+200||p.scale<.025)return;
-    const width=p.half*car.halfWidth*2,height=width*(car.van?1.1:.74),x=p.x,y=p.y;
+    const c=this.ctx,p=this.project(car.z,car.x);if(p.y>this.h+200||p.scale<.025||car.z>VISIBLE_DISTANCE)return;
+    const width=p.half*car.halfWidth*2,height=width*(car.van?1.1:.74)*Math.min(1,this.h/this.w*1.45),x=p.x,y=p.y;
     const color=CAR_COLORS[car.color];
     c.save();c.translate(x,y);c.rotate(car.changing?car.signal*.025:0);
     c.fillStyle='#00000066';c.beginPath();c.ellipse(0,3,width*.66,width*.16,0,0,Math.PI*2);c.fill();
@@ -124,9 +124,10 @@ export class Renderer {
     this.poly(color[1],[[-width*.5,-height*.17],[-width*.48,-height*.54],[-width*.34,-height], [width*.34,-height],[width*.48,-height*.54],[width*.5,-height*.17]]);
     this.poly(color[0],[[-width*.46,-height*.53],[-width*.31,-height*1.02],[width*.31,-height*1.02],[width*.46,-height*.53]]);
     const glass=c.createLinearGradient(0,-height,0,-height*.55);glass.addColorStop(0,'#7eafbd');glass.addColorStop(.2,'#1a354b');glass.addColorStop(1,'#294255');
-    this.poly(glass,[[-width*.35,-height*.59],[-width*.26,-height*.90],[width*.26,-height*.90],[width*.35,-height*.59]]);
+    this.poly(car.van?color[1]:glass,[[-width*.35,-height*.59],[-width*.26,-height*.90],[width*.26,-height*.90],[width*.35,-height*.59]]);
     this.poly(color[0],[[-width*.49,-height*.51],[width*.49,-height*.51],[width*.5,-height*.22],[-width*.5,-height*.22]]);
     c.fillStyle=color[1];c.fillRect(-width*.48,-height*.21,width*.96,height*.12);
+    if(car.van){c.strokeStyle='#e6eee844';c.lineWidth=Math.max(1,width*.012);c.beginPath();c.moveTo(0,-height*.91);c.lineTo(0,-height*.30);c.stroke();c.fillStyle='#d1dadb';c.fillRect(-width*.07,-height*.52,width*.025,height*.12);c.fillRect(width*.04,-height*.52,width*.025,height*.12);}
     c.fillStyle='#fba297';c.shadowColor='#ff645b';c.shadowBlur=Math.min(14,10*p.scale);c.fillRect(-width*.43,-height*.43,width*.21,height*.10);c.fillRect(width*.22,-height*.43,width*.21,height*.10);c.shadowBlur=0;
     c.fillStyle='#ecede0';c.fillRect(-width*.11,-height*.29,width*.22,height*.07);
     c.fillStyle='#e9f2f035';c.fillRect(-width*.28,-height*.98,width*.56,Math.max(1,height*.025));
@@ -135,11 +136,9 @@ export class Renderer {
     c.restore();
   }
   bike(state,time) {
-    const c=this.ctx,p=this.project(0,state.x),u=Math.max(28,this.halfRoad*.10);
+    const c=this.ctx,p=this.project(0,state.x),u=Math.max(26,this.halfRoad*.10)*Math.min(1,this.h/this.w*1.6);
     c.save();c.translate(p.x,p.y);c.rotate(state.lean*.55);
-    if(state.invulnerable>0 && Math.sin(time*24)<0)c.globalAlpha=.45;
     c.fillStyle='#0008';c.beginPath();c.ellipse(0,1,u*.85,u*.29,0,0,Math.PI*2);c.fill();
-    if(state.boosting){for(const side of [-1,1]){const flame=u*(1.1+Math.sin(time*47)*.18);const g=c.createLinearGradient(0,0,0,flame);g.addColorStop(0,'#e4fff6');g.addColorStop(.3,'#61f6ec');g.addColorStop(1,'#57baff00');this.poly(g,[[side*u*.36-u*.12,-u*.05],[side*u*.36+u*.12,-u*.05],[side*u*.36,flame]]);}}
     c.fillStyle='#03070f';c.fillRect(-u*.18,-u*.78,u*.36,u*.86);c.fillStyle='#495569';c.fillRect(-u*.075,-u*.64,u*.15,u*.66);
     this.poly('#bdc6c6',[[-u*.38,-u*.90],[-u*.24,-u*.23],[u*.24,-u*.23],[u*.38,-u*.90],[u*.25,-u*1.65],[-u*.25,-u*1.65]]);
     this.poly('#183b49',[[-u*.29,-u*1.45],[-u*.2,-u*.36],[u*.2,-u*.36],[u*.29,-u*1.45]]);
@@ -155,7 +154,6 @@ export class Renderer {
     c.strokeStyle='#d4e9e1';c.lineWidth=u*.065;c.beginPath();c.ellipse(0,-u*2.14,u*.27,u*.29,0,Math.PI,Math.PI*1.95);c.stroke();
     c.fillStyle='#8bd8d7';c.fillRect(-u*.19,-u*2.15,u*.38,u*.075);c.fillStyle='#ff776d';c.shadowColor='#ff665b';c.shadowBlur=15;c.fillRect(-u*.20,-u*.43,u*.4,u*.10);c.shadowBlur=0;
     c.restore();
-    if(state.boosting&&!this.reduced){c.strokeStyle='#a4fff233';c.lineWidth=1;for(let i=0;i<20;i++){const f=((time*1.6+i*.17)%1),side=i%2?-1:1,sx=this.w*.5+side*this.w*(.18+f*.55);c.beginPath();c.moveTo(sx,this.horizon+(this.h-this.horizon)*f);c.lineTo(sx+side*f*40,this.horizon+(this.h-this.horizon)*f+f*60);c.stroke();}}
   }
   draw(state,time) {
     this.sector=state.sector;this.distance=state.status==='ready'?time*13:state.distance;this.playerX=state.x;

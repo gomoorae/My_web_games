@@ -1,32 +1,40 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Ride, ROUTE_LENGTH, LANES } from '../core.mjs';
-const run=(ride,seconds,input={},fps=60)=>{for(let i=0;i<Math.round(seconds*fps);i++)ride.advance(1/fps,input);return ride;};
-const empty=()=>{const r=new Ride(42);r.reset(42);r.cars=[];r.spawnRow=()=>{};return r;};
-const car=(x,z=8)=>({id:90,lane:1,x,z,speed:100,baseSpeed:100,halfWidth:.115,length:4.5,color:0,van:false,scored:false,crashed:false,minGap:Infinity,nearEligible:false,signal:0,canChange:false});
-test('ready screen does not advance the ride',()=>{const r=new Ride(4);run(r,10);assert.equal(r.distance,0);assert.equal(r.status,'ready');});
-test('30, 60 and 120 Hz produce the same traffic and distance',()=>{const rides=[30,60,120].map(fps=>{const r=new Ride(12);r.reset(12);run(r,24,{accelerate:true},fps);return r;});for(const r of rides.slice(1)){assert.ok(Math.abs(r.distance-rides[0].distance)<1e-7);assert.equal(r.health,rides[0].health);assert.equal(r.score,rides[0].score);assert.deepEqual(r.cars,rides[0].cars);}});
-test('left and right are symmetric and simultaneous input is neutral',()=>{const a=empty(),b=empty(),c=empty();run(a,.4,{left:true});run(b,.4,{right:true});run(c,.4,{left:true,right:true});assert.ok(a.x<-.2);assert.ok(Math.abs(a.x+b.x)<1e-9);assert.equal(c.x,0);});
-test('steering settles when released',()=>{const r=empty();run(r,.3,{right:true});run(r,1);assert.ok(Math.abs(r.vx)<.0001);});
-test('accelerator, cruise and brake have distinct speeds',()=>{const speeds=[{brake:true},{},{accelerate:true}].map(i=>run(empty(),8,i).speed);assert.ok(speeds[0]<80);assert.ok(speeds[1]>160&&speeds[1]<165);assert.ok(speeds[2]>200);});
-test('boost consumes charge and raises speed',()=>{const r=empty();run(r,1,{boost:true});assert.ok(r.speed>195);assert.ok(r.boost<15);assert.equal(r.boosting,true);});
-test('empty boost cannot repeatedly retrigger while held',()=>{const r=empty();r.boost=1;run(r,4,{boost:true});const events=r.drainEvents();assert.equal(events.filter(e=>e.type==='boost').length,1);assert.equal(r.boosting,false);run(r,.2,{});run(r,.2,{boost:true});assert.ok(r.drainEvents().some(e=>e.type==='boost'));});
-test('braking takes priority over boost',()=>{const r=empty();run(r,2,{boost:true,brake:true});assert.equal(r.boost,35);assert.ok(r.speed<81);});
-test('near overtake gives charge and combo exactly once',()=>{const r=empty();r.speed=164;r.cars=[car(.205)];run(r,2);assert.equal(r.nearCount,1);assert.equal(r.combo,1);assert.equal(r.passed,1);assert.ok(r.boost>=51);run(r,3);assert.equal(r.nearCount,1);});
-test('perfect overtake scores more than an ordinary near miss',()=>{const a=empty(),b=empty();a.speed=b.speed=164;a.cars=[car(.18)];b.cars=[car(.215)];run(a,2);run(b,2);assert.equal(a.perfectCount,1);assert.equal(b.perfectCount,0);assert.ok(a.score>b.score);});
-test('riding on the center line is not automatically a near miss',()=>{const r=empty();r.speed=164;r.cars=[car(.25)];run(r,2);assert.equal(r.nearCount,0);assert.equal(r.passed,1);});
-test('slow passes do not earn risk bonuses',()=>{const r=empty();r.speed=105;const c=car(.18);c.speed=c.baseSpeed=70;r.cars=[c];run(r,3,{brake:true});assert.equal(r.nearCount,0);});
-test('collisions remove one health and suppress near reward',()=>{const r=empty();r.speed=206;r.cars=[car(0,3)];run(r,.1);assert.equal(r.health,2);assert.equal(r.combo,0);assert.equal(r.nearCount,0);assert.ok(r.invulnerable>2);assert.ok(r.speed<130);});
-test('protection prevents multiple simultaneous hits and farming',()=>{const r=empty();r.cars=[car(0,2),{...car(.18,1),id:91}];r.speed=206;run(r,1);assert.equal(r.health,2);assert.equal(r.nearCount,0);});
-test('third collision ends the run',()=>{const r=empty();r.hit();r.invulnerable=0;r.hit();r.invulnerable=0;r.hit();assert.equal(r.health,0);assert.equal(r.status,'crashed');const distance=r.distance;run(r,2);assert.equal(r.distance,distance);});
-test('barriers damage and constrain the bike',()=>{const r=empty();run(r,2,{right:true});assert.equal(r.health,2);assert.ok(r.x<1);});
-test('pause freezes score, traffic, boost and combo',()=>{const r=empty();run(r,1,{boost:true});r.comboTime=3;r.pause();const snapshot=[r.distance,r.score,r.speed,r.boost,r.comboTime];run(r,10,{right:true});assert.deepEqual([r.distance,r.score,r.speed,r.boost,r.comboTime],snapshot);r.resume();run(r,1);assert.ok(r.distance>snapshot[0]);});
-test('combo expires and is capped at ten',()=>{const r=empty();for(let i=0;i<15;i++)r.reward({...car(.18),minGap:.02,nearEligible:true});assert.equal(r.combo,10);assert.equal(r.maxCombo,10);run(r,5.1);assert.equal(r.combo,0);});
-test('sector checkpoint repairs once and grants charge',()=>{const r=empty();r.distance=1999;r.health=1;r.boost=10;run(r,.1);assert.equal(r.sector,1);assert.equal(r.health,2);assert.ok(r.boost>=30);run(r,1);assert.equal(r.health,2);});
-test('finish is terminal and awards completion bonus once',()=>{const r=empty();r.distance=ROUTE_LENGTH-1;r.sector=2;run(r,.1);assert.equal(r.status,'finished');assert.equal(r.distance,ROUTE_LENGTH);assert.equal(r.finishedBonus,4000);const score=r.score;run(r,1);assert.equal(r.score,score);});
-test('restart clears every run-specific state',()=>{const r=new Ride(42);r.reset(42);r.hit();r.score=2000;r.distance=1400;r.combo=4;r.reset(42);assert.equal(r.status,'running');assert.equal(r.health,3);assert.equal(r.distance,0);assert.equal(r.score,0);assert.equal(r.invulnerable,0);assert.equal(r.combo,0);assert.equal(r.boost,35);assert.equal(r.cars.length,8);});
-test('every traffic wave leaves a lane free',()=>{const r=empty();const spawn=Ride.prototype.spawnRow.bind(r);for(let i=0;i<100;i++){r.cars=[];spawn(300);assert.ok(r.cars.length<=3);const lanes=new Set(r.cars.map(c=>c.lane));assert.ok(lanes.size<LANES.length);assert.ok(!lanes.has(r.lastGap));}});
-test('lane changes must wait for their signal',()=>{const r=empty();r.speed=164;r.sector=1;r.distance=2100;r.cars=[{...car(-.25,50),canChange:true}];run(r,.1);const c=r.cars[0];assert.notEqual(c.signal,0);const x=c.x;run(r,.9);assert.equal(c.x,x);run(r,1);assert.notEqual(c.x,x);});
-test('another car blocks a lane change',()=>{const r=empty();const a=car(-.25,80),b={...car(.25,83),id:91};r.cars=[a,b];assert.equal(r.laneClear(a,2,36),false);assert.equal(r.laneClear(a,0,36),true);});
-test('time jumps are bounded',()=>{const r=empty();r.advance(90,{});assert.ok(r.time<=.251);assert.ok(r.distance<20);});
-test('a curve requires steering instead of allowing an idle clear',()=>{const r=empty();r.distance=450;r.speed=164;run(r,2);assert.ok(r.x<-.07);});
+import { Ride, STEER_SPEED, PLAYER_HALF_WIDTH, CLOSING_SPEED, encounterWindow } from '../core.mjs';
+const run = (ride, seconds, input = {}, fps = 60) => { for (let f=0; f<Math.round(seconds*fps); f++) ride.advance(1/fps,input); return ride; };
+const openRoad = () => { const r=new Ride(1);r.reset(1);r.cars=[];r.gates=[];r.generateAhead=()=>{};return r; };
+function fixtureCar(r,x,at=.3) {
+ const car={id:1,gateId:1,at,baseX:x,x,offsetZ:0,z:at*CLOSING_SPEED,halfWidth:.12,length:5.2,color:0,van:false,kind:'weave',side:1,shift:0,signal:0,changing:false,scored:false,minGap:Infinity,minSide:0};
+ r.cars=[car];return car;
+}
+function followRoad(r, seconds, fps=60) {
+ for(let f=0;f<seconds*fps&&r.status==='running';f++){
+  const g=r.gates.find(g=>g.at+encounterWindow(g)>r.time),dx=(g?.center??r.x)-r.x;
+  r.advance(1/fps,{left:dx<.0-.008,right:dx>.008});r.drainEvents();
+ }
+ return r;
+}
+test('title remains stationary until start',()=>{const r=new Ride(6);run(r,10);assert.equal(r.time,0);assert.equal(r.distance,0);});
+test('left and right steering are symmetric and stop immediately',()=>{const a=openRoad(),b=openRoad();run(a,.3,{left:true});run(b,.3,{right:true});assert.ok(Math.abs(a.x+b.x)<1e-9);assert.ok(Math.abs(b.x-.3*STEER_SPEED)<1e-9);const x=b.x;run(b,.5);assert.equal(b.x,x);assert.equal(b.vx,0);});
+test('opposed inputs are neutral',()=>{const r=openRoad();run(r,1,{left:true,right:true});assert.equal(r.x,0);});
+test('old accelerator, brake and boost inputs have no effect',()=>{const a=openRoad(),b=openRoad();run(a,10);run(b,10,{accelerate:true,brake:true,boost:true});assert.equal(a.distance,b.distance);assert.equal(a.speed,b.speed);assert.equal(a.score,b.score);assert.equal('boost' in b,false);});
+test('road curvature never pushes the rider sideways',()=>{const r=openRoad();run(r,50);assert.equal(r.x,0);assert.equal(r.status,'running');});
+test('30, 60 and 120 Hz agree on first collision and traffic',()=>{const rides=[30,60,120].map(fps=>{const r=new Ride(7);r.reset(7);run(r,8,{},fps);return r;});for(const r of rides.slice(1)){assert.equal(r.time,rides[0].time);assert.equal(r.score,rides[0].score);assert.deepEqual(r.cars,rides[0].cars);assert.deepEqual(r.failure,rides[0].failure);}});
+test('one traffic collision ends the run exactly once',()=>{const r=openRoad();fixtureCar(r,0);run(r,1);assert.equal(r.status,'crashed');assert.equal(r.drainEvents().filter(e=>e.type==='finish').length,1);const score=r.score,time=r.time;run(r,10,{right:true});assert.equal(r.score,score);assert.equal(r.time,time);assert.deepEqual(r.drainEvents(),[]);});
+test('rail contact is a terminal collision with a clear side',()=>{const r=openRoad();run(r,2,{left:true});assert.equal(r.status,'crashed');assert.deepEqual(r.failure,{kind:'rail',side:'left'});});
+test('passing a car safely rewards it once',()=>{const r=openRoad();fixtureCar(r,.5);run(r,1);assert.equal(r.status,'running');assert.equal(r.passed,1);assert.equal(r.nearCount,0);const s=r.score;run(r,1);assert.ok(Math.abs(r.score-s-5)<1e-7);});
+test('near miss rewards precise steering and builds combo',()=>{const r=openRoad();fixtureCar(r,.20);run(r,1);assert.equal(r.nearCount,1);assert.equal(r.combo,1);assert.ok(r.score>=120);});
+test('perfect clearance scores above a normal near miss',()=>{const a=openRoad(),b=openRoad();fixtureCar(a,.18);fixtureCar(b,.20);run(a,1);run(b,1);assert.ok(a.score>b.score);assert.equal(a.status,'running');});
+test('hitting a car never earns its near-miss points',()=>{const r=openRoad();fixtureCar(r,.13);run(r,1);assert.equal(r.status,'crashed');assert.equal(r.nearCount,0);assert.equal(r.passed,0);});
+test('threading both sides of a tight gap earns one double split',()=>{const r=openRoad();r.makeGate(.4,0,.30,'weave');run(r,1);assert.equal(r.status,'running');assert.equal(r.cleared,1);assert.equal(r.doubleCount,1);const combo=r.combo;run(r,1);assert.equal(r.doubleCount,1);assert.equal(r.combo,combo);});
+test('combo expires without further precision passes',()=>{const r=openRoad();fixtureCar(r,.20);run(r,1);run(r,5);assert.equal(r.combo,0);});
+test('combo is capped at ten',()=>{const r=openRoad();for(let i=0;i<20;i++)r.reward({scored:false,minGap:.02});assert.equal(r.combo,10);assert.equal(r.maxCombo,10);});
+test('pause freezes pattern timing and resuming keeps the same encounter',()=>{const r=new Ride(3);r.reset(3);run(r,.5);r.pause();const state=JSON.stringify([r.time,r.score,r.comboTime,r.cars]);run(r,15,{right:true});assert.equal(JSON.stringify([r.time,r.score,r.comboTime,r.cars]),state);r.resume();run(r,.2);assert.ok(r.time>.5);});
+test('same seed replays exactly the same opening after a crash',()=>{const r=new Ride(15);r.reset(15);const initial=JSON.stringify(r.cars);run(r,7);r.reset(15);assert.equal(JSON.stringify(r.cars),initial);assert.equal(r.score,0);assert.equal(r.cleared,0);assert.equal(r.failure,null);assert.equal(r.status,'running');});
+test('changing seed changes the road',()=>{const a=new Ride(13),b=new Ride(14);assert.notDeepEqual(a.cars,b.cars);});
+test('the next pair has no common fixed safe corridor',()=>{for(let seed=1;seed<100;seed++){const r=new Ride(seed),[a,b]=r.gates;const safeA=(a.width-2*PLAYER_HALF_WIDTH)/2,safeB=(b.width-2*PLAYER_HALF_WIDTH)/2;assert.ok(Math.abs(a.center-b.center)>safeA+safeB+.02);}});
+test('merge signals precede movement by at least a second',()=>{const r=openRoad();r.makeGate(5,0,.34,'merge');const c=r.cars.find(c=>c.shift);run(r,1.8);assert.notEqual(c.signal,0);assert.equal(c.x,c.baseX);run(r,1);assert.equal(c.x,c.baseX);run(r,.3);assert.notEqual(c.x,c.baseX);});
+test('the final opening of a merge remains traversable throughout movement',()=>{const r=openRoad();r.makeGate(3,0,.32,'merge');run(r,4);assert.equal(r.status,'running');assert.equal(r.cleared,1);});
+test('truck encounters have larger, longer silhouettes',()=>{const r=openRoad();const g=r.makeGate(3,0,.34,'truck');assert.ok(g.cars.every(c=>c.van&&c.length===8));assert.ok(Math.max(...g.cars.map(c=>c.halfWidth))>.2);});
+test('the route continues beyond the old six-kilometer finish',()=>{const r=new Ride(9);r.reset(9);followRoad(r,150);assert.equal(r.status,'running');assert.ok(r.distance>7000);assert.ok(r.cleared>50);});
+test('large elapsed-time gaps are bounded',()=>{const r=openRoad();r.advance(60);assert.ok(r.time<=.251);});
