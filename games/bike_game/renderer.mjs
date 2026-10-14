@@ -1,5 +1,5 @@
-import { randomGenerator, VISIBLE_DISTANCE } from './core.mjs?v=3.0.0-a1';
-const CAR_COLORS = [['#e27870','#7b363f'],['#92b9d0','#354f74'],['#e0dcca','#737887'],['#79c0b6','#315e67'],['#d1a870','#74603f'],['#b292be','#57465f']];
+import { randomGenerator, VISIBLE_DISTANCE } from './core.mjs?v=3.0.0-a2';
+import { drawVehicle } from './vehicles.mjs?v=3.0.0-a2';
 export class Renderer {
   constructor(canvas) {
     this.canvas = canvas; this.ctx = canvas.getContext('2d', { alpha: false });
@@ -13,7 +13,7 @@ export class Renderer {
     this.dpr = Math.min(devicePixelRatio || 1, 2);
     this.canvas.width = Math.round(this.w * this.dpr); this.canvas.height = Math.round(this.h * this.dpr);
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    this.horizon = this.h * (this.h < 500 ? .24 : .24);
+    this.horizon = this.h * .24;
     const touchLayout = this.w <= 900 || matchMedia('(any-pointer: coarse)').matches;
     this.ground = this.h < 500 ? this.h * .76 : Math.min(this.h * .84, this.h - (touchLayout ? 132 : 90));
     this.halfRoad = this.w * (this.w < 600 ? .55 : .48);
@@ -115,25 +115,8 @@ export class Renderer {
     }
   }
   car(car,time) {
-    const c=this.ctx,p=this.project(car.z,car.x);if(p.y>this.h+200||p.scale<.025||car.z>VISIBLE_DISTANCE)return;
-    const width=p.half*car.halfWidth*2,height=width*(car.van?1.1:.74)*Math.min(1,this.h/this.w*1.45),x=p.x,y=p.y;
-    const color=CAR_COLORS[car.color];
-    c.save();c.translate(x,y);c.rotate(car.changing?car.signal*.025:0);
-    c.fillStyle='#00000066';c.beginPath();c.ellipse(0,3,width*.66,width*.16,0,0,Math.PI*2);c.fill();
-    c.fillStyle='#030a13';c.fillRect(-width*.48,-height*.32,width*.18,height*.36);c.fillRect(width*.3,-height*.32,width*.18,height*.36);
-    this.poly(color[1],[[-width*.5,-height*.17],[-width*.48,-height*.54],[-width*.34,-height], [width*.34,-height],[width*.48,-height*.54],[width*.5,-height*.17]]);
-    this.poly(color[0],[[-width*.46,-height*.53],[-width*.31,-height*1.02],[width*.31,-height*1.02],[width*.46,-height*.53]]);
-    const glass=c.createLinearGradient(0,-height,0,-height*.55);glass.addColorStop(0,'#7eafbd');glass.addColorStop(.2,'#1a354b');glass.addColorStop(1,'#294255');
-    this.poly(car.van?color[1]:glass,[[-width*.35,-height*.59],[-width*.26,-height*.90],[width*.26,-height*.90],[width*.35,-height*.59]]);
-    this.poly(color[0],[[-width*.49,-height*.51],[width*.49,-height*.51],[width*.5,-height*.22],[-width*.5,-height*.22]]);
-    c.fillStyle=color[1];c.fillRect(-width*.48,-height*.21,width*.96,height*.12);
-    if(car.van){c.strokeStyle='#e6eee844';c.lineWidth=Math.max(1,width*.012);c.beginPath();c.moveTo(0,-height*.91);c.lineTo(0,-height*.30);c.stroke();c.fillStyle='#d1dadb';c.fillRect(-width*.07,-height*.52,width*.025,height*.12);c.fillRect(width*.04,-height*.52,width*.025,height*.12);}
-    c.fillStyle='#fba297';c.shadowColor='#ff645b';c.shadowBlur=Math.min(14,10*p.scale);c.fillRect(-width*.43,-height*.43,width*.21,height*.10);c.fillRect(width*.22,-height*.43,width*.21,height*.10);c.shadowBlur=0;
-    c.fillStyle='#ecede0';c.fillRect(-width*.11,-height*.29,width*.22,height*.07);
-    c.fillStyle='#e9f2f035';c.fillRect(-width*.28,-height*.98,width*.56,Math.max(1,height*.025));
-    c.fillStyle='#fc786514';c.beginPath();c.ellipse(-width*.29,height*.15,width*.18,height*.23,0,0,Math.PI*2);c.ellipse(width*.29,height*.15,width*.18,height*.23,0,0,Math.PI*2);c.fill();
-    if(car.signal && Math.sin(time*13)>0){c.fillStyle='#ffcd62';c.shadowColor='#ffa83d';c.shadowBlur=15*p.scale;c.fillRect(car.signal<0?-width*.48:width*.34,-height*.46,width*.14,height*.14);c.shadowBlur=0;}
-    c.restore();
+    if(car.z>VISIBLE_DISTANCE||car.z<-car.length-20)return;
+    drawVehicle(this,car,time);
   }
   bike(state,time) {
     const c=this.ctx,p=this.project(0,state.x),u=Math.max(26,this.halfRoad*.10)*Math.min(1,this.h/this.w*1.6);
@@ -156,15 +139,18 @@ export class Renderer {
     c.restore();
   }
   draw(state,time) {
-    this.sector=state.sector;this.distance=state.status==='ready'?time*13:state.distance;this.playerX=state.x;
+    this.crashCarId=state.crashCarId;this.sector=state.sector;this.distance=state.status==='ready'?time*13:state.distance;this.playerX=state.x;
     if(this.backgroundSector!==this.sector)this.makeBackground(this.sector);
     const c=this.ctx;c.setTransform(this.dpr,0,0,this.dpr,0,0);c.drawImage(this.backdrop,0,0,this.w,this.h);
     c.save();
-    if(!this.reduced&&state.impact>0)c.translate(Math.sin(time*91)*state.impact*7,Math.cos(time*73)*state.impact*4);
+    if(state.status==='crashed'&&this.lastStatus!=='crashed')this.crashTime=time;
+    this.lastStatus=state.status;
+    const impact=state.status==='crashed'?Math.max(0,1-(time-(this.crashTime??time))*3):0;
+    if(!this.reduced&&impact>0)c.translate(Math.sin(time*91)*impact*7,Math.cos(time*73)*impact*4);
     this.tunnelWalls();this.road();this.roadside(time);
     const objects=state.cars.map(car=>({z:car.z,car}));objects.push({z:0});objects.sort((a,b)=>b.z-a.z);
     for(const object of objects){if(object.car)this.car(object.car,time);else this.bike(state,time);}
     c.restore();
-    if(state.impact>0){c.fillStyle='rgba(255,85,75,'+state.impact*.18+')';c.fillRect(0,0,this.w,this.h);}
+    if(impact>0){c.fillStyle='rgba(255,85,75,'+impact*.18+')';c.fillRect(0,0,this.w,this.h);}
   }
 }

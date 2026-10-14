@@ -1,8 +1,8 @@
-import { Ride } from './core.mjs?v=3.0.0-a1';
-import { Renderer } from './renderer.mjs?v=3.0.0-a1';
-import { RideAudio } from './audio.mjs?v=3.0.0-a1';
+import { Ride, VEHICLES } from './core.mjs?v=3.0.0-a2';
+import { Renderer } from './renderer.mjs?v=3.0.0-a2';
+import { RideAudio } from './audio.mjs?v=3.0.0-a2';
 const $ = id => document.getElementById(id);
-const storageKey = 'midnight-split-survival-v1';
+const storageKey = 'midnight-split-traffic-v1';
 function loadRecord() {
   try {
     const data = JSON.parse(localStorage.getItem(storageKey) || '{}');
@@ -48,7 +48,7 @@ function start(sameRoad = false) {
   const seed = sameRoad ? ride.seed : Date.now();
   clearInput(); ride.reset(seed); audio.unlock(); last = performance.now();
   nearUntil = 0; screens(); updateHud();
-  notice('← → 로 빈틈을 찾으세요. 충돌하면 끝!', 2.6);
+  notice('← → 로 추월하세요. 옆 차의 끼어들기를 조심!', 2.6);
   document.activeElement?.blur();
 }
 function pause(reason = '앞의 틈을 읽고, 준비되면 이어 달리세요.') {
@@ -66,14 +66,14 @@ function finish() {
   saveRecord(); titleRecord(); $('record-badge').hidden = !isBest;
   $('result-score').textContent = number(score); $('result-time').textContent = ride.time.toFixed(1) + '초';
   $('result-near').textContent = ride.nearCount + '회'; $('result-combo').textContent = '× ' + ride.maxCombo;
-  $('result-cleared').textContent = ride.cleared + '회';
+  $('result-cleared').textContent = ride.passed + '대';
   const side = ride.failure.side === 'left' ? '왼쪽' : '오른쪽';
   $('result-title').textContent = ride.failure.kind === 'rail' ? '가드레일에 부딪혔어요.' : '틈을 놓쳤어요.';
-  $('result-message').textContent = side + (ride.failure.kind === 'rail' ? ' 가드레일' : ride.failure.kind === 'truck' ? ' 트럭' : ' 차량') + '과 충돌했습니다. 같은 배치로 다시 도전해보세요.';
+  $('result-message').textContent = side + (ride.failure.kind === 'rail' ? ' 가드레일' : ' ' + (VEHICLES[ride.failure.kind]?.name || '차량')) + '과 충돌했습니다. 같은 배치로 다시 도전해보세요.';
   screens(); updateHud(); $('retry').focus({ preventScroll: true });
 }
 function updateHud() {
-  $('time').textContent = ride.time.toFixed(1) + ' s'; $('cleared').textContent = ride.cleared + '번 통과';
+  $('time').textContent = ride.time.toFixed(1) + ' s'; $('cleared').textContent = '추월 ' + ride.passed + '대';
   $('score').textContent = number(ride.score); $('best-hud').textContent = 'BEST ' + number(record.best);
   $('combo').textContent = ride.combo ? '× ' + ride.combo + ' COMBO' : '';
   $('combo-progress').style.width = ride.comboTime / 4.5 * 100 + '%';

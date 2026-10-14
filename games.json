@@ -39,8 +39,8 @@
   },
   {
     "title": "바이크 칼치기",
-    "category": "ARCADE · SURVIVAL",
-    "description": "좌우만으로 바뀌는 틈을 뚫으세요. 엇갈린 차량과 끼어드는 차, 트럭 사이를 통과하는 생존 시험판. 한 번 충돌하면 끝, 같은 배치로 바로 재도전!",
+    "category": "RACING · TRAFFIC",
+    "description": "빠른 바이크로 차들 사이를 추월하세요. 각 차선을 달리는 경차·승용차·버스·트럭, 그리고 옆 차선까지 거침없이 들어오는 차량을 피하는 고속 칼치기.",
     "thumbnail": "thumbs/bike_game_v3.svg",
     "url": "games/bike_game/index.html"
   }
