@@ -38,3 +38,28 @@ test('counter-steering permits ongoing travel beyond six kilometers',()=>{const 
 test('a scheduled crossing can physically hit a bike standing on the middle line',()=>{const r=openRoad();r.time=3;r.nextMergeAt=0;const c=addCar(r,1,42,'sedan');c.wantsChange=true;c.preferredLane=2;c.changeDuration=1.2;c.triggerRatio=.75;r.scheduleChanges=Ride.prototype.scheduleChanges.bind(r);run(r,2);assert.equal(r.status,'crashed');assert.equal(r.crashCarId,c.id);assert.equal(r.failure.kind,'sedan');});
 test('finished or paused motion cannot carry over into a restart',()=>{const r=openRoad();run(r,.3,{right:true});r.pause();assert.equal(r.vx,0);r.reset(1);assert.equal(r.x,0);assert.equal(r.vx,0);assert.equal(r.turn,0);});
 test('large time gaps are bounded',()=>{const r=openRoad();r.advance(90);assert.ok(r.time<=.251);});
+test('rotated collision agrees with an independent polygon intersection check',()=>{
+ const polygonHit=(a,b)=>{
+  for(const poly of[a,b])for(let i=0;i<poly.length;i++){
+   const p=poly[i],q=poly[(i+1)%poly.length],axis=[q[1]-p[1],p[0]-q[0]];
+   const project=points=>points.map(v=>v[0]*axis[0]+v[1]*axis[1]);
+   const ap=project(a),bp=project(b);
+   if(Math.max(...ap)<=Math.min(...bp)||Math.max(...bp)<=Math.min(...ap))return false;
+  }
+  return true;
+ };
+ const r=openRoad();
+ for(const kind of Object.keys(VEHICLES)){
+  const car=addCar(r,2,0,kind),w=car.width/2-.006*ROAD_HALF_METERS,l=car.length/2;
+  for(let turn=-5;turn<=5;turn++)for(let depth=-16;depth<=16;depth++){
+   car.yaw=turn*.07;car.z=depth*.5;
+   const c=Math.cos(car.yaw),s=Math.sin(car.yaw);
+   const body=[[-w,-l],[w,-l],[w,l],[-w,l]].map(([x,z])=>[car.x*ROAD_HALF_METERS+x*c+z*s,car.z+z*c-x*s]);
+   for(let lane=-20;lane<=20;lane++){
+    const x=lane*.05,px=x*ROAD_HALF_METERS,pw=.049*ROAD_HALF_METERS;
+    const bike=[[px-pw,-1.15],[px+pw,-1.15],[px+pw,1.15],[px-pw,1.15]];
+    assert.equal(contact(car,x).hit,polygonHit(body,bike),`${kind}, yaw ${car.yaw}, z ${car.z}, x ${x}`);
+   }
+  }
+ }
+});

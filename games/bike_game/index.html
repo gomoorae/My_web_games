@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080f1d">
 <meta name="description" content="빠른 바이크로 차선을 달리는 차들 사이를 추월하고, 가로질러 끼어드는 차를 피하세요. 바이크 칼치기: MIDNIGHT SPLIT.">
 <title>바이크 칼치기 · MIDNIGHT SPLIT</title>
-<link rel="stylesheet" href="styles.css?v=3.0.0-a3"><script type="module" src="app.mjs?v=3.0.0-a3"></script>
+<link rel="stylesheet" href="styles.css?v=3.0.0"><script type="module" src="app.mjs?v=3.0.0"></script>
 </head><body><main id="game" aria-label="바이크 칼치기 게임">
 <canvas id="road" aria-label="야간 고속도로 주행 화면"></canvas><div class="vignette" aria-hidden="true"></div>
 <header class="toolbar"><a class="back" href="../../index.html" aria-label="게임 목록으로">↖ <span>ARCADE</span></a><span class="brand">MIDNIGHT<span class="brand-slash"> / </span>SPLIT</span><div class="toolbar-actions"><button id="sound" class="icon-button" aria-label="효과음 끄기" aria-pressed="true">효과음 ON</button><button id="fullscreen" class="icon-button" aria-label="전체 화면">⛶</button><button id="pause" class="icon-button" aria-label="일시정지" hidden>Ⅱ</button></div></header>
@@ -14,7 +14,7 @@
 </section>
 <section id="start-screen" class="screen start-screen" aria-labelledby="title">
 <div class="intro"><div class="edition"><span></span> SURVIVAL / ONE LIFE</div><p class="kicker">차들 사이로, 단숨에.</p><h1 id="title">바이크<br><em>칼치기<span class="title-dot">.</span></em></h1><p class="intro-copy">차들보다 훨씬 빠른 바이크.<br>끼어드는 차를 피하고 커브를 따라 달리세요.</p><div class="route-card"><span>ENDLESS SURVIVAL</span><strong>1 <small>LIFE</small></strong><div>경차 · 승용차 · 버스 · 트럭</div></div><button id="start" class="primary-button">틈을 뚫고 달리기 <span>↗</span></button><p class="start-best" id="start-best">첫 번째 기록을 남겨보세요.</p></div>
-<div class="intro-bottom"><div class="control-guide"><span><kbd>←</kbd><kbd>→</kbd> 조향</span><span><kbd>A</kbd><kbd>D</kbd> 조향</span><span><kbd>R</kbd> 같은 배치 재도전</span><span><kbd>ESC</kbd> 일시정지</span></div><p class="touch-guide">왼쪽·오른쪽 버튼만으로 조향합니다.</p><span class="credits">MADE BY JEONGSU <i>·</i> TRAFFIC · TEST 03</span></div>
+<div class="intro-bottom"><div class="control-guide"><span><kbd>←</kbd><kbd>→</kbd> 조향</span><span><kbd>A</kbd><kbd>D</kbd> 조향</span><span><kbd>R</kbd> 같은 배치 재도전</span><span><kbd>ESC</kbd> 일시정지</span></div><p class="touch-guide">왼쪽·오른쪽 버튼만으로 조향합니다.</p><span class="credits">MADE BY JEONGSU <i>·</i> VERSION 3.0.0</span></div>
 <div class="scene-caption" aria-hidden="true"><span>READ THE TRAFFIC</span><strong>RIDE FAST.<br>SLIP THROUGH.</strong><p>고속 추월, 그리고 갑작스러운 끼어들기.</p></div>
 </section>
 <section id="pause-screen" class="screen modal-screen" hidden aria-labelledby="pause-title"><div class="modal"><span class="eyebrow">TAKE A BREATH</span><h2 id="pause-title">잠깐, 숨 고르기.</h2><p id="pause-reason">준비되면 다시 도로로 돌아가세요.</p><button id="resume" class="primary-button">계속 달리기 <span>↗</span></button><button id="retry-pause" class="secondary-button">같은 배치로 다시</button><p class="modal-tip">← → / A D 조향<br>Esc / P 일시정지 · R 재도전</p></div></section>

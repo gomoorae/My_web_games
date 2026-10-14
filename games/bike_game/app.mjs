@@ -1,6 +1,6 @@
-import { Ride, VEHICLES } from './core.mjs?v=3.0.0-a3';
-import { Renderer } from './renderer.mjs?v=3.0.0-a3';
-import { RideAudio } from './audio.mjs?v=3.0.0-a3';
+import { Ride, VEHICLES } from './core.mjs?v=3.0.0';
+import { Renderer } from './renderer.mjs?v=3.0.0';
+import { RideAudio } from './audio.mjs?v=3.0.0';
 const $ = id => document.getElementById(id);
 const storageKey = 'midnight-split-traffic-v1';
 function loadRecord() {
@@ -68,8 +68,10 @@ function finish() {
   $('result-near').textContent = ride.nearCount + '회'; $('result-combo').textContent = '× ' + ride.maxCombo;
   $('result-cleared').textContent = ride.passed + '대';
   const side = ride.failure.side === 'left' ? '왼쪽' : '오른쪽';
+  const obstacle = ride.failure.kind === 'rail' ? '가드레일' : (VEHICLES[ride.failure.kind]?.name || '차량');
+  const particle = (obstacle.charCodeAt(obstacle.length - 1) - 0xac00) % 28 === 0 ? '와' : '과';
   $('result-title').textContent = ride.failure.kind === 'rail' ? '가드레일에 부딪혔어요.' : '틈을 놓쳤어요.';
-  $('result-message').textContent = side + (ride.failure.kind === 'rail' ? ' 가드레일' : ' ' + (VEHICLES[ride.failure.kind]?.name || '차량')) + '과 충돌했습니다. 같은 배치로 다시 도전해보세요.';
+  $('result-message').textContent = side + ' ' + obstacle + particle + ' 충돌했습니다. 같은 배치로 다시 도전해보세요.';
   screens(); updateHud(); $('retry').focus({ preventScroll: true });
 }
 function updateHud() {

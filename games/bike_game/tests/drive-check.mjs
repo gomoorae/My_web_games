@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import{Ride,STEP,LANES,ROAD_HALF_METERS}from'../core.mjs';
+import{Ride,STEP,LANES,ROAD_HALF_METERS,contact}from'../core.mjs';
 function bodiesOverlap(a,b){
  const dx=(b.x-a.x)*ROAD_HALF_METERS,dz=b.z-a.z;
  const axes=c=>[[Math.cos(c.yaw),-Math.sin(c.yaw)],[Math.sin(c.yaw),Math.cos(c.yaw)]];
@@ -11,10 +11,11 @@ function bodiesOverlap(a,b){
  }
  return true;
 }
-const result={roads:32,secondsPerRoad:90,mergeStarts:0,mergeCompletions:0,activeAtEnd:0,peakCars:0,types:{},passiveSamples:[],centerHolding:[]};
-for(let seed=1;seed<=32;seed++){
+const soak=process.argv.includes('--soak');
+const result={roads:soak?64:32,secondsPerRoad:soak?600:90,mergeStarts:0,mergeCompletions:0,activeAtEnd:0,peakCars:0,types:{},crossSectionSamples:0,fullyBlockedSamples:0,passiveSamples:[],centerHolding:[]};
+for(let seed=1;seed<=result.roads;seed++){
  const r=new Ride(seed);r.reset(seed);
- for(let frame=0;frame<90/STEP;frame++){
+ for(let frame=0;frame<result.secondsPerRoad/STEP;frame++){
   const before=new Map(r.cars.filter(c=>c.change).map(c=>[c.id,{x:c.x,target:c.change.to}]));
   r.time+=STEP;r.updateTraffic(STEP);
   for(const car of r.cars){
@@ -24,6 +25,14 @@ for(let seed=1;seed<=32;seed++){
    {result.types[car.kind]=true;for(const other of r.cars){if(car.id>=other.id||Math.abs(car.z-other.z)>20||Math.abs(car.x-other.x)>.65)continue;assert.equal(bodiesOverlap(car,other),false,'Traffic body overlap: seed '+seed+' at '+r.time);}}
   }
   r.pruneTraffic();r.ensureTraffic();r.drainEvents();
+  if(frame%12===0){
+   // This only checks that space exists at the bike's current cross-section;
+   // it is not a claim that every situation can be escaped with human reactions.
+   const close=r.cars.filter(c=>Math.abs(c.z)<12);
+   let space=false;
+   for(let step=-37;step<=37;step++)if(close.every(c=>!contact(c,step*.025).hit)){space=true;break;}
+   result.crossSectionSamples++;if(!space)result.fullyBlockedSamples++;
+  }
   result.peakCars=Math.max(result.peakCars,r.cars.length);
   assert.ok(r.cars.length<36);
  }
@@ -47,4 +56,5 @@ result.centerHolding={runs:48,survivors120Seconds:heldSurvivors,longestSeconds:N
 assert.equal(result.passiveSamples.find(s=>s.initialX===0).survivors90Seconds,0);
 assert.ok(heldSurvivors<5,'Curve correction alone should not be a reliable traffic solution');
 assert.equal(Object.keys(result.types).length,4);assert.ok(result.mergeStarts>500);
+assert.equal(result.fullyBlockedSamples,0,'Traffic completely covered the drivable road');
 console.log(JSON.stringify(result,null,2));

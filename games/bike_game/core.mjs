@@ -1,4 +1,4 @@
-export const VERSION = '3.0.0-alpha.3';
+export const VERSION = '3.0.0';
 export const STEP = 1 / 120;
 export const ROAD_HALF_METERS = 7;
 export const LANES = [-.75, -.25, .25, .75];
