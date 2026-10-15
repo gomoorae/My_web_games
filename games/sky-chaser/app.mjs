@@ -1,13 +1,13 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES} from './engine.mjs?v=0.4.2';
-import {Renderer} from './render.mjs?v=0.4.2';
-import {Sound} from './audio.mjs?v=0.4.2';
-import {readRecords,writeRecords} from './records.mjs?v=0.4.2';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES} from './engine.mjs?v=0.5.0';
+import {Renderer} from './render.mjs?v=0.5.0';
+import {Sound} from './audio.mjs?v=0.5.0';
+import {readRecords,writeRecords} from './records.mjs?v=0.5.0';
 
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();
 let difficulty='normal',route='campaign',autofire=false,keys=new Set(),pointer=null,touchTarget=null,touchCharge=false;
 let last=0,accumulator=0,visualTime=0,countdown=0,noticeTimer=0,previousState='ready';
-let bests={campaign:{easy:0,normal:0},practice2:{easy:0,normal:0}},newBest=false,artReady=false,artFailed=false;
+let bests={campaign:{easy:0,normal:0},practice2:{easy:0,normal:0},practice3:{easy:0,normal:0}},newBest=false,artReady=false,artFailed=false;
 const format=n=>String(Math.floor(n)).padStart(7,'0');
 const timeLabel=t=>String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0');
 try{
@@ -20,8 +20,7 @@ function persist(){
   try{bests=writeRecords(localStorage,{...bests,muted:!sound.enabled,motion:renderer.motion});}catch{}
 }
 function saveBest(){
-  newBest=game.score>bests[game.mode][game.difficulty];
-  if(newBest){bests[game.mode][game.difficulty]=game.score;persist();}
+  if(game.score>bests[game.mode][game.difficulty]){newBest=true;bests[game.mode][game.difficulty]=game.score;persist();}
 }
 function clearInput(){
   keys.clear();touchTarget=null;touchCharge=false;pointer=null;
@@ -75,9 +74,9 @@ function result(){
   const win=game.state==='clear';
   $('modal-kicker').textContent=win?'MISSION COMPLETE':'THE SKY IS WAITING';
   $('modal-title').textContent=win?'항로를 되찾았다!':'다시 날아볼까?';
-  $('modal-copy').textContent=win?(game.mode==='practice2'?'2스테이지 연습 완료. 템페스트를 격추했어!':'항구와 협곡의 항로를 되찾았다. 루미, 멋진 비행이었어!'):'P를 회수해 화력을 유지하고, 위험한 순간에는 X로 폭탄을 사용해 보세요.';
+  $('modal-copy').textContent=win?(game.mode==='practice2'?'2스테이지 연습 완료. 템페스트를 격추했어!':game.mode==='practice3'?'3스테이지 연습 완료. 이그니스를 격추했어!':'항구와 협곡, 홍련의 조선소까지. 모든 항로를 되찾았다!'):'P를 회수해 화력을 유지하고, 위험한 순간에는 X로 폭탄을 사용해 보세요.';
   $('result-stats').hidden=false;
-  $('result-stats').innerHTML='<div class="result-score"><strong>'+format(game.score)+'</strong><span>'+(game.mode==='practice2'?'2스테이지 연습':'연속 출격')+' · '+(game.difficulty==='easy'?'쉬움':'보통')+'</span>'+(newBest?'<em>NEW PERSONAL BEST</em>':'')+'</div><div><strong>'+game.kills+'</strong><span>격추</span></div><div><strong>'+game.maxCombo+'</strong><span>최대 연속 격추</span></div><div><strong>'+timeLabel(game.time)+'</strong><span>비행 시간</span></div>';
+  $('result-stats').innerHTML='<div class="result-score"><strong>'+format(game.score)+'</strong><span>'+RUN_MODES[game.mode].name+' · '+(game.difficulty==='easy'?'쉬움':'보통')+'</span>'+(newBest?'<em>NEW PERSONAL BEST</em>':'')+'</div><div><strong>'+game.kills+'</strong><span>격추</span></div><div><strong>'+game.maxCombo+'</strong><span>최대 연속 격추</span></div><div><strong>'+timeLabel(game.time)+'</strong><span>비행 시간</span></div>';
   $('continue').hidden=true;$('retry').textContent='다시 출격하기 ↗';$('modal').hidden=false;$('retry').focus({preventScroll:true});
 }
 $('start').addEventListener('click',start);
@@ -113,7 +112,7 @@ for(const button of document.querySelectorAll('[data-route]'))button.addEventLis
   for(const b of document.querySelectorAll('[data-route]')){
     b.classList.toggle('selected',b===button);b.setAttribute('aria-pressed',String(b===button));
   }
-  $('route-hint').textContent=route==='practice2'?'목숨 3 · 파워 3 · 폭탄 3으로 협곡부터 출격':'1 → 2스테이지 · 남은 목숨과 무장을 이어갑니다';
+  $('route-hint').textContent=RUN_MODES[route].hint;
   ui();
 });
 const playKeys=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD','KeyZ','KeyX','KeyC','ShiftLeft','ShiftRight','Escape']);
@@ -165,7 +164,7 @@ function ui(){
   const ready=game.state==='ready',mode=ready?difficulty:game.difficulty;
   const recordRoute=ready?route:game.mode;
   $('score').textContent=format(game.score);$('best').textContent=format(Math.max(bests[recordRoute][mode],ready?0:game.score));
-  $('best-mode').textContent=(recordRoute==='practice2'?'연습 · ':'연속 · ')+(mode==='easy'?'쉬움':'보통');
+  $('best-mode').textContent=(recordRoute==='campaign'?'연속 · ':RUN_MODES[recordRoute].startStage+'연습 · ')+(mode==='easy'?'쉬움':'보통');
   $('lives').textContent='♥ '.repeat(Math.max(0,game.lives)).trim()||'—';
   $('lives').setAttribute('aria-label','목숨 '+game.lives+'개');
   $('bombs').textContent='✦ '.repeat(game.bombs).trim()||'—';$('bombs').setAttribute('aria-label','폭탄 '+game.bombs+'개');
@@ -185,12 +184,14 @@ function ui(){
   const stage=game.stageTime<spec.midAt?0:game.stageTime<spec.midStop+1?1:game.stageTime<spec.bossAt?2:3;
   $('mission-number').textContent='0'+game.stage;
   $('mission-title').textContent=spec.name;
-  $('mission-copy').textContent=game.stage===1?'해적의 기함을 격추하고 협곡으로 향하세요.':'레이저 예고선을 읽고, 포대를 파괴해 길을 여세요.';
+  $('mission-copy').textContent=game.stage===1?'해적의 기함을 격추하고 협곡으로 향하세요.':game.stage===2?'레이저 예고선을 읽고, 포대를 파괴해 길을 여세요.':'주황색 포탄을 요격하고, 휘어지는 탄의 길을 읽으세요.';
   document.querySelectorAll('.path-name').forEach((el,i)=>el.textContent=spec.route[i]);
-  const subtitles=game.stage===1?['출격 · 적 편대','중간 보스','해적의 경계선','변신 보스']:['출격 · 교차 편대','포대 파괴 · 레이저','복합 편대 돌파','3단계 변신 보스'];
+  const subtitles=game.stage===1?['출격 · 적 편대','중간 보스','해적의 경계선','변신 보스']:game.stage===2?['출격 · 교차 편대','포대 파괴 · 레이저','복합 편대 돌파','3단계 변신 보스']:['포탄 요격 · 곡선탄','화로 포대 파괴','폭발 지점 회피','기계룡 각성 · 과열'];
   document.querySelectorAll('.path-stop small').forEach((el,i)=>el.textContent=subtitles[i]);
   document.querySelectorAll('.path-stop').forEach((el,i)=>el.classList.toggle('active',i<=stage));
   $('path-fill').style.height=(stage/3*100)+'%';
+  $('tutorial').querySelector('strong').textContent=game.stage===3?'주황색 포탄은 쏴서 없애보자!':'하늘길을 열어볼까?';
+  $('tutorial').querySelector('span').textContent=game.stage===3?'폭발 표시 밖으로 이동 · 보라색 탄은 휘어져 날아와요':'방향키 이동 · Z 사격 · X 위기 탈출';
   $('tutorial').hidden=game.state!=='playing'||game.time>7||countdown>0;
 }
 function loop(now){
@@ -235,7 +236,7 @@ updateSettings();ui();requestAnimationFrame(loop);
 Object.defineProperty(window,'skyChaser',{value:Object.freeze({
   version:VERSION,
   snapshot:()=>({state:game.state,stage:game.stage,mode:game.mode,time:game.time,stageTime:game.stageTime,score:game.score,
-    powerTime:game.player.powerTime,lasers:game.lasers.length,
+    powerTime:game.player.powerTime,lasers:game.lasers.length,mortars:game.mortars.length,shellsDestroyed:game.shellsDestroyed,
     lives:game.lives,bombs:game.bombs,power:game.player.power,charge:game.player.charge,
     player:{x:game.player.x,y:game.player.y},enemies:game.enemies.length,bullets:game.bullets.length,
     boss:game.boss?{type:game.boss.type,hp:game.boss.hp,phase:game.boss.phase}:null,

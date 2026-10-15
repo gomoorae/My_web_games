@@ -1,20 +1,24 @@
-// The original one-stage records remain at sky-chaser.v1. Two-stage runs and
-// stage-two practice have independent records and share only preferences.
+import {RUN_MODES} from './stages.mjs?v=0.5.0';
+// Preserve v1 (one stage) and v2 (two stages). Existing stage-two practice
+// scores migrate unchanged; three-stage campaigns have their own record.
 export function readRecords(storage){
-  const empty={campaign:{easy:0,normal:0},practice2:{easy:0,normal:0}};
-  let old={},saved={};
+  const empty=Object.fromEntries(Object.keys(RUN_MODES).map(key=>[key,{easy:0,normal:0}]));
+  let old={},two={},saved={};
   try{old=JSON.parse(storage.getItem('sky-chaser.v1')||'{}')||{};}catch{}
-  try{saved=JSON.parse(storage.getItem('sky-chaser.v2')||'{}')||{};}catch{}
-  for(const route of ['campaign','practice2'])for(const mode of ['easy','normal']){
+  try{two=JSON.parse(storage.getItem('sky-chaser.v2')||'{}')||{};}catch{}
+  try{saved=JSON.parse(storage.getItem('sky-chaser.v3')||'{}')||{};}catch{}
+  for(const route of Object.keys(RUN_MODES))for(const mode of ['easy','normal']){
     const n=saved[route]?.[mode];if(Number.isFinite(n)&&n>=0)empty[route][mode]=Math.floor(n);
+    const legacy=route==='practice2'?two.practice2?.[mode]:0;
+    if(Number.isFinite(legacy)&&legacy>=0)empty[route][mode]=Math.max(empty[route][mode],Math.floor(legacy));
   }
-  return {...empty,muted:saved.muted??old.muted??false,motion:saved.motion??old.motion??true};
+  return {...empty,muted:saved.muted??two.muted??old.muted??false,motion:saved.motion??two.motion??old.motion??true};
 }
 export function writeRecords(storage,records){
   const current=readRecords(storage);
-  for(const route of ['campaign','practice2'])for(const mode of ['easy','normal'])
+  for(const route of Object.keys(RUN_MODES))for(const mode of ['easy','normal'])
     current[route][mode]=Math.max(current[route][mode],records[route][mode]);
   current.muted=records.muted;current.motion=records.motion;
-  storage.setItem('sky-chaser.v2',JSON.stringify(current));
+  storage.setItem('sky-chaser.v3',JSON.stringify(current));
   return current;
 }

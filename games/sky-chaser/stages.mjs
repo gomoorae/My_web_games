@@ -3,12 +3,19 @@ export const STAGES = Object.freeze({
   1: {name:'해풍의 항구',midAt:69,midStop:73,bossAt:134,
     route:['항구 상공','철갑 순찰정','구름 위 추격전','아이언 레이븐']},
   2: {name:'뇌운의 협곡',midAt:67,midStop:71,bossAt:147,
-    route:['협곡 진입','쌍뢰정 제미니','송전 시설 돌파','뇌전요새 템페스트']}
+    route:['협곡 진입','쌍뢰정 제미니','송전 시설 돌파','뇌전요새 템페스트']},
+  3: {name:'홍련의 조선소',midAt:65,midStop:69,bossAt:150,
+    route:['공중 도크 진입','화로거북 볼칸','제련 구역 돌파','홍련룡 이그니스']}
+});
+export const RUN_MODES=Object.freeze({
+  campaign:{startStage:1,endStage:3,name:'연속 출격',hint:'1 → 3스테이지 · 남은 목숨과 무장을 이어갑니다'},
+  practice2:{startStage:2,endStage:2,name:'2스테이지 연습',hint:'목숨 3 · 파워 3 · 폭탄 3으로 협곡부터 출격'},
+  practice3:{startStage:3,endStage:3,name:'3스테이지 연습',hint:'목숨 3 · 파워 3 · 폭탄 3으로 조선소부터 출격'}
 });
 export const POWER_DURATION = 25, SUPPLY_INTERVAL = 12;
 export const HOSTILE_DENSITY = 2;
-export const isLarge = e => ['boss','midboss','gemini','tempest'].includes(e.type);
-export const isFinal = e => e.type === 'boss' || e.type === 'tempest';
+export const isLarge = e => ['boss','midboss','gemini','tempest','vulcan','ignis'].includes(e.type);
+export const isFinal = e => ['boss','tempest','ignis'].includes(e.type);
 export function makeStormWaves(){
   const waves=[];
   const row=(t,type,n,side=0)=>{

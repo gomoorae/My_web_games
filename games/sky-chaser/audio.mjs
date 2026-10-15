@@ -57,6 +57,9 @@ export class Sound {
       if(e.kind==='hurt'){this.hiss(.3,.3);this.tone(300,.28,.2,'sawtooth',null,65);}
       if(e.kind==='laserWarning'){this.tone(680,.12,.07,'sine');this.tone(900,.12,.065,'sine',this.ctx.currentTime+.2);}
       if(e.kind==='partBreak'){this.hiss(.18,.25);this.tone(160,.18,.1,'triangle',null,60);}
+      if(e.kind==='mortarLaunch')this.tone(230,.16,.045,'triangle',null,105);
+      if(e.kind==='shellBreak'){this.hiss(.055,.09);this.tone(1350,.1,.05,'sine',null,550);}
+      if(e.kind==='mortarBurst'){this.hiss(.12,.22);this.tone(95,.2,.08,'triangle',null,42);}
       if(e.kind==='powerWarning'||e.kind==='powerDown'){this.tone(e.kind==='powerDown'?350:700,.18,.07,'triangle',null,280);}
       if(e.kind==='bomb'){
         this.hiss(.15,.25);this.tone(160,.38,.16,'sine',null,70);

@@ -1,7 +1,7 @@
 /* The playfield uses the full browser height; the briefing and controls live
    beside it. Logical combat coordinates and the 2:3 aspect ratio stay fixed. */
 .mission-number b{font-weight:inherit}.mission-panel h1{max-width:220px;word-break:keep-all}
-.route-select{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.route-select{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
 .route-select button{padding:10px 3px;border:1px solid #accfc74a;border-radius:4px;background:#133643e8;color:#afcbc5;font-size:12px;font-weight:800}
 .route-select button small{display:block;font-size:8px;letter-spacing:.8px;margin-top:4px;font-weight:500}
 .route-select button.selected{border-color:#edc789;background:#366361;color:#fff0cf}

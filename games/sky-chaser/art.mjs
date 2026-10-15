@@ -10,6 +10,9 @@ export const ART_FILES = Object.freeze({
   canyon:'./assets/thunder-canyon-v040.png',
   gemini:'./assets/gemini-parts-v040.png',
   tempest:'./assets/tempest-parts-v040.png',
+  foundry:'./assets/crimson-foundry-v050.png',
+  vulcan:'./assets/vulcan-parts-v050.png',
+  ignis:'./assets/ignis-parts-v050.png',
   portrait: './assets/lumi-key-art.png'
 });
 const makeCanvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
@@ -65,6 +68,14 @@ export class ArtBank {
     ['tempest','tempestRing','tempestPod','tempestCore'].forEach((name,i)=>{
       this.sprites[name]=sprite(this.images.tempest,i%2,Math.floor(i/2),2,2,640);
     });
+    const vul=this.images.vulcan,vs=Math.round(vul.width*2/3);
+    this.sprites.vulcan=sprite(vul,0,0,1,1,640,[0,0,vs,vul.height]);
+    this.sprites.vulcanPod=sprite(vul,0,0,1,1,256,[vs,0,vul.width-vs,vul.height]);
+    const ign=this.images.ignis,ix=Math.round(ign.width*.34),iy=Math.floor(ign.height/2);
+    this.sprites.ignisArmor=sprite(ign,0,0,1,1,640,[0,0,ix,iy]);
+    this.sprites.ignisOpen=sprite(ign,0,0,1,1,768,[ix,0,ign.width-ix,iy]);
+    this.sprites.ignisPod=sprite(ign,0,1,2,2,256);
+    this.sprites.ignisHeart=sprite(ign,1,1,2,2,256);
     this.loaded=true;
   }
 }

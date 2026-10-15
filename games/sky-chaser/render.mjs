@@ -1,11 +1,12 @@
-import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES} from './engine.mjs?v=0.4.2';
-import {ArtBank} from './art.mjs?v=0.4.2';
-import {drawLaser} from './laser-fx.mjs?v=0.4.2';
+import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES} from './engine.mjs?v=0.5.0';
+import {ArtBank} from './art.mjs?v=0.5.0';
+import {drawLaser} from './laser-fx.mjs?v=0.5.0';
+import {drawMortars} from './forge-fx.mjs?v=0.5.0';
 const TAU=Math.PI*2;
 const mix=(a,b,t)=>a+(b-a)*t;
 const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
 const seed=n=>{const v=Math.sin(n*127.1+311.7)*43758.5453;return v-Math.floor(v);};
-const sizes={scout:60,interceptor:66,turret:67,bomber:105,mine:57,midboss:177,gemini:244,tempest:270};
+const sizes={scout:60,interceptor:66,turret:67,bomber:105,mine:57,midboss:177,gemini:244,tempest:270,vulcan:244};
 function ellipse(c,x,y,rx,ry,color){c.fillStyle=color;c.beginPath();c.ellipse(x,y,rx,ry,0,0,TAU);c.fill();}
 function box(c,x,y,w,h,color,r=0){c.fillStyle=color;c.beginPath();c.roundRect(x,y,w,h,r);c.fill();}
 function path(c,points,color,width=1){c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.strokeStyle=color;c.lineWidth=width;c.stroke();}
@@ -45,7 +46,7 @@ export class Renderer {
   reset(){this.particles=[];this.rings=[];this.blasts=[];this.wrecks=[];this.bombBeams=[];this.damageTexts=[];this.trail=[];this.flash=0;this.shake=0;this.fxTime=0;this.lastTrail=0;this.lastTime=0;}
   prepareScenery(){
     this.groundTiles={};
-    for(const key of ['harbor','canyon']){
+    for(const key of ['harbor','canyon','foundry']){
     const image=this.art.images[key],tile=document.createElement('canvas');
     tile.width=image.width;tile.height=image.height;
     const c=tile.getContext('2d');c.drawImage(image,0,0);
@@ -78,6 +79,10 @@ export class Renderer {
     if(type==='boss'){
       for(let i=0;i<9;i++)this.blasts.push({x:x+(seed(i+4)-.5)*230,y:y+(seed(i+5)-.5)*190,age:-i*.13,life:1.2,size:60+seed(i+7)*45});
       this.wrecks.push({type:'raven',x,y,age:0,life:2.6,width:326});
+    }else if(type==='ignis'){
+      this.wrecks.push({type:phase===1?'ignisArmor':'ignisOpen',x,y,age:0,life:2.4,
+        width:phase===1?180:334,coreWidth:phase===3?76:phase===2?52:0});
+      for(let i=0;i<7;i++)this.blasts.push({x:x+(seed(i+54)-.5)*215,y:y+(seed(i+61)-.5)*180,age:-i*.13,life:1,size:42+seed(i+28)*32});
     }else if(reactor){
       this.wrecks.push({type:'tempestCore',x,y,age:0,life:1.8,width:171});
       for(let i=0;i<5;i++)this.blasts.push({x:x+(seed(i+91)-.5)*100,y:y+(seed(i+97)-.5)*110,age:-.12-i*.12,life:.8,size:35+seed(i+2)*24,reactor:true});
@@ -88,6 +93,8 @@ export class Renderer {
     for(const e of events){
       if(e.kind==='explode')this.explosion(e.x,e.y,e.large,e.type,e.phase);
       if(e.kind==='partBreak'){this.explosion(e.x,e.y,false,'player');this.burst(e.x,e.y,18,true);}
+      if(e.kind==='shellBreak'){this.burst(e.x,e.y,10);this.rings.push({x:e.x,y:e.y,age:0,life:.25,size:28,color:'#ffe5aa'});}
+      if(e.kind==='mortarBurst'){this.burst(e.x,e.y,12);this.shake=Math.max(this.shake,1.8);}
       if(e.kind==='supply')this.rings.push({x:e.x,y:90,age:0,life:1,size:55,color:'#92ffe0'});
       if(e.kind==='stageStart')this.reset();
       if(e.kind==='hurt'){this.explosion(e.x,e.y,false,'player');this.flash=.23;this.shake=8;}
@@ -102,7 +109,7 @@ export class Renderer {
           this.bombBeams.push({x0:e.x+side*105,y0:e.y-76,x1:target.x,y1:target.y,age:0,life:e.final?.58:.34,final:e.final,seed:e.index+i*7});
           if(target.damage){
             this.rings.push({x:target.x,y:target.y,age:0,life:.4,size:e.final?96:47,color:'#b0ffe4'});
-            if(['boss','midboss','gemini','tempest'].includes(target.type))this.damageTexts.push({x:target.x+(e.index%2?27:-27),y:target.y+24,amount:Math.round(target.damage),age:0});
+            if(['boss','midboss','gemini','tempest','vulcan','ignis'].includes(target.type))this.damageTexts.push({x:target.x+(e.index%2?27:-27),y:target.y+24,amount:Math.round(target.damage),age:0});
           }
         });
         this.shake=Math.max(this.shake,e.final?6:1.5);
@@ -121,13 +128,13 @@ export class Renderer {
     }
   }
   background(c,t,stageTime,px=240,stage=1){
-    const storm=stage===2,altitude=storm?.08:ease((stageTime-88)/38);
-    const sea=c.createLinearGradient(0,0,W,H);sea.addColorStop(0,storm?'#253e52':'#126da0');sea.addColorStop(1,storm?'#304e60':'#1887ac');c.fillStyle=sea;c.fillRect(0,0,W,H);
+    const storm=stage===2,forge=stage===3,moody=storm||forge,altitude=moody?.08:ease((stageTime-88)/38);
+    const sea=c.createLinearGradient(0,0,W,H);sea.addColorStop(0,forge?'#273039':storm?'#253e52':'#126da0');sea.addColorStop(1,forge?'#3b353b':storm?'#304e60':'#1887ac');c.fillStyle=sea;c.fillRect(0,0,W,H);
     if(this.groundTiles){
-      const map=this.groundTiles[storm?'canyon':'harbor'],width=W+36,height=width*map.height/map.width,period=height-160;
+      const map=this.groundTiles[forge?'foundry':storm?'canyon':'harbor'],width=W+36,height=width*map.height/map.width,period=height-160;
       // Constant world travel never eases to a halt. Feathered water edges
       // overlap, and alternating districts retain continuity at the wrap.
-      const distance=t*(storm?106:82),cycle=Math.floor(distance/period),y=-(height-H)+distance%period;
+      const distance=t*(forge?100:storm?106:82),cycle=Math.floor(distance/period),y=-(height-H)+distance%period;
       c.save();c.globalAlpha=1-altitude*.82;
       for(let k=-1;k<=1;k++){
         const top=y+k*period;if(top>H||top+height<0)continue;
@@ -138,7 +145,7 @@ export class Renderer {
       c.fillStyle='#193e5e18';c.fillRect(0,0,W,H);c.restore();
     }
     // Reflections drift independently of the map, so the harbor feels alive.
-    c.save();c.globalAlpha=storm?0:.18*(1-altitude*.7);c.lineWidth=1;
+    c.save();c.globalAlpha=moody?0:.18*(1-altitude*.7);c.lineWidth=1;
     for(let i=0;i<24;i++){
       const x=112+seed(i+50)*265,y=(seed(i+300)*H+t*(78+seed(i)*14))%H;
       path(c,[[x,y],[x+5,y-1],[x+13,y]],'#d7f6e8',1);
@@ -148,10 +155,16 @@ export class Renderer {
       const s=(layer?.85:.47)+seed(i+layer*19)*.6;
       const x=seed(i+layer*72+18)*(W+180)-100+(px-240)*(layer?-.035:-.012);
       const y=((seed(i+layer*110)*1100+t*(layer?142:43))%1100)-240;
-      c.save();c.globalAlpha=storm?(layer?.065:.045):(layer?.12:.17)+altitude*(layer?.28:.20);
+      c.save();c.globalAlpha=moody?(layer?.065:.045):(layer?.12:.17)+altitude*(layer?.28:.20);
       c.drawImage(this.clouds[(i+layer)%4],x,y,384*s,192*s);c.restore();
     }
-    if(altitude&&!storm){const sky=c.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#b8d9e72b');sky.addColorStop(1,'#86b6c900');c.globalAlpha=altitude;c.fillStyle=sky;c.fillRect(0,0,W,H);c.globalAlpha=1;}
+    if(altitude&&!moody){const sky=c.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#b8d9e72b');sky.addColorStop(1,'#86b6c900');c.globalAlpha=altitude;c.fillStyle=sky;c.fillRect(0,0,W,H);c.globalAlpha=1;}
+    if(forge){
+      for(let i=0;i<14;i++){
+        const x=i%2?W-18-seed(i+31)*40:18+seed(i+31)*40,y=(seed(i+38)*H+t*125)%H;
+        ellipse(c,x,y,.6+seed(i)*.7,1.5,'#ffbb7330');
+      }
+    }
     if(storm&&this.motion){
       // Distant lightning stays at the edges, well below hostile telegraphs.
       const pulse=Math.max(0,Math.sin(t*.75)-.985)*3;
@@ -242,6 +255,7 @@ export class Renderer {
   }
   enemy(c,e,t){
     if(!this.art.loaded)return;
+    if(e.type==='vulcan'||e.type==='ignis'){this.forgeBoss(c,e,t);return;}
     if(e.type==='gemini'||e.type==='tempest'){this.stormBoss(c,e,t);return;}
     if(e.type==='boss'){this.boss(c,e,t);return;}
     const s=this.art.sprites[e.type],width=sizes[e.type];
@@ -314,6 +328,59 @@ export class Renderer {
   }
   lasers(c,g){
     for(const laser of g.lasers)drawLaser(c,laser);
+  }
+  ignisRig(c,unfold,t,coreWidth=52,flash=0){
+    const s=this.art.sprites.ignisOpen,w=334,h=w*s.ratio,fold=1-ease(unfold);
+    for(const side of [-1,1]){
+      c.save();c.translate(side*w*.17,-h*.06);c.rotate(-side*fold*.8+side*Math.sin(t*1.7)*.012*(1-fold));
+      c.scale(1-fold*.42,1);c.translate(-side*w*.17,h*.06);
+      part(c,s,w,side<0?0:.66,0,.34,1,side*-fold*32,fold*12);c.restore();
+    }
+    part(c,s,w,.34,0,.32,1);
+    if(flash>0&&unfold>=.99)stamp(c,s,w,flash,'flash');
+    stamp(c,this.art.sprites.ignisHeart,coreWidth);
+    glow(c,0,0,coreWidth*.65,'#ffab4f',.3+.05*Math.sin(t*5));
+  }
+  forgeBoss(c,e,t){
+    const s=this.art.sprites,dragon=e.type==='ignis',progress=e.transition>0?ease(1-e.transition/2.6):1;
+    c.save();c.translate(e.x+13,e.y+27);stamp(c,dragon?(e.phase===1?s.ignisArmor:s.ignisOpen):s.vulcan,
+      dragon?(e.phase===1?180:334):244,.24,'shadow');c.restore();
+    c.save();c.translate(e.x,e.y);
+    if(!dragon){
+      stamp(c,s.vulcan,244);if(e.flash>0)stamp(c,s.vulcan,244,e.flash/.065*.7,'flash');
+      glow(c,0,-24,26,'#ffa54b',.25+.08*Math.sin(t*4));
+      if(e.hp/e.maxHp<.4)this.smoke(c,0,-30,t,.9);
+    }else if(e.phase===1){
+      stamp(c,s.ignisArmor,180);if(e.flash>0)stamp(c,s.ignisArmor,180,e.flash/.065*.7,'flash');
+      for(const x of [-47,47])glow(c,x,12,17,'#ff963e',.22+.08*Math.sin(t*4));
+    }else if(e.phase===2&&e.transition>0){
+      const unfold=ease((progress-.18)/.67);c.save();c.globalAlpha=ease(progress/.3);this.ignisRig(c,unfold,t);c.restore();
+      const peel=ease((progress-.1)/.8),alpha=1-ease((progress-.36)/.6);
+      for(let i=0;i<4;i++){
+        const side=i%2?1:-1,down=i<2?-1:1;
+        part(c,s.ignisArmor,180,i%2*.5,Math.floor(i/2)*.5,.5,.5,
+          side*peel*112,down*peel*74,side*peel*.65,alpha);
+      }
+    }else{
+      const core=e.phase===3?52+24*progress:52;this.ignisRig(c,1,t,core,e.flash/.065*.7);
+      if(e.phase===3){
+        for(const x of [-37,37]){this.smoke(c,x,-8,t,.7);glow(c,x,0,22,'#ff9c42',.25);}
+        if(e.transition>0){
+          c.save();c.globalAlpha=Math.sin(progress*Math.PI)*.5;c.strokeStyle='#ffdba1';c.lineWidth=1.5;
+          c.beginPath();c.arc(0,0,30+progress*92,0,TAU);c.stroke();c.restore();
+        }
+      }
+    }
+    c.restore();
+    for(const p of e.parts){
+      const breaking=dragon&&p.dead&&e.phase===2&&e.transition>0;
+      if(p.dead&&!breaking){if(e.phase===1)this.smoke(c,p.x,p.y,t,.5);continue;}
+      c.save();c.translate(p.x+(breaking?p.side*progress*100:0),p.y+(breaking?progress*86:0));
+      if(breaking){c.rotate(p.side*progress*.8);c.globalAlpha=1-progress;}
+      if(p.side<0)c.scale(-1,1);
+      const pod=dragon?s.ignisPod:s.vulcanPod;stamp(c,pod,43);if(p.flash>0)stamp(c,pod,43,p.flash/.065*.8,'flash');c.restore();
+      if(!p.dead){box(c,p.x-21,p.y+61,42,3,'#172a35',2);box(c,p.x-21,p.y+61,42*p.hp/p.maxHp,3,'#edba7e',2);}
+    }
   }
   ravenRig(c,s,width,unfold,t,flash=0){
     // Whole-image strips meet exactly at full extension. Hinges retract the
@@ -424,8 +491,9 @@ export class Renderer {
     for(const w of this.wrecks){
       if(!paused)w.age+=dt;const s=this.art.sprites[w.type];if(!s)continue;
       c.save();c.translate(w.x,w.y+w.age*35);c.rotate(w.age*.15);const fade=1-w.age/w.life;
-      if(w.type==='raven'){
+      if(w.type==='raven'||w.type==='ignisOpen'){
         for(let i=0;i<3;i++)part(c,s,w.width,i/3,0,1/3,1,(i-1)*w.age*35,w.age*w.age*30,(i-1)*w.age*.35,fade);
+        if(w.coreWidth){c.save();c.translate(0,w.age*w.age*30);stamp(c,this.art.sprites.ignisHeart,w.coreWidth,fade);c.restore();}
       }else if(w.type==='tempestCore'){
         for(let i=0;i<4;i++){
           const side=i%2?1:-1,down=i<2?-1:1;
@@ -536,9 +604,10 @@ export class Renderer {
     if(active&&game.state!=='gameover')this.player(c,game.player,t,input.focus);
     this.effects(c,dt,paused);this.bomb(c,game,t,true);
     this.lasers(c,game);
+    drawMortars(c,game.mortars);
     // Hostile rounds are always the top combat layer, including over smoke.
     for(const b of game.bullets){
-      const color=b.style==='rose'?'#ff70ae':'#ffd36b';
+      const color=b.style==='violet'?'#c7a0ff':b.style==='rose'?'#ff70ae':'#ffd36b';
       ellipse(c,b.x,b.y,b.r+2,b.r+3,'#26334ed9');ellipse(c,b.x,b.y,b.r+.5,b.r+1.5,color);ellipse(c,b.x,b.y-1,b.r*.46,b.r*.7,'#fffbe7');
     }
     c.restore();
@@ -547,23 +616,26 @@ export class Renderer {
     if(active)this.hud(c,game);
     if(game.introTimer>0){
       c.save();c.fillStyle='#102536b8';c.fillRect(0,250,W,158);
-      c.textAlign='center';c.fillStyle='#9fe7dc';c.font='700 13px sans-serif';c.fillText('STAGE 02',W/2,291);
-      c.fillStyle='#fff1ca';c.font='900 33px sans-serif';c.fillText('뇌운의 협곡',W/2,338);
-      c.fillStyle='#d8e9e5';c.font='12px sans-serif';c.fillText('P를 회수해 화력을 유지하라',W/2,374);c.restore();
+      c.textAlign='center';c.fillStyle='#9fe7dc';c.font='700 13px sans-serif';c.fillText('STAGE 0'+game.stage,W/2,291);
+      c.fillStyle='#fff1ca';c.font='900 33px sans-serif';c.fillText(STAGES[game.stage].name,W/2,338);
+      c.fillStyle='#d8e9e5';c.font='12px sans-serif';c.fillText(game.stage===3?'주황색 포탄을 쏴서 제거하라':'P를 회수해 화력을 유지하라',W/2,374);c.restore();
     }
   }
   hud(c,g){
     c.save();
     const fade=c.createLinearGradient(0,0,0,90);fade.addColorStop(0,'#102e42e8');fade.addColorStop(1,'#102e4200');c.fillStyle=fade;c.fillRect(0,0,W,90);
-    c.fillStyle='#fff0cd';c.font='700 12px sans-serif';c.textAlign='left';c.fillText('0'+g.stage+' / '+STAGES[g.stage].name+(g.mode==='practice2'?' · 연습':''),20,26);
+    c.fillStyle='#fff0cd';c.font='700 12px sans-serif';c.textAlign='left';c.fillText('0'+g.stage+' / '+STAGES[g.stage].name+(g.mode!=='campaign'?' · 연습':''),20,26);
     c.textAlign='right';c.font='700 17px monospace';c.fillText(String(g.score).padStart(7,'0'),W-20,27);
     if(g.boss){
       const e=g.boss;c.textAlign='left';c.font='700 10px sans-serif';
       let label=e.type==='midboss'?'철갑 순찰정':e.phase===1?'아이언 레이븐 / 기함':'아이언 레이븐 / 각성';
       if(e.type==='gemini')label='쌍뢰정 제미니 / 좌우 포대 파괴';
       if(e.type==='tempest')label='템페스트 / '+['','외곽 포대','회전 고리','노출된 동력핵'][e.phase];
+      if(e.type==='vulcan')label='화로거북 볼칸 / 폭발탄 요격';
+      if(e.type==='ignis')label='이그니스 / '+['','장갑 용광로','기계 날개 전개','과열된 심장'][e.phase];
       if(e.transition>0){
-        if(e.type==='tempest')label=e.phase===2?'외곽 포대 이탈 · 회전 고리 전개':'요새 장갑 붕괴 · 동력핵 노출';
+        if(e.type==='ignis')label=e.phase===2?'봉인 장갑 해제 · 홍련룡 각성':'냉각 한계 돌파 · 심장 노출';
+        else if(e.type==='tempest')label=e.phase===2?'외곽 포대 이탈 · 회전 고리 전개':'요새 장갑 붕괴 · 동력핵 노출';
         else {const p=1-e.transition/2.7;label=p<.3?'장갑 파괴':p<.73?'기계 날개 전개':'중심 동력부 점화';}
       }
       c.fillText(label,20,49);box(c,20,56,W-40,6,'#0d2d42c9',2);

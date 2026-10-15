@@ -1,8 +1,9 @@
-import {STAGES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.4.2';
-export {STAGES,POWER_DURATION,SUPPLY_INTERVAL};
+import {STAGES,RUN_MODES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
+  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.5.0';
+import {FORGE_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,moveMortar,mortarArmed} from './forge.mjs?v=0.5.0';
+export {STAGES,RUN_MODES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.4.2';
+export const VERSION = '0.5.0';
 export const PLAYER_SCALE = .8;
 export const ENEMY_ACTIVE_Y = 5;
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -66,19 +67,20 @@ export class Game {
   reset(difficulty = 'normal', mode = 'campaign') {
     this.rng = this.seed;
     this.difficulty = difficulty;
-    this.mode = mode === 'practice2' ? mode : 'campaign';
-    this.stage = this.mode === 'practice2' ? 2 : 1;
+    this.mode = Object.hasOwn(RUN_MODES,mode) ? mode : 'campaign';
+    this.stage = RUN_MODES[this.mode].startStage;this.endStage=RUN_MODES[this.mode].endStage;
     this.stageElapsed = 0; this.introTimer = 0; this.supplyTimer = 3; this.supplies = 0;
     this.state = 'ready'; this.time = 0; this.stageTime = 0;
     this.score = 0; this.kills = 0; this.shotsFired = 0; this.hits = 0;
     this.maxCombo = 0; this.combo = 0; this.comboTime = 0;
     this.lives = 3; this.bombs = 3; this.usedBombs = 0; this.deaths = 0;
     this.enemies = []; this.bullets = []; this.shots = []; this.items = []; this.events = []; this.lasers = [];
+    this.mortars=[];this.shellsDestroyed=0;
     this.wave = 0; this.id = 0; this.killDrops = 0; this.midDefeated = false;
     this.finalDefeated = false; this.clearTimer = 0; this.bombTimer = 0;
     this.activeBomb = null; this.bombDamage = 0;
     this.player = {pilot: 'lumi', x: 240, y: 592, px: 240, py: 592, r: 4,
-      power: this.mode === 'practice2' ? 3 : 1, powerTime: POWER_DURATION,
+      power: this.mode === 'campaign' ? 1 : 3, powerTime: POWER_DURATION,
       inv: 2.6, fire: 0, drone: .3, charge: 0, charging: false, bank: 0};
   }
   random() {
@@ -89,12 +91,13 @@ export class Game {
   takeEvents() { return this.events.splice(0); }
   start(difficulty = 'normal', mode = 'campaign') { this.reset(difficulty,mode); this.state = 'playing'; this.event('start'); }
   nextStage() {
-    this.stage=2;this.stageTime=0;this.stageElapsed=0;this.wave=0;this.midDefeated=false;
+    if(this.stage>=3)return;
+    this.stage++;this.stageTime=0;this.stageElapsed=0;this.wave=0;this.midDefeated=false;
     this.finalDefeated=false;this.clearTimer=0;this.introTimer=2.4;this.supplyTimer=3;this.supplies=0;
-    this.enemies=[];this.bullets=[];this.shots=[];this.items=[];this.lasers=[];
+    this.enemies=[];this.bullets=[];this.shots=[];this.items=[];this.lasers=[];this.mortars=[];
     this.activeBomb=null;this.bombTimer=0;
     Object.assign(this.player,{x:240,y:592,px:240,py:592,inv:2.6,charge:0,charging:false,bank:0});
-    this.event('stageStart',{stage:2,text:'STAGE 02 · 뇌운의 협곡'});
+    this.event('stageStart',{stage:this.stage,text:'STAGE 0'+this.stage+' · '+STAGES[this.stage].name});
   }
   pause() {
     if (this.state === 'playing') {
@@ -103,7 +106,7 @@ export class Game {
   }
   resume() { if (this.state === 'paused') this.state = 'playing'; }
   spawn(type, x, variant = 0) {
-    const s = SPECS[type] || STORM_SPECS[type];
+    const s = SPECS[type] || STORM_SPECS[type] || FORGE_SPECS[type];
     const e = {id: ++this.id, type, x, y: type === 'boss' ? -125 : -60,
       px: x, py: -60, baseX: x, variant, age: 0, fire: 1.3, flash: 0,
       hp: s.hp, maxHp: s.hp, r: s.r, score: s.score, vy: s.vy,
@@ -112,10 +115,16 @@ export class Game {
       // The opening volley is ready on entry. Subsequent volleys keep their
       // authored cooldowns; killing an enemy quickly still limits its fire.
       e.fire=0;
-      if(this.stage===2)e.hp=e.maxHp=Math.ceil(e.hp*1.15);
+      if(this.stage>=2)e.hp=e.maxHp=Math.ceil(e.hp*1.15);
     }
     this.enemies.push(e);
     attachPods(e);
+    attachForgePods(e);
+    if(type==='vulcan')this.event('warning',{text:'화로거북 볼칸 · 주황색 포탄을 요격하라'});
+    if(type==='ignis'){
+      this.bullets.length=0;this.lasers.length=0;this.mortars.length=0;
+      this.event('warning',{text:'홍련룡 이그니스 · 조선소의 심장'});
+    }
     if(type==='gemini')this.event('warning',{text:'쌍뢰정 제미니 · 좌우 포대를 먼저 파괴하라'});
     if(type==='tempest'){
       this.bullets.length=0;this.lasers.length=0;
@@ -131,13 +140,14 @@ export class Game {
   }
   bullet(x, y, angle, speed, style = 'rose', r = 4) {
     if (this.bullets.length >= 420*HOSTILE_DENSITY) return;
-    const scale = (this.difficulty === 'easy' ? .72 : 1) * (this.stage === 2 ? 1.18 : 1);
-    this.bullets.push({x, y, px: x, py: y, vx: Math.cos(angle) * speed * scale,
-      vy: Math.sin(angle) * speed * scale, r, style, age: 0, dead: false});
+    const scale = (this.difficulty === 'easy' ? .72 : 1) * (this.stage >= 2 ? 1.18 : 1);
+    const b={x, y, px: x, py: y, vx: Math.cos(angle) * speed * scale,
+      vy: Math.sin(angle) * speed * scale, r, style, age: 0, dead: false};
+    this.bullets.push(b);return b;
   }
   fan(e, count, spread, speed, aim = true, style = 'rose', offsetX = 0) {
     // Match the painted cannon muzzles. The boss's core remains the hitbox.
-    const muzzles = {scout: 20, interceptor: 27, turret: 26, bomber: 33, midboss: 62,gemini:60,tempest:65,pod:45};
+    const muzzles = {scout: 20, interceptor: 27, turret: 26, bomber: 33, midboss: 62,gemini:60,tempest:65,pod:45,vulcan:50,ignis:126};
     const x = e.x + offsetX * (e.type === 'boss' && e.phase === 2 ? 1.85 : 1);
     const y = e.y + (e.type === 'boss' ? (e.phase === 1 ? 112 : 70) : (muzzles[e.type] ?? e.r * .55));
     const base = aim ? Math.atan2(this.player.y - y, this.player.x - x) : Math.PI / 2;
@@ -182,7 +192,7 @@ export class Game {
       x: clamp(this.player.x, 180, W - 180), y: clamp(this.player.y, 360, H - 95)};
     this.player.inv = Math.max(this.player.inv, spec.duration + .2);
     const count = this.bullets.length; this.score += count * 5; this.bullets.length = 0;
-    this.lasers.length=0;
+    this.lasers.length=0;this.mortars.length=0;
     this.event('bomb', {x: this.activeBomb.x, y: this.activeBomb.y,
       pilot: this.player.pilot, id: spec.id, name: spec.name});
     return true;
@@ -218,9 +228,9 @@ export class Game {
     if (e.dead || e.transition > 0 || e.y < ENEMY_ACTIVE_Y) return;
     const before = e.hp;
     e.hp -= amount; e.flash = .065; this.hits++;
-    if(e.type==='tempest' && e.phase<3 && e.hp<=e.maxHp*(e.phase===1?2/3:1/3)){
-      e.hp=e.maxHp*(e.phase===1?2/3:1/3);e.phase++;e.transition=2.2;e.fire=.7;
-      this.bullets.length=0;this.lasers.length=0;this.score+=1800;
+    if((e.type==='tempest'||e.type==='ignis') && e.phase<3 && e.hp<=e.maxHp*(e.phase===1?2/3:1/3)){
+      e.hp=e.maxHp*(e.phase===1?2/3:1/3);e.phase++;e.transition=e.type==='ignis'?2.6:2.2;e.fire=.7;
+      this.bullets.length=0;this.lasers.length=0;this.mortars.length=0;this.score+=1800;
       for(const part of e.parts)if(!part.dead){part.dead=true;this.event('partBreak',{x:part.x,y:part.y});}
       this.event('transform',{x:e.x,y:e.y,type:e.type,phase:e.phase});
     }else if (e.type === 'boss' && e.phase === 1 && e.hp <= e.maxHp * .5) {
@@ -237,6 +247,7 @@ export class Game {
     if(part.hp<=0){
       part.dead=true;this.score+=600;
       this.lasers=this.lasers.filter(l=>l.partId!==part.id);
+      this.mortars=this.mortars.filter(m=>m.partId!==part.id);
       this.event('partBreak',{x:part.x,y:part.y});
       this.event('message',{text:(part.side<0?'왼쪽':'오른쪽')+' 포대 파괴!'});
     }
@@ -248,6 +259,25 @@ export class Game {
       lockX:x+Math.cos(angle)*lockDistance,lockY:y+Math.sin(angle)*lockDistance,
       age:0,warning,duration,width});
     this.event('laserWarning');
+  }
+  launchMortar(e,x,y,tx,ty,{flight=.95,fuse=this.difficulty==='easy'?1.15:.8,partId=null}={}){
+    if(this.bombTimer>0||this.finalDefeated||e.dead||e.transition>0||x<0||x>W||y<0||this.mortars.length>=6)return;
+    const m={id:'m'+(++this.id),owner:e.id,partId,x,y,px:x,py:y,startX:x,startY:y,
+      tx:clamp(tx,50,W-50),ty:clamp(ty,90,H-55),age:0,flight,fuse,blastDuration:.55,
+      blastRadius:this.difficulty==='easy'?28:36,r:10,hp:12,maxHp:12,exploded:false,dead:false};
+    this.mortars.push(m);this.event('mortarLaunch',{x,y});return m;
+  }
+  damageMortar(m,amount){
+    if(!mortarArmed(m))return;
+    m.hp=Math.max(0,m.hp-amount);this.hits++;
+    if(m.hp===0){m.dead=true;this.shellsDestroyed++;this.score+=80;this.event('shellBreak',{x:m.x,y:m.y});}
+  }
+  moveMortars(dt){
+    for(const m of this.mortars){
+      if(m.dead)continue;moveMortar(m,dt);
+      if(!m.exploded&&m.age>=m.flight+m.fuse){m.exploded=true;this.event('mortarBurst',{x:m.tx,y:m.ty,r:m.blastRadius});}
+      if(m.age>=m.flight+m.fuse+m.blastDuration)m.dead=true;
+    }
   }
   updatePower(dt){
     const p=this.player;
@@ -274,18 +304,19 @@ export class Game {
     this.event('explode', {x: e.x, y: e.y, large, type: e.type,phase:e.phase});
     if (isFinal(e)) {
       this.finalDefeated = true; this.clearTimer = 2.8; this.bullets.length = 0;
-      this.lasers.length=0;
+      this.lasers.length=0;this.mortars.length=0;
       for (const other of this.enemies) other.dead = true;
       this.score += this.lives * 2000 + this.bombs * 500;
       this.player.inv = 10;
       if(this.stage===1)this.event('message',{text:'항구 해방! 뇌운의 협곡으로 진입한다'});
-    } else if (e.type === 'midboss' || e.type === 'gemini') {
+      if(this.stage===2&&this.mode==='campaign')this.event('message',{text:'협곡 돌파! 홍련의 조선소로 진입한다'});
+    } else if (e.type === 'midboss' || e.type === 'gemini' || e.type==='vulcan') {
       this.midDefeated = true; this.bullets.length = 0;
-      this.lasers.length=0;
+      this.lasers.length=0;this.mortars.length=0;
       this.items.push({x: e.x - 30, y: e.y, type: 'power', age: 0},
         {x: e.x + 30, y: e.y, type: 'bomb', age: 0});
       this.player.inv = Math.max(this.player.inv, 1.5);
-      this.event('message', {text: '항로 확보! 기함을 추격하라'});
+      this.event('message', {text: e.type==='vulcan'?'제련 구역 확보! 홍련룡을 추격하라':'항로 확보! 기함을 추격하라'});
     } else {
       this.killDrops++;
       this.items.push({x: e.x, y: e.y, type:'coin', age: 0});
@@ -295,7 +326,7 @@ export class Game {
     const p = this.player;
     if (p.inv > 0 || this.finalDefeated || this.state !== 'playing') return false;
     this.lives--; this.deaths++; this.combo = 0;
-    this.bullets.length = 0; this.lasers.length=0; p.inv = 3; p.charge = 0; p.charging = false;
+    this.bullets.length = 0; this.lasers.length=0; this.mortars.length=0; p.inv = 3; p.charge = 0; p.charging = false;
     this.event('hurt', {x: p.x, y: p.y});
     if (this.lives <= 0) { this.state = 'gameover'; this.event('gameover'); }
     else {
@@ -307,11 +338,11 @@ export class Game {
   }
   updateEnemy(e, dt) {
     e.px = e.x; e.py = e.y; e.age += dt; e.flash = Math.max(0, e.flash - dt);
-    const big = isLarge(e),storm=!!STORM_SPECS[e.type];
+    const big = isLarge(e),storm=!!STORM_SPECS[e.type],forge=!!FORGE_SPECS[e.type];
     if (big) {
-      e.y = Math.min(isFinal(e) ? (storm?186:210) : 156, e.y + e.vy * dt);
-      const amplitude = storm?(isFinal(e)?34:62):e.type === 'boss' ? (e.phase === 2 ? 95 : 65) : 115;
-      e.x = W / 2 + Math.sin(e.age * (storm?.45:e.phase === 2 ? .9 : .6)) * amplitude * Math.min(1, e.age / 4);
+      e.y = Math.min(isFinal(e) ? (storm||forge?186:210) : 156, e.y + e.vy * dt);
+      const amplitude = forge?(isFinal(e)?40:48):storm?(isFinal(e)?34:62):e.type === 'boss' ? (e.phase === 2 ? 95 : 65) : 115;
+      e.x = W / 2 + Math.sin(e.age * (forge?.42:storm?.45:e.phase === 2 ? .9 : .6)) * amplitude * Math.min(1, e.age / 4);
     } else {
       e.y += e.vy * dt;
       if (e.type === 'interceptor') {
@@ -327,12 +358,14 @@ export class Game {
     // Their muzzle is already on screen; offscreen and point-blank shots
     // remain suppressed, as do attacks during Lumi's bomb.
     if (e.x < 0 || e.x > W || e.y < (big?38:ENEMY_ACTIVE_Y) || e.y > H - 95 || this.bombTimer > 0 ||
-        Math.hypot(e.x - this.player.x, e.y - this.player.y) < 110) return;
+        (!forge&&Math.hypot(e.x - this.player.x, e.y - this.player.y) < 110)) return;
     e.fire -= dt;
     if (e.fire > 0) return;
-    if(storm&&e.y<150)return;
+    if((storm||forge)&&e.y<150)return;
     e.volley++;
+    if(forge){forgeAttack(this,e);return;}
     if(storm){stormAttack(this,e);return;}
+    if(this.stage===3&&forgeMinorAttack(this,e))return;
     const easy = this.difficulty === 'easy';
     if (e.type === 'scout') { this.fan(e, 1, 0, 175); e.fire = 2.9; }
     if (e.type === 'interceptor') { this.fan(e, easy ? 1 : 3, .14, 198); e.fire = 2.1; }
@@ -368,7 +401,7 @@ export class Game {
       }
     }
     if (easy) e.fire *= 1.15;
-    if(this.stage===2)e.fire*=.8;
+    if(this.stage>=2)e.fire*=.8;
   }
   step(dt, input = {}) {
     if (this.state !== 'playing') return;
@@ -407,11 +440,11 @@ export class Game {
     if (this.finalDefeated) {
       this.clearTimer -= dt;
       if (this.clearTimer <= 0) {
-        if(this.stage===1){this.nextStage();return;}
+        if(this.stage<this.endStage){this.nextStage();return;}
         this.state = 'clear'; this.event('clear');return;
       }
     } else {
-      const spec=STAGES[this.stage],waves=this.stage===1?WAVES:STORM_WAVES;
+      const spec=STAGES[this.stage],waves=this.stage===1?WAVES:this.stage===2?STORM_WAVES:FORGE_WAVES;
       const waitingMid = this.stageTime >= spec.midStop && !this.midDefeated;
       if (!waitingMid && this.stageTime < spec.bossAt+.1) this.stageTime += dt;
       while (this.wave < waves.length && waves[this.wave].t <= this.stageTime) {
@@ -420,11 +453,12 @@ export class Game {
     }
     for (const e of this.enemies) if (!e.dead) this.updateEnemy(e, dt);
     this.updateBomb(dt);
+    this.moveMortars(dt);
     for (const s of this.shots) {
       s.px = s.x; s.py = s.y;
       if (s.style === 'homing') {
         let target = null, near = Infinity;
-        for (const e of this.enemies.flatMap(e=>e.dead?[]:[...(e.parts||[]).filter(p=>!p.dead),e])) {
+        for (const e of [...this.enemies.flatMap(e=>e.dead?[]:[...(e.parts||[]).filter(p=>!p.dead),e]),...this.mortars.filter(mortarArmed)]) {
           const d = Math.hypot(e.x - s.x, e.y - s.y);
           if (!e.dead && e.y > 0 && e.y < s.y && d < near) { near = d; target = e; }
         }
@@ -435,6 +469,14 @@ export class Game {
         }
       }
       s.x += s.vx * dt; s.y += s.vy * dt;
+      for(const m of this.mortars){
+        if(!mortarArmed(m)||s.hitIds.has(m.id))continue;
+        if(sweptHit(s.px-m.px,s.py-m.py,s.x-m.x,s.y-m.y,s.r+m.r)){
+          this.damageMortar(m,s.damage);s.hitIds.add(m.id);
+          if(s.style!=='charge'&&s.style!=='charge-small'){s.dead=true;break;}
+        }
+      }
+      if(s.dead)continue;
       for (const e of this.enemies) {
         if (e.dead || e.y < ENEMY_ACTIVE_Y || e.transition > 0 || s.hitIds.has(e.id)) continue;
         for(const target of [...(e.parts||[]).filter(p=>!p.dead),e]){
@@ -456,7 +498,15 @@ export class Game {
       }
     }
     this.lasers=this.lasers.filter(l=>l.age<l.warning+l.duration);
+    for(const m of this.mortars)if(!m.dead&&m.exploded&&p.inv<=0&&
+      sweptHit(p.px-m.tx,p.py-m.ty,p.x-m.tx,p.y-m.ty,m.blastRadius+p.r)){
+      this.hitPlayer();break;
+    }
     for (const b of this.bullets) {
+      if(b.turnRate&&b.age<b.turnFor){
+        const a=b.turnRate*Math.min(dt,b.turnFor-b.age),vx=b.vx,vy=b.vy;
+        b.vx=vx*Math.cos(a)-vy*Math.sin(a);b.vy=vx*Math.sin(a)+vy*Math.cos(a);
+      }
       b.px = b.x; b.py = b.y; b.x += b.vx * dt; b.y += b.vy * dt; b.age += dt;
       if (p.inv <= 0 && sweptHit(b.px - p.px, b.py - p.py, b.x - p.x, b.y - p.y, b.r + p.r)) {
         b.dead = true; this.hitPlayer(); break;
@@ -494,7 +544,8 @@ export class Game {
         this.event('pickup', {type: item.type});
       }
     }
-    if (this.bombTimer > 0) {this.bullets.length = 0;this.lasers.length=0;}
+    if (this.bombTimer > 0) {this.bullets.length = 0;this.lasers.length=0;this.mortars.length=0;}
+    this.mortars=this.mortars.filter(m=>!m.dead);
     this.enemies = this.enemies.filter(e => !e.dead && e.y < H + 100);
     this.shots = this.shots.filter(s => !s.dead && s.y > -80 && s.y < H + 80 && s.x > -60 && s.x < W + 60);
     this.bullets = this.bullets.filter(b => !b.dead && b.age < 14 && b.x > -50 && b.x < W + 50 && b.y > -100 && b.y < H + 40);
@@ -502,6 +553,8 @@ export class Game {
   }
   get boss() { return this.enemies.find(e => !e.dead && isLarge(e)); }
   get chapter() {
+    if(this.stage===3)return this.stageTime<24?'공중 도크 진입':this.stageTime<65?'용광로 외곽':
+      this.stageTime<70?'화로거북 볼칸':this.stageTime<143?'제련 구역 돌파':'홍련룡 이그니스';
     if(this.stage===2)return this.stageTime<28?'협곡 진입':this.stageTime<67?'송전탑 경계선':
       this.stageTime<72?'쌍뢰정 제미니':this.stageTime<140?'송전 시설 돌파':'뇌전요새 템페스트';
     return this.stageTime < 22 ? '항구 상공' : this.stageTime < 69 ? '해적의 경계선' :
