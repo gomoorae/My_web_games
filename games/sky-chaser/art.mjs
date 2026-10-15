@@ -7,6 +7,9 @@ export const ART_FILES = Object.freeze({
   airship: './assets/iron-raven-airship-v2.png',
   raven: './assets/iron-raven-awakened-v2.png',
   harbor: './assets/harbor-painted-v2.png',
+  canyon:'./assets/thunder-canyon-v040.png',
+  gemini:'./assets/gemini-parts-v040.png',
+  tempest:'./assets/tempest-parts-v040.png',
   portrait: './assets/lumi-key-art.png'
 });
 const makeCanvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
@@ -24,10 +27,10 @@ function silhouette(image,color) {
   c.fillRect(0,0,canvas.width,canvas.height);
   return canvas;
 }
-function sprite(image,column,row,columns,rows,limit=384) {
-  const cw=Math.floor(image.width/columns),ch=Math.floor(image.height/rows);
+function sprite(image,column,row,columns,rows,limit=384,region=null) {
+  const [sx,sy,cw,ch]=region||[column*Math.floor(image.width/columns),row*Math.floor(image.height/rows),Math.floor(image.width/columns),Math.floor(image.height/rows)];
   const scan=makeCanvas(cw,ch),sc=scan.getContext('2d',{willReadFrequently:true});
-  sc.drawImage(image,column*cw,row*ch,cw,ch,0,0,cw,ch);
+  sc.drawImage(image,sx,sy,cw,ch,0,0,cw,ch);
   const pixels=sc.getImageData(0,0,cw,ch).data;
   let x0=cw,y0=ch,x1=0,y1=0;
   for(let y=0;y<ch;y++)for(let x=0;x<cw;x++)if(pixels[(y*cw+x)*4+3]>24){
@@ -56,6 +59,12 @@ export class ArtBank {
     });
     this.sprites.airship=sprite(this.images.airship,0,0,1,1,768);
     this.sprites.raven=sprite(this.images.raven,0,0,1,1,768);
+    const gem=this.images.gemini,split=Math.round(gem.width*.675);
+    this.sprites.gemini=sprite(gem,0,0,1,1,640,[0,0,split,gem.height]);
+    this.sprites.geminiPod=sprite(gem,0,0,1,1,256,[split,0,gem.width-split,gem.height]);
+    ['tempest','tempestRing','tempestPod','tempestCore'].forEach((name,i)=>{
+      this.sprites[name]=sprite(this.images.tempest,i%2,Math.floor(i/2),2,2,640);
+    });
     this.loaded=true;
   }
 }

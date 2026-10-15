@@ -1,5 +1,8 @@
+import {STAGES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,isLarge,isFinal,
+  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.4.0';
+export {STAGES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.3.1';
+export const VERSION = '0.4.0';
 export const PLAYER_SCALE = .8;
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 export const PILOTS = Object.freeze({
@@ -59,18 +62,22 @@ const SPECS = {
 
 export class Game {
   constructor(seed = 421) { this.seed = seed; this.reset(); }
-  reset(difficulty = 'normal') {
+  reset(difficulty = 'normal', mode = 'campaign') {
     this.rng = this.seed;
     this.difficulty = difficulty;
+    this.mode = mode === 'practice2' ? mode : 'campaign';
+    this.stage = this.mode === 'practice2' ? 2 : 1;
+    this.stageElapsed = 0; this.introTimer = 0; this.supplyTimer = 3; this.supplies = 0;
     this.state = 'ready'; this.time = 0; this.stageTime = 0;
     this.score = 0; this.kills = 0; this.shotsFired = 0; this.hits = 0;
     this.maxCombo = 0; this.combo = 0; this.comboTime = 0;
     this.lives = 3; this.bombs = 3; this.usedBombs = 0; this.deaths = 0;
-    this.enemies = []; this.bullets = []; this.shots = []; this.items = []; this.events = [];
+    this.enemies = []; this.bullets = []; this.shots = []; this.items = []; this.events = []; this.lasers = [];
     this.wave = 0; this.id = 0; this.killDrops = 0; this.midDefeated = false;
     this.finalDefeated = false; this.clearTimer = 0; this.bombTimer = 0;
     this.activeBomb = null; this.bombDamage = 0;
-    this.player = {pilot: 'lumi', x: 240, y: 592, px: 240, py: 592, r: 4, power: 1,
+    this.player = {pilot: 'lumi', x: 240, y: 592, px: 240, py: 592, r: 4,
+      power: this.mode === 'practice2' ? 3 : 1, powerTime: POWER_DURATION,
       inv: 2.6, fire: 0, drone: .3, charge: 0, charging: false, bank: 0};
   }
   random() {
@@ -79,7 +86,15 @@ export class Game {
   }
   event(kind, detail = {}) { this.events.push({kind, ...detail}); }
   takeEvents() { return this.events.splice(0); }
-  start(difficulty = 'normal') { this.reset(difficulty); this.state = 'playing'; this.event('start'); }
+  start(difficulty = 'normal', mode = 'campaign') { this.reset(difficulty,mode); this.state = 'playing'; this.event('start'); }
+  nextStage() {
+    this.stage=2;this.stageTime=0;this.stageElapsed=0;this.wave=0;this.midDefeated=false;
+    this.finalDefeated=false;this.clearTimer=0;this.introTimer=2.4;this.supplyTimer=3;this.supplies=0;
+    this.enemies=[];this.bullets=[];this.shots=[];this.items=[];this.lasers=[];
+    this.activeBomb=null;this.bombTimer=0;
+    Object.assign(this.player,{x:240,y:592,px:240,py:592,inv:2.6,charge:0,charging:false,bank:0});
+    this.event('stageStart',{stage:2,text:'STAGE 02 · 뇌운의 협곡'});
+  }
   pause() {
     if (this.state === 'playing') {
       this.state = 'paused'; this.player.charge = 0; this.player.charging = false;
@@ -87,12 +102,21 @@ export class Game {
   }
   resume() { if (this.state === 'paused') this.state = 'playing'; }
   spawn(type, x, variant = 0) {
-    const s = SPECS[type];
+    const s = SPECS[type] || STORM_SPECS[type];
     const e = {id: ++this.id, type, x, y: type === 'boss' ? -125 : -60,
       px: x, py: -60, baseX: x, variant, age: 0, fire: 1.3, flash: 0,
       hp: s.hp, maxHp: s.hp, r: s.r, score: s.score, vy: s.vy,
       phase: 1, volley: 0, transition: 0, dead: false};
+    if(this.stage===2&&!isLarge(e)){
+      e.hp=e.maxHp=Math.ceil(e.hp*1.15);e.fire=.9;
+    }
     this.enemies.push(e);
+    attachPods(e);
+    if(type==='gemini')this.event('warning',{text:'쌍뢰정 제미니 · 좌우 포대를 먼저 파괴하라'});
+    if(type==='tempest'){
+      this.bullets.length=0;this.lasers.length=0;
+      this.event('warning',{text:'뇌전요새 템페스트 · 전투 개시'});
+    }
     if (type === 'midboss') this.event('warning', {text: '중간 보스 · 철갑 순찰정'});
     if (type === 'boss') {
       this.bullets.length = 0;
@@ -103,13 +127,13 @@ export class Game {
   }
   bullet(x, y, angle, speed, style = 'rose', r = 4) {
     if (this.bullets.length >= 420) return;
-    const scale = this.difficulty === 'easy' ? .72 : 1;
+    const scale = (this.difficulty === 'easy' ? .72 : 1) * (this.stage === 2 ? 1.18 : 1);
     this.bullets.push({x, y, px: x, py: y, vx: Math.cos(angle) * speed * scale,
       vy: Math.sin(angle) * speed * scale, r, style, age: 0, dead: false});
   }
   fan(e, count, spread, speed, aim = true, style = 'rose', offsetX = 0) {
     // Match the painted cannon muzzles. The boss's core remains the hitbox.
-    const muzzles = {scout: 20, interceptor: 27, turret: 26, bomber: 33, midboss: 62};
+    const muzzles = {scout: 20, interceptor: 27, turret: 26, bomber: 33, midboss: 62,gemini:60,tempest:65,pod:45};
     const x = e.x + offsetX * (e.type === 'boss' && e.phase === 2 ? 1.85 : 1);
     const y = e.y + (e.type === 'boss' ? (e.phase === 1 ? 112 : 70) : (muzzles[e.type] ?? e.r * .55));
     const base = aim ? Math.atan2(this.player.y - y, this.player.x - x) : Math.PI / 2;
@@ -142,13 +166,14 @@ export class Game {
     this.event('charge', {full, x: p.x, y: p.y});
   }
   bomb() {
-    if (this.state !== 'playing' || this.bombs <= 0 || this.bombTimer > 0 || this.finalDefeated) return false;
+    if (this.state !== 'playing' || this.bombs <= 0 || this.bombTimer > 0 || this.finalDefeated || this.introTimer > 0) return false;
     const spec = PILOTS[this.player.pilot].bomb;
     this.bombs--; this.usedBombs++; this.bombTimer = spec.duration;
     this.activeBomb = {spec, age: 0, nextStrike: 0, damage: 0,
       x: clamp(this.player.x, 180, W - 180), y: clamp(this.player.y, 360, H - 95)};
     this.player.inv = Math.max(this.player.inv, spec.duration + .2);
     const count = this.bullets.length; this.score += count * 5; this.bullets.length = 0;
+    this.lasers.length=0;
     this.event('bomb', {x: this.activeBomb.x, y: this.activeBomb.y,
       pilot: this.player.pilot, id: spec.id, name: spec.name});
     return true;
@@ -164,12 +189,15 @@ export class Game {
       const targets = [];
       for (const e of this.enemies) {
         if (e.y < 5 || e.y > H + e.r || e.dead || e.transition > 0) continue;
-        const big = e.type === 'boss' || e.type === 'midboss';
+        const big = isLarge(e);
         const damage = big ? (final ? spec.bossFinalDamage : spec.bossPulseDamage) :
           (final ? spec.finalDamage : spec.pulseDamage);
-        const before = e.hp;
-        this.damage(e, damage);
-        const actual = Math.max(0, before - Math.max(0, e.hp));
+        const parts=(e.parts||[]).filter(p=>!p.dead);
+        const before = e.hp+parts.reduce((n,p)=>n+p.hp,0);
+        // One damage budget per boss, not a full bomb on every component.
+        for(const part of parts)this.damagePart(e,part,damage*.4/parts.length);
+        this.damage(e, damage*(parts.length?.6:1));
+        const actual = Math.max(0, before - Math.max(0, e.hp)-parts.reduce((n,p)=>n+Math.max(0,p.hp),0));
         attack.damage += actual; this.bombDamage += actual;
         if (actual > 0) targets.push({x: e.x, y: e.y, damage: actual, type: e.type});
       }
@@ -181,7 +209,12 @@ export class Game {
     if (e.dead || e.transition > 0 || e.y < 5) return;
     const before = e.hp;
     e.hp -= amount; e.flash = .065; this.hits++;
-    if (e.type === 'boss' && e.phase === 1 && e.hp <= e.maxHp * .5) {
+    if(e.type==='tempest' && e.phase<3 && e.hp<=e.maxHp*(e.phase===1?2/3:1/3)){
+      e.hp=e.maxHp*(e.phase===1?2/3:1/3);e.phase++;e.transition=2.2;e.fire=.7;
+      this.bullets.length=0;this.lasers.length=0;this.score+=1800;
+      for(const part of e.parts)if(!part.dead){part.dead=true;this.event('partBreak',{x:part.x,y:part.y});}
+      this.event('transform',{x:e.x,y:e.y,type:e.type,phase:e.phase});
+    }else if (e.type === 'boss' && e.phase === 1 && e.hp <= e.maxHp * .5) {
       // A powerful shot can trigger, but can never skip, the second form.
       e.hp = e.maxHp * .5; e.phase = 2; e.transition = 2.7; e.fire = .7;
       this.bullets.length = 0; this.score += 1500;
@@ -189,50 +222,85 @@ export class Game {
     } else if (e.hp <= 0) this.destroy(e);
     else if (amount > 15) this.event('impact', {x: e.x, y: e.y, amount: Math.min(before, amount)});
   }
+  damagePart(e,part,amount){
+    if(e.dead||e.transition>0||e.y<5||part.dead)return;
+    part.hp=Math.max(0,part.hp-amount);part.flash=.065;this.hits++;
+    if(part.hp<=0){
+      part.dead=true;this.score+=600;
+      this.lasers=this.lasers.filter(l=>l.partId!==part.id);
+      this.event('partBreak',{x:part.x,y:part.y});
+      this.event('message',{text:(part.side<0?'왼쪽':'오른쪽')+' 포대 파괴!'});
+    }
+  }
+  laser(e,x,y,angle,warning,duration,width,partId=null){
+    if(this.bombTimer>0||this.finalDefeated||e.transition>0||this.lasers.length>=2)return;
+    this.lasers.push({owner:e.id,partId,x,y,x2:x+Math.cos(angle)*1000,y2:y+Math.sin(angle)*1000,
+      age:0,warning,duration,width});
+    this.event('laserWarning');
+  }
+  updatePower(dt){
+    const p=this.player;
+    if(p.power>1){
+      const before=p.powerTime;p.powerTime=Math.max(0,p.powerTime-dt);
+      if(before>5&&p.powerTime<=5)this.event('powerWarning');
+      if(p.powerTime<=1e-9){p.power--;p.powerTime=POWER_DURATION;this.event('powerDown',{level:p.power});}
+    }
+    this.supplyTimer-=dt;
+    if(this.supplyTimer<=0){
+      const lanes=this.stage===1?[180,300,240]:[100,350,175,395,240,75];
+      const x=lanes[this.supplies++%lanes.length];
+      this.items.push({x,y:90,type:'power',age:0,supply:true});
+      this.supplyTimer+=SUPPLY_INTERVAL;this.event('supply',{x});
+    }
+  }
   destroy(e) {
     if (e.dead) return;
     e.dead = true;
     this.kills++; this.combo++; this.comboTime = 3.2;
     this.maxCombo = Math.max(this.maxCombo, this.combo);
     this.score += e.score + Math.min(this.combo, 30) * 10;
-    const large = e.type === 'boss' || e.type === 'midboss';
+    const large = isLarge(e);
     this.event('explode', {x: e.x, y: e.y, large, type: e.type});
-    if (e.type === 'boss') {
+    if (isFinal(e)) {
       this.finalDefeated = true; this.clearTimer = 2.8; this.bullets.length = 0;
+      this.lasers.length=0;
       for (const other of this.enemies) other.dead = true;
       this.score += this.lives * 2000 + this.bombs * 500;
       this.player.inv = 10;
-    } else if (e.type === 'midboss') {
+      if(this.stage===1)this.event('message',{text:'항구 해방! 뇌운의 협곡으로 진입한다'});
+    } else if (e.type === 'midboss' || e.type === 'gemini') {
       this.midDefeated = true; this.bullets.length = 0;
+      this.lasers.length=0;
       this.items.push({x: e.x - 30, y: e.y, type: 'power', age: 0},
         {x: e.x + 30, y: e.y, type: 'bomb', age: 0});
       this.player.inv = Math.max(this.player.inv, 1.5);
       this.event('message', {text: '항로 확보! 기함을 추격하라'});
     } else {
       this.killDrops++;
-      const type = this.killDrops % 9 === 0 ? 'power' : 'coin';
-      this.items.push({x: e.x, y: e.y, type, age: 0});
+      this.items.push({x: e.x, y: e.y, type:'coin', age: 0});
     }
   }
   hitPlayer() {
     const p = this.player;
     if (p.inv > 0 || this.finalDefeated || this.state !== 'playing') return false;
     this.lives--; this.deaths++; this.combo = 0;
-    this.bullets.length = 0; p.inv = 3; p.charge = 0; p.charging = false;
+    this.bullets.length = 0; this.lasers.length=0; p.inv = 3; p.charge = 0; p.charging = false;
     this.event('hurt', {x: p.x, y: p.y});
     if (this.lives <= 0) { this.state = 'gameover'; this.event('gameover'); }
-    else if (p.power > 1) {
-      p.power--; this.items.push({x: p.x, y: Math.max(100, p.y - 105), type: 'power', age: 0});
+    else {
+      p.power=Math.max(1,p.power-1);p.powerTime=POWER_DURATION;
+      const side=p.x>W/2?-1:1;
+      this.items.push({x:p.x,y:p.y-8,vx:side*95,vy:-150,recovery:true,type:'power',age:0});
     }
     return true;
   }
   updateEnemy(e, dt) {
     e.px = e.x; e.py = e.y; e.age += dt; e.flash = Math.max(0, e.flash - dt);
-    const big = e.type === 'boss' || e.type === 'midboss';
+    const big = isLarge(e),storm=!!STORM_SPECS[e.type];
     if (big) {
-      e.y = Math.min(e.type === 'boss' ? 210 : 156, e.y + e.vy * dt);
-      const amplitude = e.type === 'boss' ? (e.phase === 2 ? 95 : 65) : 115;
-      e.x = W / 2 + Math.sin(e.age * (e.phase === 2 ? .9 : .6)) * amplitude * Math.min(1, e.age / 4);
+      e.y = Math.min(isFinal(e) ? (storm?186:210) : 156, e.y + e.vy * dt);
+      const amplitude = storm?(isFinal(e)?34:62):e.type === 'boss' ? (e.phase === 2 ? 95 : 65) : 115;
+      e.x = W / 2 + Math.sin(e.age * (storm?.45:e.phase === 2 ? .9 : .6)) * amplitude * Math.min(1, e.age / 4);
     } else {
       e.y += e.vy * dt;
       if (e.type === 'interceptor') {
@@ -242,12 +310,15 @@ export class Game {
       } else if (e.type === 'scout') e.x = e.baseX + Math.sin(e.age * 2) * 22;
       else if (e.type === 'mine') e.x = e.baseX + Math.sin(e.age * 1.8) * 30;
     }
+    syncPods(e,dt);
     if (e.transition > 0) { e.transition = Math.max(0, e.transition - dt); return; }
     if (e.y < 38 || e.y > H - 95 || this.bombTimer > 0 ||
         Math.hypot(e.x - this.player.x, e.y - this.player.y) < 110) return;
     e.fire -= dt;
     if (e.fire > 0) return;
+    if(storm&&e.y<150)return;
     e.volley++;
+    if(storm){stormAttack(this,e);return;}
     const easy = this.difficulty === 'easy';
     if (e.type === 'scout') { this.fan(e, 1, 0, 175); e.fire = 2.9; }
     if (e.type === 'interceptor') { this.fan(e, easy ? 1 : 3, .14, 198); e.fire = 2.1; }
@@ -282,13 +353,17 @@ export class Game {
       }
     }
     if (easy) e.fire *= 1.15;
+    if(this.stage===2)e.fire*=.8;
   }
   step(dt, input = {}) {
     if (this.state !== 'playing') return;
     const p = this.player;
     this.time += dt; p.px = p.x; p.py = p.y;
+    if(this.introTimer>0){this.introTimer=Math.max(0,this.introTimer-dt);return;}
+    this.stageElapsed+=dt;
     p.inv = Math.max(0, p.inv - dt); this.bombTimer = Math.max(0, this.bombTimer - dt);
     this.comboTime -= dt; if (this.comboTime <= 0) this.combo = 0;
+    if(!this.finalDefeated&&!this.enemies.some(e=>!e.dead&&e.transition>0))this.updatePower(dt);
     let dx = clamp(input.x || 0, -1, 1), dy = clamp(input.y || 0, -1, 1);
     const len = Math.hypot(dx, dy);
     if (len > 1) { dx /= len; dy /= len; }
@@ -316,12 +391,16 @@ export class Game {
     }
     if (this.finalDefeated) {
       this.clearTimer -= dt;
-      if (this.clearTimer <= 0) { this.state = 'clear'; this.event('clear'); }
+      if (this.clearTimer <= 0) {
+        if(this.stage===1){this.nextStage();return;}
+        this.state = 'clear'; this.event('clear');return;
+      }
     } else {
-      const waitingMid = this.stageTime >= 73 && !this.midDefeated;
-      if (!waitingMid && this.stageTime < 134.1) this.stageTime += dt;
-      while (this.wave < WAVES.length && WAVES[this.wave].t <= this.stageTime) {
-        const w = WAVES[this.wave++]; this.spawn(w.type, w.x, w.variant);
+      const spec=STAGES[this.stage],waves=this.stage===1?WAVES:STORM_WAVES;
+      const waitingMid = this.stageTime >= spec.midStop && !this.midDefeated;
+      if (!waitingMid && this.stageTime < spec.bossAt+.1) this.stageTime += dt;
+      while (this.wave < waves.length && waves[this.wave].t <= this.stageTime) {
+        const w = waves[this.wave++]; this.spawn(w.type, w.x, w.variant);
       }
     }
     for (const e of this.enemies) if (!e.dead) this.updateEnemy(e, dt);
@@ -330,7 +409,7 @@ export class Game {
       s.px = s.x; s.py = s.y;
       if (s.style === 'homing') {
         let target = null, near = Infinity;
-        for (const e of this.enemies) {
+        for (const e of this.enemies.flatMap(e=>e.dead?[]:[...(e.parts||[]).filter(p=>!p.dead),e])) {
           const d = Math.hypot(e.x - s.x, e.y - s.y);
           if (!e.dead && e.y > 0 && e.y < s.y && d < near) { near = d; target = e; }
         }
@@ -343,12 +422,25 @@ export class Game {
       s.x += s.vx * dt; s.y += s.vy * dt;
       for (const e of this.enemies) {
         if (e.dead || e.y < 5 || e.transition > 0 || s.hitIds.has(e.id)) continue;
-        if (sweptHit(s.px - e.px, s.py - e.py, s.x - e.x, s.y - e.y, s.r + e.r)) {
-          this.damage(e, s.damage); s.hitIds.add(e.id);
-          if (s.style !== 'charge' && s.style !== 'charge-small') { s.dead = true; break; }
+        for(const target of [...(e.parts||[]).filter(p=>!p.dead),e]){
+          if(s.hitIds.has(target.id))continue;
+          if (sweptHit(s.px - target.px, s.py - target.py, s.x - target.x, s.y - target.y, s.r + target.r)) {
+            if(target===e)this.damage(e,s.damage);else this.damagePart(e,target,s.damage);
+            s.hitIds.add(target.id);
+            if (s.style !== 'charge' && s.style !== 'charge-small') { s.dead = true; break; }
+          }
         }
+        if(s.dead)break;
       }
     }
+    for(const l of this.lasers){
+      l.age+=dt;
+      if(l.age>=l.warning&&l.age<l.warning+l.duration&&p.inv<=0&&
+        crossesLaser(p.px,p.py,p.x,p.y,l,l.width/2+p.r)){
+        this.hitPlayer();break;
+      }
+    }
+    this.lasers=this.lasers.filter(l=>l.age<l.warning+l.duration);
     for (const b of this.bullets) {
       b.px = b.x; b.py = b.y; b.x += b.vx * dt; b.y += b.vy * dt; b.age += dt;
       if (p.inv <= 0 && sweptHit(b.px - p.px, b.py - p.py, b.x - p.x, b.y - p.y, b.r + p.r)) {
@@ -363,18 +455,23 @@ export class Game {
     }
     for (const item of this.items) {
       item.age += dt;
+      if(item.recovery&&item.age<.65){
+        item.x=clamp(item.x+item.vx*dt,24,W-24);item.y=clamp(item.y+item.vy*dt,65,H-35);
+        item.vx*=Math.exp(-dt*3);item.vy+=210*dt;continue;
+      }
       let d = Math.hypot(p.x - item.x, p.y - item.y);
       if (d < 95 || item.magnet || this.finalDefeated) {
         item.magnet = true;
         const delta = Math.min(d, 390 * dt);
         if (d) { item.x += (p.x - item.x) / d * delta; item.y += (p.y - item.y) / d * delta; }
-      } else item.y += (item.type === 'coin' ? 65 : 40) * dt;
+      } else item.y += (item.type === 'coin' ? 65 : item.supply?72:40) * dt;
       d = Math.hypot(p.x - item.x, p.y - item.y);
       if (d < 23) {
         item.dead = true;
         if (item.type === 'power') {
           if (p.power < 3) { p.power++; this.event('power', {level: p.power}); }
-          else this.score += 800;
+          else {this.score += 800;this.event('powerRefresh');}
+          p.powerTime=POWER_DURATION;
         } else if (item.type === 'bomb') {
           if (this.bombs < 5) { this.bombs++; this.event('message', {text: '폭탄 +1'}); }
           else this.score += 1000;
@@ -382,14 +479,16 @@ export class Game {
         this.event('pickup', {type: item.type});
       }
     }
-    if (this.bombTimer > 0) this.bullets.length = 0;
+    if (this.bombTimer > 0) {this.bullets.length = 0;this.lasers.length=0;}
     this.enemies = this.enemies.filter(e => !e.dead && e.y < H + 100);
     this.shots = this.shots.filter(s => !s.dead && s.y > -80 && s.y < H + 80 && s.x > -60 && s.x < W + 60);
     this.bullets = this.bullets.filter(b => !b.dead && b.age < 14 && b.x > -50 && b.x < W + 50 && b.y > -100 && b.y < H + 40);
     this.items = this.items.filter(i => !i.dead && i.y < H + 30 && i.age < 24);
   }
-  get boss() { return this.enemies.find(e => !e.dead && (e.type === 'boss' || e.type === 'midboss')); }
+  get boss() { return this.enemies.find(e => !e.dead && isLarge(e)); }
   get chapter() {
+    if(this.stage===2)return this.stageTime<28?'협곡 진입':this.stageTime<67?'송전탑 경계선':
+      this.stageTime<72?'쌍뢰정 제미니':this.stageTime<140?'송전 시설 돌파':'뇌전요새 템페스트';
     return this.stageTime < 22 ? '항구 상공' : this.stageTime < 69 ? '해적의 경계선' :
       this.stageTime < 74 ? '철갑 순찰정' : this.stageTime < 126 ? '구름 위 추격전' : '아이언 레이븐';
   }
