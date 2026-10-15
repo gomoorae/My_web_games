@@ -6,6 +6,7 @@ export const STAGES = Object.freeze({
     route:['협곡 진입','쌍뢰정 제미니','송전 시설 돌파','뇌전요새 템페스트']}
 });
 export const POWER_DURATION = 25, SUPPLY_INTERVAL = 12;
+export const HOSTILE_DENSITY = 2;
 export const isLarge = e => ['boss','midboss','gemini','tempest'].includes(e.type);
 export const isFinal = e => e.type === 'boss' || e.type === 'tempest';
 export function makeStormWaves(){
@@ -68,7 +69,15 @@ export function stormAttack(g,e){
     for(let i=0;i<count;i++){
       const a=i*Math.PI*2/count;
       const delta=Math.atan2(Math.sin(a-gap),Math.cos(a-gap));
-      if(Math.abs(delta)>(easy?.62:.49))g.bullet(e.x,e.y+12,a,132,'amber');
+      const gapWidth=easy?.62:.49;
+      if(Math.abs(delta)>gapWidth){
+        for(let j=0;j<HOSTILE_DENSITY;j++){
+          let angle=a+j*Math.PI*2/(count*HOSTILE_DENSITY);
+          if(Math.abs(Math.atan2(Math.sin(angle-gap),Math.cos(angle-gap)))<=gapWidth)
+            angle=a-j*Math.PI/(count*HOSTILE_DENSITY);
+          g.bullet(e.x,e.y+12,angle,132,'amber');
+        }
+      }
     }
     if(e.volley%4===0)g.fan(e,1,0,182,true,'rose');
     e.fire=1.18;

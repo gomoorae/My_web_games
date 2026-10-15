@@ -1,7 +1,7 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES} from './engine.mjs?v=0.4.0';
-import {Renderer} from './render.mjs?v=0.4.0';
-import {Sound} from './audio.mjs?v=0.4.0';
-import {readRecords,writeRecords} from './records.mjs?v=0.4.0';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES} from './engine.mjs?v=0.4.1';
+import {Renderer} from './render.mjs?v=0.4.1';
+import {Sound} from './audio.mjs?v=0.4.1';
+import {readRecords,writeRecords} from './records.mjs?v=0.4.1';
 
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();
@@ -211,10 +211,6 @@ function loop(now){
   for(const e of events){
     if(e.kind==='warning')notice(e.text,3.5,true);
     if(e.kind==='transform'){$('notice').className='notice';noticeTimer=0;}
-    if(e.kind==='power')notice('POWER UP · 공격 '+e.level+'단계',1.8);
-    if(e.kind==='powerRefresh')notice('POWER 유지 시간 25초로 충전',1.2);
-    if(e.kind==='powerWarning')notice('파워 유지 5초 · P를 회수하세요',1.8);
-    if(e.kind==='powerDown')notice('파워 '+e.level+'단계 · P로 회복할 수 있어요',2);
     if(e.kind==='stageStart'){clearInput();notice(e.text,2.4);}
     if(e.kind==='message')notice(e.text,2.5);
   }

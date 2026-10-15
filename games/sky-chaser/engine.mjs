@@ -1,8 +1,8 @@
-import {STAGES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.4.0';
+import {STAGES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
+  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.4.1';
 export {STAGES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.4.0';
+export const VERSION = '0.4.1';
 export const PLAYER_SCALE = .8;
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 export const PILOTS = Object.freeze({
@@ -126,7 +126,7 @@ export class Game {
     return e;
   }
   bullet(x, y, angle, speed, style = 'rose', r = 4) {
-    if (this.bullets.length >= 420) return;
+    if (this.bullets.length >= 420*HOSTILE_DENSITY) return;
     const scale = (this.difficulty === 'easy' ? .72 : 1) * (this.stage === 2 ? 1.18 : 1);
     this.bullets.push({x, y, px: x, py: y, vx: Math.cos(angle) * speed * scale,
       vy: Math.sin(angle) * speed * scale, r, style, age: 0, dead: false});
@@ -138,10 +138,15 @@ export class Game {
     const y = e.y + (e.type === 'boss' ? (e.phase === 1 ? 112 : 70) : (muzzles[e.type] ?? e.r * .55));
     const base = aim ? Math.atan2(this.player.y - y, this.player.x - x) : Math.PI / 2;
     for (let i = 0; i < count; i++) {
-      this.bullet(x, y, base + (i - (count - 1) / 2) * spread, speed, style);
+      const angle=base+(i-(count-1)/2)*spread;
+      // Retain every original aimed round, interleave its partner, and
+      // alternate the extra edge so doubling never removes the centre shot.
+      for(let j=0;j<HOSTILE_DENSITY;j++)this.bullet(x,y,
+        angle+(e.volley%2?-1:1)*j*(count===1?.044:spread)/HOSTILE_DENSITY,speed,style);
     }
   }
   ring(e, count, speed, phase = 0) {
+    count*=HOSTILE_DENSITY;
     for (let i = 0; i < count; i++) this.bullet(e.x, e.y + 10,
       phase + i * Math.PI * 2 / count, speed, 'amber');
   }
@@ -234,7 +239,9 @@ export class Game {
   }
   laser(e,x,y,angle,warning,duration,width,partId=null){
     if(this.bombTimer>0||this.finalDefeated||e.transition>0||this.lasers.length>=2)return;
+    const lockDistance=clamp((this.player.x-x)*Math.cos(angle)+(this.player.y-y)*Math.sin(angle),90,760);
     this.lasers.push({owner:e.id,partId,x,y,x2:x+Math.cos(angle)*1000,y2:y+Math.sin(angle)*1000,
+      lockX:x+Math.cos(angle)*lockDistance,lockY:y+Math.sin(angle)*lockDistance,
       age:0,warning,duration,width});
     this.event('laserWarning');
   }
@@ -260,7 +267,7 @@ export class Game {
     this.maxCombo = Math.max(this.maxCombo, this.combo);
     this.score += e.score + Math.min(this.combo, 30) * 10;
     const large = isLarge(e);
-    this.event('explode', {x: e.x, y: e.y, large, type: e.type});
+    this.event('explode', {x: e.x, y: e.y, large, type: e.type,phase:e.phase});
     if (isFinal(e)) {
       this.finalDefeated = true; this.clearTimer = 2.8; this.bullets.length = 0;
       this.lasers.length=0;
@@ -347,7 +354,8 @@ export class Game {
           this.fan(e, 3, .17, 245, true, 'rose', 45); e.fire = .85;
         } else {
           const base = Math.PI / 2 + Math.sin(e.volley * .45) * .7;
-          for (let i = -2; i <= 2; i++) this.bullet(e.x, e.y + 40, base + i * .22, 185, 'amber');
+          for (let i = -2; i <= 2; i++)for(let j=0;j<HOSTILE_DENSITY;j++)
+            this.bullet(e.x,e.y+40,base+(i+(e.volley%2?-1:1)*j/HOSTILE_DENSITY)*.22,185,'amber');
           e.fire = .38;
         }
       }
