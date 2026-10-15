@@ -2,6 +2,7 @@
 // sprite views, alpha silhouettes and lighting passes, not replacement artwork.
 export const ART_FILES = Object.freeze({
   lumi: './assets/lumi-flight-v2.png',
+  lumiBody: './assets/lumi-body-v031.png',
   fleet: './assets/pirate-fleet-v2.png',
   airship: './assets/iron-raven-airship-v2.png',
   raven: './assets/iron-raven-awakened-v2.png',
@@ -49,6 +50,7 @@ export class ArtBank {
       this.images[key]=await loadImage(url);onProgress(++complete,Object.keys(ART_FILES).length);
     }));
     this.sprites.lumi=[0,1,2].map(i=>sprite(this.images.lumi,i,0,3,1));
+    this.sprites.lumiFlight=[0,1,2].map(i=>sprite(this.images.lumiBody,i,0,3,1));
     ['scout','interceptor','turret','bomber','mine','midboss'].forEach((name,i)=>{
       this.sprites[name]=sprite(this.images.fleet,i%3,Math.floor(i/3),3,2,name==='midboss'?512:256);
     });

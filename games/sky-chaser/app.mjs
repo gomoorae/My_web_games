@@ -1,6 +1,6 @@
-import {Game, W, H, STEP, clamp, VERSION} from './engine.mjs?v=0.3.0';
-import {Renderer} from './render.mjs?v=0.3.0';
-import {Sound} from './audio.mjs?v=0.3.0';
+import {Game, W, H, STEP, clamp, VERSION} from './engine.mjs?v=0.3.1';
+import {Renderer} from './render.mjs?v=0.3.1';
+import {Sound} from './audio.mjs?v=0.3.1';
 
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();

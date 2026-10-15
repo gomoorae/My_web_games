@@ -1,5 +1,6 @@
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.3.0';
+export const VERSION = '0.3.1';
+export const PLAYER_SCALE = .8;
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 export const PILOTS = Object.freeze({
   lumi: Object.freeze({
@@ -123,7 +124,7 @@ export class Game {
   shoot() {
     const p = this.player;
     const add = (ox, vx, damage, style = 'shot') => this.shots.push({
-      x: p.x + ox, y: p.y - 41, px: p.x + ox, py: p.y - 41,
+      x: p.x + ox, y: p.y - 41 * PLAYER_SCALE, px: p.x + ox, py: p.y - 41 * PLAYER_SCALE,
       vx, vy: -700, r: 4, damage, style, dead: false, hitIds: new Set()
     });
     if (p.power === 1) add(0, 0, 5);
@@ -135,7 +136,7 @@ export class Game {
     const p = this.player, charge = p.charge;
     if (charge < .3) return;
     const full = charge >= 1.15;
-    this.shots.push({x: p.x, y: p.y - 41, px: p.x, py: p.y - 41,
+    this.shots.push({x: p.x, y: p.y - 41 * PLAYER_SCALE, px: p.x, py: p.y - 41 * PLAYER_SCALE,
       vx: 0, vy: -810, r: full ? 23 : 13, damage: full ? 135 : 40,
       style: full ? 'charge' : 'charge-small', dead: false, hitIds: new Set()});
     this.event('charge', {full, x: p.x, y: p.y});
