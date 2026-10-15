@@ -4,6 +4,7 @@ gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 
 
 | 게임 | 경로 |
 |---|---|
+| 스카이 체이서 · 세로 슈팅 | [게임](games/sky-chaser/index.html) · [플레이 안내](games/sky-chaser/README.md) |
 | 별냠 · 별 수집 도약 게임 | [게임](games/star-munch/index.html) · [규칙과 소스 안내](games/star-munch/README.md) |
 | NEON TERRITORY · 10스테이지 땅따먹기 | [게임](games/neon_territory/index.html) · [규칙과 조작](games/neon_territory/README.md) |
 | 월하무쌍 · 세 전장의 무협 생존 액션 | [게임과 조작 안내](games/moonfall/index.html) |
@@ -12,6 +13,12 @@ gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 
 | 바이크 칼치기 | [게임](games/bike_game/index.html) |
 
 각 게임의 메인으로/게임 목록으로 링크로 돌아올 수 있습니다.
+
+## 스카이 체이서
+
+룬 사수 루미가 해풍의 항구를 지나 해적 기함을 추격하는 PC 우선 세로 슈팅입니다. 채색 스프라이트와 항구 배경, 일반 적 5종, 중간 보스와 장갑을 벗고 날개를 펼치는 변신 보스가 등장합니다. 약 3분짜리 1스테이지를 쉬움·보통으로 플레이할 수 있습니다.
+
+**[스카이 체이서 플레이](https://gomoorae.github.io/My_web_games/games/sky-chaser/)** — 방향키/WASD 이동, Z 사격, C 차지샷, X 폭탄, Shift 저속 이동, Esc 일시정지. 현재 버전은 **0.2.0**입니다.
 
 ## 별냠
 

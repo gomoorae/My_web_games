@@ -9,6 +9,13 @@
     "featured": true
   },
   {
+    "title": "스카이 체이서 · SKY CHASER",
+    "description": "룬 사수 루미와 항구 도시를 날아오르세요. 해적 편대와 변신하는 거대 기함에 맞서는 세로 슈팅. PC 방향키 이동 · Z 사격 · C 차지샷 · X 폭탄.",
+    "thumbnail": "thumbs/sky-chaser-v2.png",
+    "url": "games/sky-chaser/index.html",
+    "category": "SHOOTING · 세로 슈팅"
+  },
+  {
     "title": "NEON TERRITORY",
     "description": "선을 잇고, 나만의 영역을 넓혀봐. 적의 움직임을 피해 10개의 스테이지를 돌파하는 땅따먹기.",
     "thumbnail": "thumbs/neon_territory.svg",

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#143b4a">
+  <meta name="description" content="룬 사수 루미와 함께 공중 해적단을 추격하세요. 스카이 체이서, 3분 세로 스크롤 아케이드 슈팅.">
+  <title>스카이 체이서 — Sky Chaser</title>
+  <link rel="icon" href="./assets/emblem.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="스카이 체이서 출격 화면"><img src="./assets/emblem.svg" alt="" width="36" height="36"><span>SKY CHASER<small>스카이 체이서</small></span></a>
+    <div class="edition"><span></span> FIRST FLIGHT <b>01</b></div>
+    <nav aria-label="게임 설정">
+      <a class="games-link" href="https://gomoorae.github.io/My_web_games/">← 게임 목록</a>
+      <button class="icon-button" id="sound" aria-pressed="true" title="소리 켜기 또는 끄기"><span aria-hidden="true">♫</span><span id="sound-label">소리 켜짐</span></button>
+      <button class="icon-button" id="pause" disabled title="일시정지 · Esc"><span aria-hidden="true">Ⅱ</span><span id="pause-label">일시정지</span></button>
+    </nav>
+  </header>
+  <main class="cockpit">
+    <aside class="mission-panel" aria-label="스테이지 정보">
+      <div class="eyebrow"><span class="little-line"></span> FLIGHT BRIEFING</div>
+      <div class="mission-number">01<span>STAGE</span></div>
+      <h1>해풍의<br>항구</h1>
+      <p class="mission-copy">구름 너머, 해적의 기함이 기다린다.<br>루미와 함께 첫 비행을 시작하세요.</p>
+      <div class="flight-path" aria-label="스테이지 진행">
+        <div class="path-track"><span id="path-fill"></span></div>
+        <div class="path-stop active" data-stage="0"><i></i><span>항구 상공<small>출격 · 적 편대</small></span><b>01</b></div>
+        <div class="path-stop" data-stage="1"><i></i><span>철갑 순찰정<small>중간 보스</small></span><b>02</b></div>
+        <div class="path-stop" data-stage="2"><i></i><span>구름 위 추격전<small>해적의 경계선</small></span><b>03</b></div>
+        <div class="path-stop" data-stage="3"><i></i><span>아이언 레이븐<small>변신 보스</small></span><b>04</b></div>
+      </div>
+      <div class="brief-footer"><span class="compass">✧</span><p>바람은 우리 편이야.<br><strong>끝까지 날아보자!</strong></p></div>
+    </aside>
+
+    <section class="arena-wrap" aria-label="게임 화면">
+      <div class="arena" id="arena">
+        <canvas id="game" width="480" height="720" tabindex="0" aria-label="스카이 체이서 전투 화면. 방향키 이동, Z 사격, C 차지샷, X 폭탄, Shift 저속 이동."></canvas>
+        <div id="notice" class="notice" role="status" aria-live="polite"></div>
+        <div id="tutorial" class="tutorial" hidden><strong>하늘길을 열어볼까?</strong><span>방향키 이동 · Z 사격 · X 위기 탈출</span></div>
+        <div id="countdown" class="countdown" hidden aria-live="polite"></div>
+        <div id="title-screen" class="title-screen">
+          <img class="key-art" src="./assets/lumi-key-art.png" alt="주황빛 스카프와 룬 날개를 단 사수 루미가 항구 도시 위를 비행하는 모습">
+          <div class="title-vignette"></div>
+          <div class="title-top"><span>THE SKY IS YOURS</span><span>✧</span><span>ARCADE SHOOTER</span></div>
+          <div class="title-content">
+            <p class="title-kicker">하늘을 달리는, 단 한 번의 출격</p>
+            <h2><span>SKY</span><br>CHASER<span class="title-star">✦</span></h2>
+            <p class="title-sub">스카이 체이서</p>
+            <div class="difficulty" role="group" aria-label="난이도">
+              <button data-difficulty="easy" aria-pressed="false">쉬움 <small>여유로운 비행</small></button>
+              <button data-difficulty="normal" class="selected" aria-pressed="true">보통 <small>짜릿한 도전</small></button>
+            </div>
+            <button id="start" class="primary" disabled>비행 준비 중…</button>
+            <p id="asset-status" class="asset-status" role="status">첫 비행을 위한 그림을 불러오는 중입니다.</p>
+            <p class="start-hint">ENTER로 출격 · PC 키보드 플레이 권장</p>
+          </div>
+        </div>
+        <div id="modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+          <div class="modal-inner">
+            <p class="eyebrow" id="modal-kicker">TAKE A BREATH</p>
+            <h2 id="modal-title">비행 일시정지</h2>
+            <p id="modal-copy">숨을 고르고 다시 하늘로.</p>
+            <div id="result-stats" class="result-stats" hidden></div>
+            <button id="continue" class="primary">계속 비행하기 <span>↗</span></button>
+            <button id="retry" class="secondary">다시 출격</button>
+            <button id="home" class="text-button">출격 화면으로</button>
+          </div>
+        </div>
+      </div>
+      <div class="arena-caption"><span><i></i> <span id="status-text">출격 대기</span></span><span id="flight-clock">00:00</span><span>SKY CHASER · 0.2</span></div>
+      <div class="touch-controls" aria-label="터치 조작">
+        <span>화면 드래그로 이동 · 자동 사격</span>
+        <button id="touch-charge">차지 <small>누르고 떼기</small></button><button id="touch-bomb">폭탄 <b id="touch-bomb-count">3</b></button>
+      </div>
+    </section>
+
+    <aside class="pilot-panel" aria-label="비행 상태와 조작">
+      <div class="pilot-heading"><div class="portrait"><img src="./assets/lumi-key-art.png" alt="루미"></div><div><span class="eyebrow">RUNE GUNNER</span><h2>루미 <small>LUMI</small></h2><p>균형형 · 유도 보조탄</p></div><span class="pilot-star">✦</span></div>
+      <div class="score-panel"><span class="eyebrow">SCORE</span><strong id="score">0000000</strong><div class="best-row"><span>최고 기록 <small id="best-mode">보통</small></span><b id="best">0000000</b></div></div>
+      <div class="resources">
+        <div><span>남은 목숨</span><strong id="lives" aria-label="목숨 3개">♥ ♥ ♥</strong></div>
+        <div><span>룬 폭탄 <kbd>X</kbd></span><strong id="bombs">✦ ✦ ✦</strong></div>
+        <div class="power-row"><span>공격 단계</span><span class="power-bars" id="power" aria-label="공격 1단계"><i class="filled"></i><i></i><i></i></span></div>
+      </div>
+      <div class="charge-status"><div><span>차지샷 <kbd>C</kbd></span><b id="charge-label">길게 눌러 충전</b></div><div class="charge-track"><span id="charge-fill"></span></div></div>
+      <div class="controls">
+        <div class="control-title"><span class="eyebrow">PILOT'S GUIDE</span><button id="autofire" class="tiny-toggle" aria-pressed="false">자동사격 OFF</button></div>
+        <dl>
+          <div><dt><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd></dt><dd>이동 <small>WASD 가능</small></dd></div>
+          <div><dt><kbd>Z</kbd></dt><dd>연속 사격</dd></div>
+          <div><dt><kbd>C</kbd></dt><dd>차지샷 <small>눌렀다 떼기</small></dd></div>
+          <div><dt><kbd>X</kbd></dt><dd>폭탄 <small>적 탄 제거</small></dd></div>
+          <div><dt><kbd>SHIFT</kbd></dt><dd>정밀 이동 <small>피격점 표시</small></dd></div>
+          <div><dt><kbd>ESC</kbd></dt><dd>일시정지</dd></div>
+        </dl>
+      </div>
+      <button id="motion" class="motion-toggle" aria-pressed="true"><span class="toggle-dot"></span>화면 흔들림 켜짐</button>
+      <p class="pilot-tip"><b>FLIGHT TIP</b>위험할 땐 폭탄을 아끼지 마세요.<br>적 탄이 사라지고 잠깐 무적이 됩니다.</p>
+    </aside>
+  </main>
+  <footer class="page-footer"><span>푸른 하늘, 뜨거운 한 판.</span><span>1 STAGE <i>/</i> 1 PILOT <i>/</i> ENDLESS RETRIES</span><span>FIRST FLIGHT — v0.2.0</span></footer>
+  <noscript>이 게임을 플레이하려면 브라우저에서 JavaScript를 허용해 주세요.</noscript>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
