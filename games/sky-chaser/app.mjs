@@ -1,7 +1,7 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES} from './engine.mjs?v=0.4.1';
-import {Renderer} from './render.mjs?v=0.4.1';
-import {Sound} from './audio.mjs?v=0.4.1';
-import {readRecords,writeRecords} from './records.mjs?v=0.4.1';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES} from './engine.mjs?v=0.4.2';
+import {Renderer} from './render.mjs?v=0.4.2';
+import {Sound} from './audio.mjs?v=0.4.2';
+import {readRecords,writeRecords} from './records.mjs?v=0.4.2';
 
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();

@@ -1,9 +1,10 @@
 import {STAGES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.4.1';
+  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.4.2';
 export {STAGES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.4.1';
+export const VERSION = '0.4.2';
 export const PLAYER_SCALE = .8;
+export const ENEMY_ACTIVE_Y = 5;
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 export const PILOTS = Object.freeze({
   lumi: Object.freeze({
@@ -107,8 +108,11 @@ export class Game {
       px: x, py: -60, baseX: x, variant, age: 0, fire: 1.3, flash: 0,
       hp: s.hp, maxHp: s.hp, r: s.r, score: s.score, vy: s.vy,
       phase: 1, volley: 0, transition: 0, dead: false};
-    if(this.stage===2&&!isLarge(e)){
-      e.hp=e.maxHp=Math.ceil(e.hp*1.15);e.fire=.9;
+    if(!isLarge(e)){
+      // The opening volley is ready on entry. Subsequent volleys keep their
+      // authored cooldowns; killing an enemy quickly still limits its fire.
+      e.fire=0;
+      if(this.stage===2)e.hp=e.maxHp=Math.ceil(e.hp*1.15);
     }
     this.enemies.push(e);
     attachPods(e);
@@ -193,7 +197,7 @@ export class Game {
       const index = attack.nextStrike++, final = index === spec.strikes.length - 1;
       const targets = [];
       for (const e of this.enemies) {
-        if (e.y < 5 || e.y > H + e.r || e.dead || e.transition > 0) continue;
+        if (e.y < ENEMY_ACTIVE_Y || e.y > H + e.r || e.dead || e.transition > 0) continue;
         const big = isLarge(e);
         const damage = big ? (final ? spec.bossFinalDamage : spec.bossPulseDamage) :
           (final ? spec.finalDamage : spec.pulseDamage);
@@ -211,7 +215,7 @@ export class Game {
     if (attack.age >= spec.duration) this.activeBomb = null;
   }
   damage(e, amount) {
-    if (e.dead || e.transition > 0 || e.y < 5) return;
+    if (e.dead || e.transition > 0 || e.y < ENEMY_ACTIVE_Y) return;
     const before = e.hp;
     e.hp -= amount; e.flash = .065; this.hits++;
     if(e.type==='tempest' && e.phase<3 && e.hp<=e.maxHp*(e.phase===1?2/3:1/3)){
@@ -228,7 +232,7 @@ export class Game {
     else if (amount > 15) this.event('impact', {x: e.x, y: e.y, amount: Math.min(before, amount)});
   }
   damagePart(e,part,amount){
-    if(e.dead||e.transition>0||e.y<5||part.dead)return;
+    if(e.dead||e.transition>0||e.y<ENEMY_ACTIVE_Y||part.dead)return;
     part.hp=Math.max(0,part.hp-amount);part.flash=.065;this.hits++;
     if(part.hp<=0){
       part.dead=true;this.score+=600;
@@ -319,7 +323,10 @@ export class Game {
     }
     syncPods(e,dt);
     if (e.transition > 0) { e.transition = Math.max(0, e.transition - dt); return; }
-    if (e.y < 38 || e.y > H - 95 || this.bombTimer > 0 ||
+    // Normal enemies can fire on the very frame they become hittable.
+    // Their muzzle is already on screen; offscreen and point-blank shots
+    // remain suppressed, as do attacks during Lumi's bomb.
+    if (e.x < 0 || e.x > W || e.y < (big?38:ENEMY_ACTIVE_Y) || e.y > H - 95 || this.bombTimer > 0 ||
         Math.hypot(e.x - this.player.x, e.y - this.player.y) < 110) return;
     e.fire -= dt;
     if (e.fire > 0) return;
@@ -429,7 +436,7 @@ export class Game {
       }
       s.x += s.vx * dt; s.y += s.vy * dt;
       for (const e of this.enemies) {
-        if (e.dead || e.y < 5 || e.transition > 0 || s.hitIds.has(e.id)) continue;
+        if (e.dead || e.y < ENEMY_ACTIVE_Y || e.transition > 0 || s.hitIds.has(e.id)) continue;
         for(const target of [...(e.parts||[]).filter(p=>!p.dead),e]){
           if(s.hitIds.has(target.id))continue;
           if (sweptHit(s.px - target.px, s.py - target.py, s.x - target.x, s.y - target.y, s.r + target.r)) {
