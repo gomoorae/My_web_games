@@ -5,7 +5,8 @@ export const ART_FILES = Object.freeze({
   fleet: './assets/pirate-fleet-v2.png',
   airship: './assets/iron-raven-airship-v2.png',
   raven: './assets/iron-raven-awakened-v2.png',
-  harbor: './assets/harbor-painted-v2.png'
+  harbor: './assets/harbor-painted-v2.png',
+  portrait: './assets/lumi-key-art.png'
 });
 const makeCanvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
 function loadImage(url) {

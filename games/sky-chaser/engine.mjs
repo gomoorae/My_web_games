@@ -1,6 +1,17 @@
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.2.0';
+export const VERSION = '0.3.0';
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+export const PILOTS = Object.freeze({
+  lumi: Object.freeze({
+    name: '루미',
+    bomb: Object.freeze({
+      id: 'skywing', name: '천익 섬광', duration: 3,
+      strikes: Object.freeze([.42, .72, 1.02, 1.32, 1.62, 1.92, 2.4]),
+      bossPulseDamage: 70, bossFinalDamage: 120,
+      pulseDamage: 100, finalDamage: 200
+    })
+  })
+});
 
 // Relative motion catches fast projectiles even when both targets move.
 export function sweptHit(ax, ay, bx, by, radius) {
@@ -57,7 +68,8 @@ export class Game {
     this.enemies = []; this.bullets = []; this.shots = []; this.items = []; this.events = [];
     this.wave = 0; this.id = 0; this.killDrops = 0; this.midDefeated = false;
     this.finalDefeated = false; this.clearTimer = 0; this.bombTimer = 0;
-    this.player = {x: 240, y: 592, px: 240, py: 592, r: 4, power: 1,
+    this.activeBomb = null; this.bombDamage = 0;
+    this.player = {pilot: 'lumi', x: 240, y: 592, px: 240, py: 592, r: 4, power: 1,
       inv: 2.6, fire: 0, drone: .3, charge: 0, charging: false, bank: 0};
   }
   random() {
@@ -130,15 +142,39 @@ export class Game {
   }
   bomb() {
     if (this.state !== 'playing' || this.bombs <= 0 || this.bombTimer > 0 || this.finalDefeated) return false;
-    this.bombs--; this.usedBombs++; this.bombTimer = 1.45;
-    this.player.inv = Math.max(this.player.inv, 2);
+    const spec = PILOTS[this.player.pilot].bomb;
+    this.bombs--; this.usedBombs++; this.bombTimer = spec.duration;
+    this.activeBomb = {spec, age: 0, nextStrike: 0, damage: 0,
+      x: clamp(this.player.x, 180, W - 180), y: clamp(this.player.y, 360, H - 95)};
+    this.player.inv = Math.max(this.player.inv, spec.duration + .2);
     const count = this.bullets.length; this.score += count * 5; this.bullets.length = 0;
-    for (const e of this.enemies) {
-      if (e.y < 0 || e.dead || e.transition > 0) continue;
-      this.damage(e, e.type === 'boss' || e.type === 'midboss' ? 220 : 200);
-    }
-    this.event('bomb', {x: this.player.x, y: this.player.y});
+    this.event('bomb', {x: this.activeBomb.x, y: this.activeBomb.y,
+      pilot: this.player.pilot, id: spec.id, name: spec.name});
     return true;
+  }
+  updateBomb(dt) {
+    const attack = this.activeBomb;
+    if (!attack) return;
+    attack.age += dt;
+    const spec = attack.spec;
+    while (attack.nextStrike < spec.strikes.length &&
+      attack.age + 1e-9 >= spec.strikes[attack.nextStrike]) {
+      const index = attack.nextStrike++, final = index === spec.strikes.length - 1;
+      const targets = [];
+      for (const e of this.enemies) {
+        if (e.y < 5 || e.y > H + e.r || e.dead || e.transition > 0) continue;
+        const big = e.type === 'boss' || e.type === 'midboss';
+        const damage = big ? (final ? spec.bossFinalDamage : spec.bossPulseDamage) :
+          (final ? spec.finalDamage : spec.pulseDamage);
+        const before = e.hp;
+        this.damage(e, damage);
+        const actual = Math.max(0, before - Math.max(0, e.hp));
+        attack.damage += actual; this.bombDamage += actual;
+        if (actual > 0) targets.push({x: e.x, y: e.y, damage: actual, type: e.type});
+      }
+      this.event('bombStrike', {id: spec.id, index, final, x: attack.x, y: attack.y, targets});
+    }
+    if (attack.age >= spec.duration) this.activeBomb = null;
   }
   damage(e, amount) {
     if (e.dead || e.transition > 0 || e.y < 5) return;
@@ -288,6 +324,7 @@ export class Game {
       }
     }
     for (const e of this.enemies) if (!e.dead) this.updateEnemy(e, dt);
+    this.updateBomb(dt);
     for (const s of this.shots) {
       s.px = s.x; s.py = s.y;
       if (s.style === 'homing') {

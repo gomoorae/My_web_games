@@ -55,7 +55,15 @@ export class Sound {
       if(e.kind==='pickup'){this.tone(1100,.06,.06);if(e.type!=='coin')this.tone(1600,.15,.08,'sine',this.ctx.currentTime+.06);}
       if(e.kind==='power'||e.kind==='clear')for(let i=0;i<5;i++)this.tone([523,659,784,1047,1318][i],.25,.15,'triangle',this.ctx.currentTime+i*.09);
       if(e.kind==='hurt'){this.hiss(.3,.3);this.tone(300,.28,.2,'sawtooth',null,65);}
-      if(e.kind==='bomb'){this.hiss(.3,.45);this.tone(100,.6,.23,'sine',null,35);this.tone(420,.4,.1,'triangle',null,1200);}
+      if(e.kind==='bomb'){
+        this.hiss(.15,.25);this.tone(160,.38,.16,'sine',null,70);
+        for(let i=0;i<4;i++)this.tone([523,659,784,1047][i],.22,.13,'triangle',this.ctx.currentTime+i*.055);
+      }
+      if(e.kind==='bombStrike'){
+        this.tone(e.final?90:220+e.index*65,e.final?.5:.18,e.final?.2:.14,'triangle',null,e.final?38:700+e.index*80);
+        this.hiss(e.final?.22:.045,e.final?.4:.08);
+        if(e.final)this.tone(1047,.45,.15,'sine');
+      }
       if(e.kind==='charge')this.tone(e.full?300:500,.26,.16,'triangle',null,e.full?1400:1000);
       if(e.kind==='transform'||e.kind==='warning'){this.tone(230,.35,.12,'square');this.tone(180,.35,.12,'triangle',this.ctx.currentTime+.4);}
     }

@@ -7,7 +7,8 @@
   <meta name="description" content="룬 사수 루미와 함께 공중 해적단을 추격하세요. 스카이 체이서, 3분 세로 스크롤 아케이드 슈팅.">
   <title>스카이 체이서 — Sky Chaser</title>
   <link rel="icon" href="./assets/emblem.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=0.3.0">
+  <link rel="stylesheet" href="./desktop.css?v=0.3.0">
 </head>
 <body>
   <header class="topbar">
@@ -17,6 +18,7 @@
       <a class="games-link" href="https://gomoorae.github.io/My_web_games/">← 게임 목록</a>
       <button class="icon-button" id="sound" aria-pressed="true" title="소리 켜기 또는 끄기"><span aria-hidden="true">♫</span><span id="sound-label">소리 켜짐</span></button>
       <button class="icon-button" id="pause" disabled title="일시정지 · Esc"><span aria-hidden="true">Ⅱ</span><span id="pause-label">일시정지</span></button>
+      <button class="icon-button" id="fullscreen" aria-pressed="false" title="전체화면 · F"><span aria-hidden="true">⛶</span><span id="fullscreen-label">전체화면</span></button>
     </nav>
   </header>
   <main class="cockpit">
@@ -70,7 +72,7 @@
           </div>
         </div>
       </div>
-      <div class="arena-caption"><span><i></i> <span id="status-text">출격 대기</span></span><span id="flight-clock">00:00</span><span>SKY CHASER · 0.2</span></div>
+      <div class="arena-caption"><span><i></i> <span id="status-text">출격 대기</span></span><span id="flight-clock">00:00</span><span>SKY CHASER · 0.3</span></div>
       <div class="touch-controls" aria-label="터치 조작">
         <span>화면 드래그로 이동 · 자동 사격</span>
         <button id="touch-charge">차지 <small>누르고 떼기</small></button><button id="touch-bomb">폭탄 <b id="touch-bomb-count">3</b></button>
@@ -82,7 +84,7 @@
       <div class="score-panel"><span class="eyebrow">SCORE</span><strong id="score">0000000</strong><div class="best-row"><span>최고 기록 <small id="best-mode">보통</small></span><b id="best">0000000</b></div></div>
       <div class="resources">
         <div><span>남은 목숨</span><strong id="lives" aria-label="목숨 3개">♥ ♥ ♥</strong></div>
-        <div><span>룬 폭탄 <kbd>X</kbd></span><strong id="bombs">✦ ✦ ✦</strong></div>
+        <div><span>천익 섬광 <kbd>X</kbd></span><strong id="bombs">✦ ✦ ✦</strong></div>
         <div class="power-row"><span>공격 단계</span><span class="power-bars" id="power" aria-label="공격 1단계"><i class="filled"></i><i></i><i></i></span></div>
       </div>
       <div class="charge-status"><div><span>차지샷 <kbd>C</kbd></span><b id="charge-label">길게 눌러 충전</b></div><div class="charge-track"><span id="charge-fill"></span></div></div>
@@ -92,17 +94,18 @@
           <div><dt><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd></dt><dd>이동 <small>WASD 가능</small></dd></div>
           <div><dt><kbd>Z</kbd></dt><dd>연속 사격</dd></div>
           <div><dt><kbd>C</kbd></dt><dd>차지샷 <small>눌렀다 떼기</small></dd></div>
-          <div><dt><kbd>X</kbd></dt><dd>폭탄 <small>적 탄 제거</small></dd></div>
+          <div><dt><kbd>X</kbd></dt><dd>천익 섬광 <small>연속 룬 포격</small></dd></div>
           <div><dt><kbd>SHIFT</kbd></dt><dd>정밀 이동 <small>피격점 표시</small></dd></div>
           <div><dt><kbd>ESC</kbd></dt><dd>일시정지</dd></div>
+          <div><dt><kbd>F</kbd></dt><dd>전체화면</dd></div>
         </dl>
       </div>
       <button id="motion" class="motion-toggle" aria-pressed="true"><span class="toggle-dot"></span>화면 흔들림 켜짐</button>
-      <p class="pilot-tip"><b>FLIGHT TIP</b>위험할 땐 폭탄을 아끼지 마세요.<br>적 탄이 사라지고 잠깐 무적이 됩니다.</p>
+      <p class="pilot-tip"><b>LUMI'S BURST · 천익 섬광</b>룬 날개를 펼쳐 여섯 번 포격하고 마지막 섬광을 터뜨립니다. 적 탄을 지우며 보스에게도 큰 피해를 줍니다.</p>
     </aside>
   </main>
-  <footer class="page-footer"><span>푸른 하늘, 뜨거운 한 판.</span><span>1 STAGE <i>/</i> 1 PILOT <i>/</i> ENDLESS RETRIES</span><span>FIRST FLIGHT — v0.2.0</span></footer>
+  <footer class="page-footer"><span>푸른 하늘, 뜨거운 한 판.</span><span>1 STAGE <i>/</i> 1 PILOT <i>/</i> ENDLESS RETRIES</span><span>FIRST FLIGHT — v0.3.0</span></footer>
   <noscript>이 게임을 플레이하려면 브라우저에서 JavaScript를 허용해 주세요.</noscript>
-  <script type="module" src="./app.mjs"></script>
+  <script type="module" src="./app.mjs?v=0.3.0"></script>
 </body>
 </html>

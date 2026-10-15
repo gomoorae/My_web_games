@@ -1,6 +1,6 @@
-import {Game, W, H, STEP, clamp, VERSION} from './engine.mjs';
-import {Renderer} from './render.mjs';
-import {Sound} from './audio.mjs';
+import {Game, W, H, STEP, clamp, VERSION} from './engine.mjs?v=0.3.0';
+import {Renderer} from './render.mjs?v=0.3.0';
+import {Sound} from './audio.mjs?v=0.3.0';
 
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();
@@ -88,6 +88,18 @@ $('pause').addEventListener('click',()=>game.state==='paused'?resume():pause());
 $('sound').addEventListener('click',async()=>{await sound.unlock();sound.toggle();updateSettings();persist();});
 $('motion').addEventListener('click',()=>{renderer.motion=!renderer.motion;updateSettings();persist();});
 $('autofire').addEventListener('click',()=>{autofire=!autofire;updateSettings();});
+async function toggleFullscreen(){
+  try{
+    if(document.fullscreenElement)await document.exitFullscreen();
+    else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();
+    else notice('브라우저의 전체화면 기능을 이용해 주세요.',3);
+  }catch{notice('브라우저의 전체화면 기능을 이용해 주세요.',3);}
+}
+$('fullscreen').addEventListener('click',toggleFullscreen);
+document.addEventListener('fullscreenchange',()=>{
+  $('fullscreen').setAttribute('aria-pressed',String(!!document.fullscreenElement));
+  $('fullscreen-label').textContent=document.fullscreenElement?'화면 복귀':'전체화면';
+});
 for(const button of document.querySelectorAll('[data-difficulty]')){
   button.addEventListener('click',()=>{
     difficulty=button.dataset.difficulty;
@@ -98,6 +110,7 @@ for(const button of document.querySelectorAll('[data-difficulty]')){
 }
 const playKeys=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD','KeyZ','KeyX','KeyC','ShiftLeft','ShiftRight','Escape']);
 window.addEventListener('keydown',e=>{
+  if(e.code==='KeyF'&&!e.repeat){e.preventDefault();toggleFullscreen();return;}
   if(e.code==='Tab'&&!$('modal').hidden){
     const buttons=[...$('modal').querySelectorAll('button')].filter(b=>!b.hidden);
     const first=buttons[0],end=buttons[buttons.length-1];
@@ -204,5 +217,6 @@ Object.defineProperty(window,'skyChaser',{value:Object.freeze({
   snapshot:()=>({state:game.state,time:game.time,stageTime:game.stageTime,score:game.score,
     lives:game.lives,bombs:game.bombs,power:game.player.power,charge:game.player.charge,
     player:{x:game.player.x,y:game.player.y},enemies:game.enemies.length,bullets:game.bullets.length,
-    boss:game.boss?{type:game.boss.type,hp:game.boss.hp,phase:game.boss.phase}:null,autofire})
+    boss:game.boss?{type:game.boss.type,hp:game.boss.hp,phase:game.boss.phase}:null,
+    bombDamage:game.bombDamage,bomb:game.activeBomb?{name:game.activeBomb.spec.name,age:game.activeBomb.age,strikes:game.activeBomb.nextStrike}:null,autofire})
 }),writable:false});
