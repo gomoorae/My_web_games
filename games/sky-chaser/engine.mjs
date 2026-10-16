@@ -1,9 +1,9 @@
 import {STAGES,RUN_MODES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.6.0';
-import {FORGE_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,moveMortar,mortarArmed} from './forge.mjs?v=0.6.0';
+  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.6.1';
+import {FORGE_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,moveMortar,mortarArmed} from './forge.mjs?v=0.6.1';
 export {STAGES,RUN_MODES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.6.0';
+export const VERSION = '0.6.1';
 export const PLAYER_SCALE = .8;
 export const CHARGE_REQUIRED = 240;
 export const ENEMY_ACTIVE_Y = 5;
@@ -76,7 +76,7 @@ export class Game {
     this.maxCombo = 0; this.combo = 0; this.comboTime = 0;
     this.lives = 3; this.bombs = 3; this.usedBombs = 0; this.deaths = 0;
     this.enemies = []; this.bullets = []; this.shots = []; this.items = []; this.events = []; this.lasers = [];
-    this.mortars=[];this.shellsDestroyed=0;
+    this.mortars=[];this.mortarQueue=[];this.shellsDestroyed=0;
     this.wave = 0; this.id = 0; this.killDrops = 0; this.midDefeated = false;
     this.finalDefeated = false; this.clearTimer = 0; this.bombTimer = 0;
     this.activeBomb = null; this.bombDamage = 0;
@@ -95,7 +95,7 @@ export class Game {
     if(this.stage>=3)return;
     this.stage++;this.stageTime=0;this.stageElapsed=0;this.wave=0;this.midDefeated=false;
     this.finalDefeated=false;this.clearTimer=0;this.introTimer=2.4;this.supplyTimer=3;this.supplies=0;
-    this.enemies=[];this.bullets=[];this.shots=[];this.items=[];this.lasers=[];this.mortars=[];
+    this.enemies=[];this.bullets=[];this.shots=[];this.items=[];this.lasers=[];this.mortars=[];this.mortarQueue=[];
     this.activeBomb=null;this.bombTimer=0;
     Object.assign(this.player,{x:240,y:592,px:240,py:592,inv:2.6,chargeHeld:false,bank:0});
     this.event('stageStart',{stage:this.stage,text:'STAGE 0'+this.stage+' · '+STAGES[this.stage].name});
@@ -123,7 +123,7 @@ export class Game {
     attachForgePods(e);
     if(type==='vulcan')this.event('warning',{text:'화로거북 볼칸 · 주황색 포탄을 요격하라'});
     if(type==='ignis'){
-      this.bullets.length=0;this.lasers.length=0;this.mortars.length=0;
+      this.bullets.length=0;this.lasers.length=0;this.mortars.length=0;this.mortarQueue.length=0;
       this.event('warning',{text:'홍련룡 이그니스 · 조선소의 심장'});
     }
     if(type==='gemini')this.event('warning',{text:'쌍뢰정 제미니 · 좌우 포대를 먼저 파괴하라'});
@@ -197,7 +197,7 @@ export class Game {
       x: clamp(this.player.x, 180, W - 180), y: clamp(this.player.y, 360, H - 95)};
     this.player.inv = Math.max(this.player.inv, spec.duration + .2);
     const count = this.bullets.length; this.score += count * 5; this.bullets.length = 0;
-    this.lasers.length=0;this.mortars.length=0;
+    this.lasers.length=0;this.mortars.length=0;this.mortarQueue.length=0;
     this.event('bomb', {x: this.activeBomb.x, y: this.activeBomb.y,
       pilot: this.player.pilot, id: spec.id, name: spec.name});
     return true;
@@ -235,7 +235,7 @@ export class Game {
     e.hp -= amount; e.flash = .065; this.hits++;
     if((e.type==='tempest'||e.type==='ignis') && e.phase<3 && e.hp<=e.maxHp*(e.phase===1?2/3:1/3)){
       e.hp=e.maxHp*(e.phase===1?2/3:1/3);e.phase++;e.transition=e.type==='ignis'?2.6:2.2;e.fire=.7;
-      this.bullets.length=0;this.lasers.length=0;this.mortars.length=0;this.score+=1800;
+      this.bullets.length=0;this.lasers.length=0;this.mortars.length=0;this.mortarQueue.length=0;this.score+=1800;
       for(const part of e.parts)if(!part.dead){part.dead=true;this.event('partBreak',{x:part.x,y:part.y});}
       this.event('transform',{x:e.x,y:e.y,type:e.type,phase:e.phase});
     }else if (e.type === 'boss' && e.phase === 1 && e.hp <= e.maxHp * .5) {
@@ -255,6 +255,7 @@ export class Game {
       part.dead=true;this.score+=600;
       this.lasers=this.lasers.filter(l=>l.partId!==part.id);
       this.mortars=this.mortars.filter(m=>m.partId!==part.id);
+      this.mortarQueue=this.mortarQueue.filter(q=>q.partId!==part.id);
       this.event('partBreak',{x:part.x,y:part.y});
       this.event('message',{text:(part.side<0?'왼쪽':'오른쪽')+' 포대 파괴!'});
     }
@@ -267,6 +268,24 @@ export class Game {
       lockX:x+Math.cos(angle)*lockDistance,lockY:y+Math.sin(angle)*lockDistance,
       age:0,warning,duration,width});
     this.event('laserWarning');
+  }
+  scheduleMortar(e,tx,ty,{delay=0,offsetX=0,offsetY=62,flight=1.05,fuse=this.difficulty==='easy'?1.15:.8,partId=null}={}){
+    if(this.bombTimer>0||this.finalDefeated||e.dead||e.transition>0||this.mortarQueue.length>=6)return false;
+    this.mortarQueue.push({owner:e.id,phase:e.phase,tx,ty,delay,offsetX,offsetY,flight,fuse,partId});return true;
+  }
+  updateMortarQueue(dt){
+    // Simulation time only: pause freezes pending launches; cancellation never
+    // leaves a wall-clock timer that could fire after a bomb, death or restart.
+    if(!this.mortarQueue.length)return;
+    if(this.bombTimer>0||this.finalDefeated){this.mortarQueue.length=0;return;}
+    this.mortarQueue=this.mortarQueue.filter(q=>{
+      const e=this.enemies.find(e=>e.id===q.owner&&!e.dead);
+      const pod=q.partId&&e?.parts?.find(p=>p.id===q.partId&&!p.dead);
+      if(!e||e.transition>0||e.phase!==q.phase||q.partId&&!pod)return false;
+      q.delay-=dt;if(q.delay>1e-9)return true;
+      this.launchMortar(e,pod?pod.x:e.x+q.offsetX,pod?pod.y+45:e.y+q.offsetY,q.tx,q.ty,q);
+      return false;
+    });
   }
   launchMortar(e,x,y,tx,ty,{flight=.95,fuse=this.difficulty==='easy'?1.15:.8,partId=null}={}){
     if(this.bombTimer>0||this.finalDefeated||e.dead||e.transition>0||x<0||x>W||y<0||this.mortars.length>=6)return;
@@ -314,7 +333,7 @@ export class Game {
     this.event('explode', {x: e.x, y: e.y, large, type: e.type,phase:e.phase});
     if (isFinal(e)) {
       this.finalDefeated = true; this.clearTimer = 2.8; this.bullets.length = 0;
-      this.lasers.length=0;this.mortars.length=0;
+      this.lasers.length=0;this.mortars.length=0;this.mortarQueue.length=0;
       for (const other of this.enemies) other.dead = true;
       this.score += this.lives * 2000 + this.bombs * 500;
       this.player.inv = 10;
@@ -322,7 +341,7 @@ export class Game {
       if(this.stage===2&&this.mode==='campaign')this.event('message',{text:'협곡 돌파! 홍련의 조선소로 진입한다'});
     } else if (e.type === 'midboss' || e.type === 'gemini' || e.type==='vulcan') {
       this.midDefeated = true; this.bullets.length = 0;
-      this.lasers.length=0;this.mortars.length=0;
+      this.lasers.length=0;this.mortars.length=0;this.mortarQueue.length=0;
       this.items.push({x: e.x - 30, y: e.y, type: 'power', age: 0},
         {x: e.x + 30, y: e.y, type: 'bomb', age: 0});
       this.player.inv = Math.max(this.player.inv, 1.5);
@@ -336,7 +355,7 @@ export class Game {
     const p = this.player;
     if (p.inv > 0 || this.finalDefeated || this.state !== 'playing') return false;
     this.lives--; this.deaths++; this.combo = 0;
-    this.bullets.length = 0; this.lasers.length=0; this.mortars.length=0; p.inv = 3; p.charge = 0; p.chargeHeld = false;
+    this.bullets.length = 0; this.lasers.length=0; this.mortars.length=0;this.mortarQueue.length=0; p.inv = 3; p.charge = 0; p.chargeHeld = false;
     this.event('hurt', {x: p.x, y: p.y});
     if (this.lives <= 0) { this.state = 'gameover'; this.event('gameover'); }
     else {
@@ -462,6 +481,7 @@ export class Game {
     }
     for (const e of this.enemies) if (!e.dead) this.updateEnemy(e, dt);
     this.updateBomb(dt);
+    this.updateMortarQueue(dt);
     this.moveMortars(dt);
     for (const s of this.shots) {
       s.px = s.x; s.py = s.y;
@@ -554,7 +574,7 @@ export class Game {
         this.event('pickup', {type: item.type});
       }
     }
-    if (this.bombTimer > 0) {this.bullets.length = 0;this.lasers.length=0;this.mortars.length=0;}
+    if (this.bombTimer > 0) {this.bullets.length = 0;this.lasers.length=0;this.mortars.length=0;this.mortarQueue.length=0;}
     this.mortars=this.mortars.filter(m=>!m.dead);
     this.enemies = this.enemies.filter(e => !e.dead && e.y < H + 100);
     this.shots = this.shots.filter(s => !s.dead && s.y > -80 && s.y < H + 80 && s.x > -60 && s.x < W + 60);

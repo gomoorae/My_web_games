@@ -1,4 +1,4 @@
-import {HOSTILE_DENSITY} from './stages.mjs?v=0.6.0';
+import {HOSTILE_DENSITY} from './stages.mjs?v=0.6.1';
 export const FORGE_SPECS={
   vulcan:{hp:1250,r:52,score:8500,vy:64},
   ignis:{hp:4200,r:70,score:28000,vy:62}
@@ -54,6 +54,17 @@ export function forgeMinorAttack(g,e){
   }
   return false;
 }
+const SCATTER_POINTS=[[76,350],[404,458],[204,632],[276,354],[68,584],[402,636]];
+function scatterSalvo(g,e,count,spacing,pods=null){
+  if(g.mortarQueue.some(q=>q.owner===e.id))return;
+  const cycle=Math.floor((e.volley-1)/(e.phase===3?4:3));
+  for(let i=0;i<count;i++){
+    const [x,y]=SCATTER_POINTS[(i+cycle*2+e.phase-1)%SCATTER_POINTS.length];
+    const pod=pods?.[i%pods.length];
+    g.scheduleMortar(e,cycle%2?480-x:x,y,{delay:i*spacing,partId:pod?.id,
+      offsetX:i%2?76:-76,offsetY:62,flight:1.05});
+  }
+}
 export function forgeAttack(g,e){
   const easy=g.difficulty==='easy',pods=e.parts.filter(p=>!p.dead);
   if(e.type==='vulcan'){
@@ -62,22 +73,19 @@ export function forgeAttack(g,e){
     if(e.volley%2===0||!pods.length)safeFan(g,e,easy?2:3,.22,150);
     e.fire=pods.length?2.7:2.05;
   }else if(e.phase===1){
-    for(const p of pods)g.launchMortar(e,p.x,p.y+45,g.player.x+p.side*(e.volley%2?70:30),g.player.y,
-      {partId:p.id,flight:1});
-    if(e.volley%2===0||!pods.length)safeFan(g,e,easy?2:3,.2,175,true,'amber');
-    e.fire=2.35;
+    if(e.volley%3===1&&pods.length)scatterSalvo(g,e,Math.min(easy?3:4,pods.length*2),easy?.58:.46,pods);
+    safeFan(g,e,easy?3:4,.2,175,true,'amber');
+    e.fire=1.55;
   }else if(e.phase===2){
-    for(const side of [-1,1])curvedFan(g,e,side,easy?3:4,148);
-    if(e.volley%3===0)g.launchMortar(e,e.x,e.y+65,g.player.x,g.player.y,{flight:1.05});
-    e.fire=1.4;
+    for(const side of [-1,1])curvedFan(g,e,side,easy?4:5,148);
+    if(e.volley%2===0)safeFan(g,e,easy?2:3,.16,180,true,'amber');
+    if(e.volley%3===1)scatterSalvo(g,e,easy?3:4,easy?.52:.4);
+    e.fire=1.15;
   }else{
-    const pattern=e.volley%3;
-    if(pattern===1){
-      for(const offset of (easy?[-76,76]:[-92,0,92]))
-        g.launchMortar(e,e.x+offset*.4,e.y+62,g.player.x+offset,g.player.y,{flight:1.05,fuse:easy?1.15:.85});
-      e.fire=2.25;
-    }else if(pattern===2){safeFan(g,e,easy?3:4,.16,195);e.fire=1.3;}
-    else{for(const side of [-1,1])curvedFan(g,e,side,3,158,.55);e.fire=1.55;}
+    if(e.volley%4===1)scatterSalvo(g,e,easy?4:6,easy?.46:.34);
+    if(e.volley%2)for(const side of [-1,1])curvedFan(g,e,side,easy?3:4,158,.55);
+    else safeFan(g,e,easy?4:5,.18,195);
+    e.fire=1.05;
   }
   if(easy)e.fire*=1.15;
 }

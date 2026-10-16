@@ -1,9 +1,9 @@
-import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=0.6.0';
-import {ArtBank} from './art.mjs?v=0.6.0';
-import {drawLaser} from './laser-fx.mjs?v=0.6.0';
-import {drawMortars} from './forge-fx.mjs?v=0.6.0';
-import {renderRatio} from './frame-loop.mjs?v=0.6.0';
-import {glow,flame,normalShot} from './canvas-fx.mjs?v=0.6.0';
+import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=0.6.1';
+import {ArtBank} from './art.mjs?v=0.6.1';
+import {drawLaser} from './laser-fx.mjs?v=0.6.1';
+import {drawMortars} from './forge-fx.mjs?v=0.6.1';
+import {renderRatio} from './frame-loop.mjs?v=0.6.1';
+import {glow,flame,normalShot} from './canvas-fx.mjs?v=0.6.1';
 const TAU=Math.PI*2;
 const mix=(a,b,t)=>a+(b-a)*t;
 const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
@@ -47,7 +47,11 @@ export class Renderer {
     for(const key of ['harbor','canyon','foundry']){
     const image=this.art.images[key],tile=document.createElement('canvas');
     tile.width=image.width;tile.height=image.height;
-    const c=tile.getContext('2d');c.drawImage(image,0,0);
+    const c=tile.getContext('2d');
+    // Bake the harbor's quieter colour/contrast once. No full-screen live
+    // filter, and no change to pilot, enemy, bullet or later-stage artwork.
+    if(key==='harbor')c.filter='saturate(0.58) contrast(0.78) brightness(0.88)';
+    c.drawImage(image,0,0);c.filter='none';
     const feather=c.createLinearGradient(0,0,0,tile.height);
     feather.addColorStop(0,'#0000');feather.addColorStop(.065,'#000');
     feather.addColorStop(.935,'#000');feather.addColorStop(1,'#0000');
@@ -126,7 +130,7 @@ export class Renderer {
   }
   background(c,t,stageTime,px=240,stage=1){
     const storm=stage===2,forge=stage===3,moody=storm||forge,altitude=moody?.08:ease((stageTime-88)/38);
-    const sea=c.createLinearGradient(0,0,W,H);sea.addColorStop(0,forge?'#273039':storm?'#253e52':'#126da0');sea.addColorStop(1,forge?'#3b353b':storm?'#304e60':'#1887ac');c.fillStyle=sea;c.fillRect(0,0,W,H);
+    const sea=c.createLinearGradient(0,0,W,H);sea.addColorStop(0,forge?'#273039':storm?'#253e52':'#41677c');sea.addColorStop(1,forge?'#3b353b':storm?'#304e60':'#54818e');c.fillStyle=sea;c.fillRect(0,0,W,H);
     if(this.groundTiles){
       const map=this.groundTiles[forge?'foundry':storm?'canyon':'harbor'],width=W+36,height=width*map.height/map.width,period=height-160;
       // Constant world travel never eases to a halt. Feathered water edges
@@ -139,21 +143,21 @@ export class Renderer {
         if(Math.abs(cycle-k)%2){c.translate(width,0);c.scale(-1,1);}
         c.drawImage(map,0,0,width,height);c.restore();
       }
-      c.fillStyle='#193e5e18';c.fillRect(0,0,W,H);c.restore();
+      c.fillStyle=moody?'#193e5e18':'#35576728';c.fillRect(0,0,W,H);c.restore();
     }
     // Reflections drift independently of the map, so the harbor feels alive.
-    if(!moody){c.save();c.globalAlpha=.18*(1-altitude*.7);c.lineWidth=1;
+    if(!moody){c.save();c.globalAlpha=.09*(1-altitude*.7);c.lineWidth=1;
     for(let i=0;i<24;i++){
       const x=112+seed(i+50)*265,y=(seed(i+300)*H+t*(78+seed(i)*14))%H;
       path(c,[[x,y],[x+5,y-1],[x+13,y]],'#d7f6e8',1);
     }
     c.restore();}
     for(let layer=0;layer<2;layer++)for(let i=0;i<(layer?5:7);i++){
-      const s=(layer?.85:.47)+seed(i+layer*19)*.6;
+      const s=(layer?.85:moody?.47:.7)+seed(i+layer*19)*.6;
       const x=seed(i+layer*72+18)*(W+180)-100+(px-240)*(layer?-.035:-.012);
       const y=((seed(i+layer*110)*1100+t*(layer?142:43))%1100)-240;
       if(x>=W||y>=H||x+384*s<=0||y+192*s<=0)continue;
-      c.save();c.globalAlpha=moody?(layer?.065:.045):(layer?.12:.17)+altitude*(layer?.28:.20);
+      c.save();c.globalAlpha=moody?(layer?.065:.045):(layer?.17:.24)+altitude*(layer?.23:.13);
       c.drawImage(this.clouds[(i+layer)%4],x,y,384*s,192*s);c.restore();
     }
     if(altitude&&!moody){const sky=c.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#b8d9e72b');sky.addColorStop(1,'#86b6c900');c.globalAlpha=altitude;c.fillStyle=sky;c.fillRect(0,0,W,H);c.globalAlpha=1;}

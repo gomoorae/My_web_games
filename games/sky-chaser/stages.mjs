@@ -70,22 +70,9 @@ export function stormAttack(g,e){
     if(e.volley%2===0)g.fan(e,3,.15,185,true,'amber');
     e.fire=1.45;
   }else if(e.phase===2){
-    // A generous moving gap in each ring; aimed shots are staggered.
-    const gap=Math.PI/2+Math.sin(e.age*.31)*.68,count=easy?22:30;
-    e.gapAngle=gap;
-    for(let i=0;i<count;i++){
-      const a=i*Math.PI*2/count;
-      const delta=Math.atan2(Math.sin(a-gap),Math.cos(a-gap));
-      const gapWidth=easy?.62:.49;
-      if(Math.abs(delta)>gapWidth){
-        for(let j=0;j<HOSTILE_DENSITY;j++){
-          let angle=a+j*Math.PI*2/(count*HOSTILE_DENSITY);
-          if(Math.abs(Math.atan2(Math.sin(angle-gap),Math.cos(angle-gap)))<=gapWidth)
-            angle=a-j*Math.PI/(count*HOSTILE_DENSITY);
-          g.bullet(e.x,e.y+12,angle,132,'amber');
-        }
-      }
-    }
+    // Complete, evenly spaced rings. Their lanes open naturally with distance.
+    const count=(easy?22:30)*HOSTILE_DENSITY;
+    for(let i=0;i<count;i++)g.bullet(e.x,e.y+12,i*Math.PI*2/count,132,'amber');
     if(e.volley%4===0)g.fan(e,1,0,182,true,'rose');
     e.fire=1.18;
   }else{
