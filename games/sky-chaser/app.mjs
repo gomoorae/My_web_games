@@ -1,15 +1,20 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES} from './engine.mjs?v=0.5.0';
-import {Renderer} from './render.mjs?v=0.5.0';
-import {Sound} from './audio.mjs?v=0.5.0';
-import {readRecords,writeRecords} from './records.mjs?v=0.5.0';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES} from './engine.mjs?v=0.5.1';
+import {Renderer} from './render.mjs?v=0.5.1';
+import {Sound} from './audio.mjs?v=0.5.1';
+import {readRecords,writeRecords} from './records.mjs?v=0.5.1';
+import {FrameLoop} from './frame-loop.mjs?v=0.5.1';
 
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();
 let difficulty='normal',route='campaign',autofire=false,keys=new Set(),pointer=null,touchTarget=null,touchCharge=false;
-let last=0,accumulator=0,visualTime=0,countdown=0,noticeTimer=0,previousState='ready';
+let accumulator=0,visualTime=0,countdown=0,noticeTimer=0,previousState='ready';
 let bests={campaign:{easy:0,normal:0},practice2:{easy:0,normal:0},practice3:{easy:0,normal:0}},newBest=false,artReady=false,artFailed=false;
 const format=n=>String(Math.floor(n)).padStart(7,'0');
 const timeLabel=t=>String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0');
+const frameLoop=new FrameLoop({update:advance,draw:present,
+  active:()=>game.state==='playing',
+  animate:()=>game.state==='playing'||(['clear','gameover'].includes(game.state)&&renderer.hasEffects())});
+function invalidate(reset=false){lastUi=-Infinity;frameLoop.invalidate(reset);}
 try{
   const saved=readRecords(localStorage);bests=saved;
   if(saved.muted===true){sound.enabled=false;}
@@ -49,12 +54,14 @@ async function start(){
   $('title-screen').hidden=true;$('modal').hidden=true;$('countdown').hidden=false;
   $('notice').className='notice';noticeTimer=0;
   $('game').focus({preventScroll:true});
+  invalidate(true);
   await sound.unlock();sound.setPlaying(false);
 }
 function home(){
   clearInput();game.reset(difficulty,route);previousState='ready';countdown=0;sound.setPlaying(false);
   $('modal').hidden=true;$('title-screen').hidden=false;$('countdown').hidden=true;$('tutorial').hidden=true;
   $('notice').className='notice';noticeTimer=0;renderer.reset();$('start').focus({preventScroll:true});
+  invalidate(true);
 }
 function pause(){
   if(game.state!=='playing')return;
@@ -63,10 +70,12 @@ function pause(){
   $('modal-copy').textContent='숨을 고르고 다시 하늘로.';
   $('result-stats').hidden=true;$('continue').hidden=false;$('retry').textContent='처음부터 다시 출격';
   $('modal').hidden=false;$('continue').focus({preventScroll:true});
+  invalidate(true);
 }
 async function resume(){
   if(game.state!=='paused')return;
   clearInput();game.resume();$('modal').hidden=true;$('game').focus({preventScroll:true});
+  invalidate(true);
   await sound.unlock();sound.setPlaying(countdown<=0);
 }
 function result(){
@@ -85,7 +94,7 @@ $('continue').addEventListener('click',resume);
 $('home').addEventListener('click',home);
 $('pause').addEventListener('click',()=>game.state==='paused'?resume():pause());
 $('sound').addEventListener('click',async()=>{await sound.unlock();sound.toggle();updateSettings();persist();});
-$('motion').addEventListener('click',()=>{renderer.motion=!renderer.motion;updateSettings();persist();});
+$('motion').addEventListener('click',()=>{renderer.motion=!renderer.motion;updateSettings();persist();invalidate();});
 $('autofire').addEventListener('click',()=>{autofire=!autofire;updateSettings();});
 async function toggleFullscreen(){
   try{
@@ -113,7 +122,7 @@ for(const button of document.querySelectorAll('[data-route]'))button.addEventLis
     b.classList.toggle('selected',b===button);b.setAttribute('aria-pressed',String(b===button));
   }
   $('route-hint').textContent=RUN_MODES[route].hint;
-  ui();
+  invalidate();
 });
 const playKeys=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD','KeyZ','KeyX','KeyC','ShiftLeft','ShiftRight','Escape']);
 window.addEventListener('keydown',e=>{
@@ -137,9 +146,10 @@ window.addEventListener('keyup',e=>keys.delete(e.code));
 window.addEventListener('blur',()=>{if(game.state==='playing')pause();clearInput();});
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){if(game.state==='playing')pause();clearInput();saveBest();}
+  frameLoop.suspend(document.hidden);
 });
 window.addEventListener('pagehide',()=>{saveBest();});
-window.addEventListener('resize',()=>{renderer.resize();if(game.state==='playing')pause();});
+window.addEventListener('resize',()=>{renderer.resize();if(game.state==='playing')pause();invalidate(true);});
 
 const canvas=$('game');
 canvas.addEventListener('pointerdown',e=>{
@@ -160,42 +170,44 @@ $('touch-charge').addEventListener('pointerdown',e=>{if(game.state!=='playing')r
 for(const name of ['pointerup','pointercancel','lostpointercapture'])$('touch-charge').addEventListener(name,()=>{touchCharge=false;});
 $('touch-bomb').addEventListener('pointerdown',e=>{e.preventDefault();if(countdown<=0)game.bomb();});
 let lastUi=0;
+function text(el,value){value=String(value);if(el.textContent!==value)el.textContent=value;}
+function attribute(el,key,value){value=String(value);if(el.getAttribute(key)!==value)el.setAttribute(key,value);}
 function ui(){
   const ready=game.state==='ready',mode=ready?difficulty:game.difficulty;
   const recordRoute=ready?route:game.mode;
-  $('score').textContent=format(game.score);$('best').textContent=format(Math.max(bests[recordRoute][mode],ready?0:game.score));
-  $('best-mode').textContent=(recordRoute==='campaign'?'연속 · ':RUN_MODES[recordRoute].startStage+'연습 · ')+(mode==='easy'?'쉬움':'보통');
-  $('lives').textContent='♥ '.repeat(Math.max(0,game.lives)).trim()||'—';
-  $('lives').setAttribute('aria-label','목숨 '+game.lives+'개');
-  $('bombs').textContent='✦ '.repeat(game.bombs).trim()||'—';$('bombs').setAttribute('aria-label','폭탄 '+game.bombs+'개');
-  $('touch-bomb-count').textContent=game.bombs;
-  $('power').setAttribute('aria-label','공격 '+game.player.power+'단계');
+  text($('score'),format(game.score));text($('best'),format(Math.max(bests[recordRoute][mode],ready?0:game.score)));
+  text($('best-mode'),(recordRoute==='campaign'?'연속 · ':RUN_MODES[recordRoute].startStage+'연습 · ')+(mode==='easy'?'쉬움':'보통'));
+  text($('lives'),'♥ '.repeat(Math.max(0,game.lives)).trim()||'—');
+  attribute($('lives'),'aria-label','목숨 '+game.lives+'개');
+  text($('bombs'),'✦ '.repeat(game.bombs).trim()||'—');attribute($('bombs'),'aria-label','폭탄 '+game.bombs+'개');
+  text($('touch-bomb-count'),game.bombs);
+  attribute($('power'),'aria-label','공격 '+game.player.power+'단계');
   [...$('power').children].forEach((bar,i)=>bar.classList.toggle('filled',i<game.player.power));
   const timed=game.player.power>1;
-  $('power-time').textContent=timed?Math.ceil(game.player.powerTime)+'초':'기본 화력';
+  text($('power-time'),timed?Math.ceil(game.player.powerTime)+'초':'기본 화력');
   $('power-fill').style.width=(timed?game.player.powerTime/POWER_DURATION*100:100)+'%';
   $('power-clock').classList.toggle('warning',timed&&game.player.powerTime<=5);
   const charge=clamp(game.player.charge/1.15,0,1);
-  $('charge-fill').style.width=(charge*100)+'%';$('charge-label').textContent=charge>=1?'손을 떼면 발사!':charge>0?'룬 에너지 충전 중':'길게 눌러 충전';
-  $('flight-clock').textContent=timeLabel(game.time);
-  $('status-text').textContent=({ready:'출격 대기',playing:countdown>0?'출격 준비':game.chapter,paused:'비행 일시정지',clear:'임무 완료',gameover:'비행 종료'})[game.state];
-  $('pause').disabled=!['playing','paused'].includes(game.state);$('pause-label').textContent=game.state==='paused'?'계속하기':'일시정지';
+  $('charge-fill').style.width=(charge*100)+'%';text($('charge-label'),charge>=1?'손을 떼면 발사!':charge>0?'룬 에너지 충전 중':'길게 눌러 충전');
+  text($('flight-clock'),timeLabel(game.time));
+  text($('status-text'),({ready:'출격 대기',playing:countdown>0?'출격 준비':game.chapter,paused:'비행 일시정지',clear:'임무 완료',gameover:'비행 종료'})[game.state]);
+  $('pause').disabled=!['playing','paused'].includes(game.state);text($('pause-label'),game.state==='paused'?'계속하기':'일시정지');
   const spec=STAGES[game.stage];
   const stage=game.stageTime<spec.midAt?0:game.stageTime<spec.midStop+1?1:game.stageTime<spec.bossAt?2:3;
-  $('mission-number').textContent='0'+game.stage;
-  $('mission-title').textContent=spec.name;
-  $('mission-copy').textContent=game.stage===1?'해적의 기함을 격추하고 협곡으로 향하세요.':game.stage===2?'레이저 예고선을 읽고, 포대를 파괴해 길을 여세요.':'주황색 포탄을 요격하고, 휘어지는 탄의 길을 읽으세요.';
-  document.querySelectorAll('.path-name').forEach((el,i)=>el.textContent=spec.route[i]);
+  text($('mission-number'),'0'+game.stage);
+  text($('mission-title'),spec.name);
+  text($('mission-copy'),game.stage===1?'해적의 기함을 격추하고 협곡으로 향하세요.':game.stage===2?'레이저 예고선을 읽고, 포대를 파괴해 길을 여세요.':'주황색 포탄을 요격하고, 휘어지는 탄의 길을 읽으세요.');
+  document.querySelectorAll('.path-name').forEach((el,i)=>text(el,spec.route[i]));
   const subtitles=game.stage===1?['출격 · 적 편대','중간 보스','해적의 경계선','변신 보스']:game.stage===2?['출격 · 교차 편대','포대 파괴 · 레이저','복합 편대 돌파','3단계 변신 보스']:['포탄 요격 · 곡선탄','화로 포대 파괴','폭발 지점 회피','기계룡 각성 · 과열'];
-  document.querySelectorAll('.path-stop small').forEach((el,i)=>el.textContent=subtitles[i]);
+  document.querySelectorAll('.path-stop small').forEach((el,i)=>text(el,subtitles[i]));
   document.querySelectorAll('.path-stop').forEach((el,i)=>el.classList.toggle('active',i<=stage));
   $('path-fill').style.height=(stage/3*100)+'%';
-  $('tutorial').querySelector('strong').textContent=game.stage===3?'주황색 포탄은 쏴서 없애보자!':'하늘길을 열어볼까?';
-  $('tutorial').querySelector('span').textContent=game.stage===3?'폭발 표시 밖으로 이동 · 보라색 탄은 휘어져 날아와요':'방향키 이동 · Z 사격 · X 위기 탈출';
+  text($('tutorial').querySelector('strong'),game.stage===3?'주황색 포탄은 쏴서 없애보자!':'하늘길을 열어볼까?');
+  text($('tutorial').querySelector('span'),game.stage===3?'폭발 표시 밖으로 이동 · 보라색 탄은 휘어져 날아와요':'방향키 이동 · Z 사격 · X 위기 탈출');
   $('tutorial').hidden=game.state!=='playing'||game.time>7||countdown>0;
 }
-function loop(now){
-  const dt=Math.min((now-(last||now))/1000,.1);last=now;visualTime+=dt;
+function advance(dt){
+  visualTime+=dt;
   const input=getInput();
   if(game.state==='playing'){
     if(countdown>0){
@@ -219,19 +231,24 @@ function loop(now){
     if(game.state==='clear'||game.state==='gameover')result();
     previousState=game.state;
   }
-  renderer.draw(game,visualTime,dt,input);sound.update(!!game.boss);
+  sound.update(!!game.boss);
+}
+function present(dt,now){
+  // The opaque title illustration already fills the arena. Paused scenes draw
+  // once on invalidation; result effects finish before the scheduler goes idle.
+  if(game.state!=='ready')renderer.draw(game,visualTime,dt,getInput());
   if(now-lastUi>80){ui();lastUi=now;}
-  requestAnimationFrame(loop);
 }
 $('start').disabled=true;$('start').textContent='비행 준비 중…';
 renderer.ready.then(()=>{
   artReady=true;$('start').disabled=false;$('start').innerHTML='출격하기 <span aria-hidden="true">↗</span>';
   $('asset-status').textContent='';$('asset-status').hidden=true;
+  invalidate();
 }).catch(()=>{
   artFailed=true;$('start').disabled=false;$('start').textContent='그림 다시 불러오기';
   $('asset-status').textContent='그림을 불러오지 못했습니다. 연결을 확인한 뒤 다시 시도해 주세요.';
 });
-updateSettings();ui();requestAnimationFrame(loop);
+updateSettings();ui();frameLoop.suspend(document.hidden);
 // Read-only diagnostics for performance and manual QA; no gameplay shortcuts.
 Object.defineProperty(window,'skyChaser',{value:Object.freeze({
   version:VERSION,

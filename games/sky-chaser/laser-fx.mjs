@@ -1,5 +1,6 @@
 // Procedural light layers follow the locked collision ray and simulation age.
 // No text labels or screen flash; pause also freezes every filament and spark.
+import {glow} from './canvas-fx.mjs?v=0.5.1';
 const TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=v=>{v=clamp(v,0,1);return v*v*(3-2*v);};
@@ -8,9 +9,7 @@ function line(c,points,color,width){
   c.strokeStyle=color;c.lineWidth=width;c.stroke();
 }
 function bloom(c,x,y,rx,ry,color,alpha=1){
-  c.save();c.translate(x,y);c.scale(rx,ry);c.globalCompositeOperation='lighter';c.globalAlpha*=alpha;
-  const glow=c.createRadialGradient(0,0,0,0,0,1);glow.addColorStop(0,color);glow.addColorStop(.25,color+'a8');glow.addColorStop(1,color+'00');
-  c.fillStyle=glow;c.fillRect(-1,-1,2,2);c.restore();
+  glow(c,x,y,rx,color,alpha,ry,'laser');
 }
 function emitter(c,age,charge,active,fade){
   const spin=age*(active?-.8:1.4),r=17+charge*4;

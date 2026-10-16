@@ -1,9 +1,9 @@
 import {STAGES,RUN_MODES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.5.0';
-import {FORGE_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,moveMortar,mortarArmed} from './forge.mjs?v=0.5.0';
+  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.5.1';
+import {FORGE_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,moveMortar,mortarArmed} from './forge.mjs?v=0.5.1';
 export {STAGES,RUN_MODES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.5.0';
+export const VERSION = '0.5.1';
 export const PLAYER_SCALE = .8;
 export const ENEMY_ACTIVE_Y = 5;
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));

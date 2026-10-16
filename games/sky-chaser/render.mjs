@@ -1,7 +1,9 @@
-import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES} from './engine.mjs?v=0.5.0';
-import {ArtBank} from './art.mjs?v=0.5.0';
-import {drawLaser} from './laser-fx.mjs?v=0.5.0';
-import {drawMortars} from './forge-fx.mjs?v=0.5.0';
+import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES} from './engine.mjs?v=0.5.1';
+import {ArtBank} from './art.mjs?v=0.5.1';
+import {drawLaser} from './laser-fx.mjs?v=0.5.1';
+import {drawMortars} from './forge-fx.mjs?v=0.5.1';
+import {renderRatio} from './frame-loop.mjs?v=0.5.1';
+import {glow,flame,normalShot} from './canvas-fx.mjs?v=0.5.1';
 const TAU=Math.PI*2;
 const mix=(a,b,t)=>a+(b-a)*t;
 const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
@@ -19,11 +21,6 @@ function part(c,s,width,u,v,uw,vh,x=0,y=0,rotation=0,alpha=1){
   c.save();c.translate(x,y);c.rotate(rotation);c.globalAlpha*=alpha;
   c.drawImage(s.image,s.image.width*u,s.image.height*v,s.image.width*uw,s.image.height*vh,
     (u-.5)*width,(v-.5)*h,uw*width,vh*h);c.restore();
-}
-function glow(c,x,y,r,color,alpha=1){
-  c.save();c.globalCompositeOperation='lighter';c.globalAlpha*=alpha;
-  const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,color);g.addColorStop(1,'#00000000');
-  c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2);c.restore();
 }
 function makeCloud(index){
   const cv=document.createElement('canvas');cv.width=384;cv.height=192;
@@ -44,6 +41,7 @@ export class Renderer {
     this.ready=this.art.load().then(()=>this.prepareScenery());
   }
   reset(){this.particles=[];this.rings=[];this.blasts=[];this.wrecks=[];this.bombBeams=[];this.damageTexts=[];this.trail=[];this.flash=0;this.shake=0;this.fxTime=0;this.lastTrail=0;this.lastTime=0;}
+  hasEffects(){return this.flash>0||this.shake>.1||[this.particles,this.rings,this.blasts,this.wrecks,this.bombBeams,this.damageTexts].some(a=>a.length>0);}
   prepareScenery(){
     this.groundTiles={};
     for(const key of ['harbor','canyon','foundry']){
@@ -58,8 +56,7 @@ export class Renderer {
     }
   }
   resize(){
-    const scale=this.canvas.getBoundingClientRect().width/W;
-    this.ratio=Math.max(1,Math.min(3,(window.devicePixelRatio||1)*scale));
+    this.ratio=renderRatio(this.canvas.getBoundingClientRect().width,window.devicePixelRatio);
     this.canvas.width=Math.round(W*this.ratio);this.canvas.height=Math.round(H*this.ratio);
     this.c.imageSmoothingEnabled=true;this.c.imageSmoothingQuality='high';
   }
@@ -145,16 +142,17 @@ export class Renderer {
       c.fillStyle='#193e5e18';c.fillRect(0,0,W,H);c.restore();
     }
     // Reflections drift independently of the map, so the harbor feels alive.
-    c.save();c.globalAlpha=moody?0:.18*(1-altitude*.7);c.lineWidth=1;
+    if(!moody){c.save();c.globalAlpha=.18*(1-altitude*.7);c.lineWidth=1;
     for(let i=0;i<24;i++){
       const x=112+seed(i+50)*265,y=(seed(i+300)*H+t*(78+seed(i)*14))%H;
       path(c,[[x,y],[x+5,y-1],[x+13,y]],'#d7f6e8',1);
     }
-    c.restore();
+    c.restore();}
     for(let layer=0;layer<2;layer++)for(let i=0;i<(layer?5:7);i++){
       const s=(layer?.85:.47)+seed(i+layer*19)*.6;
       const x=seed(i+layer*72+18)*(W+180)-100+(px-240)*(layer?-.035:-.012);
       const y=((seed(i+layer*110)*1100+t*(layer?142:43))%1100)-240;
+      if(x>=W||y>=H||x+384*s<=0||y+192*s<=0)continue;
       c.save();c.globalAlpha=moody?(layer?.065:.045):(layer?.12:.17)+altitude*(layer?.28:.20);
       c.drawImage(this.clouds[(i+layer)%4],x,y,384*s,192*s);c.restore();
     }
@@ -466,8 +464,7 @@ export class Renderer {
       }else if(s.style==='homing'){
         path(c,[[s.x-s.vx*.06,s.y-s.vy*.06],[s.x,s.y]],'#93f3de80',3);glow(c,s.x,s.y,10,'#94fbe1',.5);ellipse(c,s.x,s.y,2.5,4,'#fff3ca');
       }else{
-        const tail=c.createLinearGradient(s.x,s.y-11,s.x,s.y+22);tail.addColorStop(0,'#fffbd8');tail.addColorStop(.3,'#bfffe2');tail.addColorStop(1,'#6de5df00');
-        box(c,s.x-2,s.y-11,4,33,tail,2);ellipse(c,s.x,s.y-7,1.4,5,'#fff7dd');
+        normalShot(c,s.x,s.y);
       }
     }
   }
@@ -508,10 +505,7 @@ export class Renderer {
       glow(c,b.x,b.y,b.size*(.3+p),b.reactor?'#49e8ee':'#ffad4e',(1-p)*.8);
       for(let i=0;i<7;i++){
         const a=i*2.4,dist=b.size*p*.55,x=b.x+Math.cos(a)*dist,y=b.y+Math.sin(a)*dist,r=b.size*(.14+Math.sin(Math.PI*p)*.2);
-        const grad=c.createRadialGradient(x-r*.2,y-r*.2,0,x,y,r);
-        grad.addColorStop(0,b.reactor?(p<.25?'#f2fff1':'#adfff0'):(p<.25?'#fff4c8':'#ffd08b'));
-        grad.addColorStop(.45,b.reactor?'#55e6eacc':'#ff9f4ecc');grad.addColorStop(1,b.reactor?'#207ea900':'#cf5a2400');
-        c.save();c.globalAlpha=1-p;ellipse(c,x,y,r,r,grad);c.restore();
+        flame(c,x,y,r,!!b.reactor,p<.25,1-p);
       }
     }
     this.blasts=this.blasts.filter(b=>b.age<b.life);

@@ -1,9 +1,8 @@
+import {glow as cachedGlow} from './canvas-fx.mjs?v=0.5.1';
 const TAU=Math.PI*2,clamp=v=>Math.max(0,Math.min(1,v));
 function circle(c,x,y,r,color){c.fillStyle=color;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();}
 function glow(c,x,y,r,color,alpha){
-  c.save();c.globalCompositeOperation='lighter';c.globalAlpha*=alpha;
-  const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,color);g.addColorStop(1,color+'00');
-  c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2);c.restore();
+  cachedGlow(c,x,y,r,color,alpha,r,'coloured');
 }
 export function drawMortars(c,mortars){
   for(const m of mortars){
