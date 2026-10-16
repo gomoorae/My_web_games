@@ -5,6 +5,7 @@ gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 
 | 게임 | 경로 |
 |---|---|
 | 스카이 체이서 · 세로 슈팅 | [게임](games/sky-chaser/index.html) · [플레이 안내](games/sky-chaser/README.md) |
+| 스카이 체이서 · 모바일 조작 시험판 | [갤럭시 크롬에서 테스트](games/sky-chaser/mobile.html?v=0.1.0) |
 | 별냠 · 별 수집 도약 게임 | [게임](games/star-munch/index.html) · [규칙과 소스 안내](games/star-munch/README.md) |
 | NEON TERRITORY · 10스테이지 땅따먹기 | [게임](games/neon_territory/index.html) · [규칙과 조작](games/neon_territory/README.md) |
 | 월하무쌍 · 세 전장의 무협 생존 액션 | [게임과 조작 안내](games/moonfall/index.html) |
@@ -15,6 +16,8 @@ gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 
 각 게임의 메인으로/게임 목록으로 링크로 돌아올 수 있습니다.
 
 ## 스카이 체이서
+
+**[모바일 조작 시험판 0.1.0](https://gomoorae.github.io/My_web_games/games/sky-chaser/mobile.html?v=0.1.0)** — 세로 화면에서 이동 패드와 차지샷·폭탄 버튼을 사용합니다. 자동 사격, 정밀 이동, 감도·좌우 배치 설정을 지원합니다. 실제 갤럭시 조작감 확인을 위한 시험판이며 PC판은 그대로입니다.
 
 룬 사수 루미가 해풍의 항구, 뇌운의 협곡, 홍련의 조선소를 돌파하는 PC 우선 세로 슈팅입니다. 스테이지별 전용 중간 보스와 변신 보스가 등장합니다. 세 스테이지를 연속 플레이하거나 2·3스테이지를 따로 연습할 수 있습니다.
 

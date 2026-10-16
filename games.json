@@ -16,6 +16,13 @@
     "category": "SHOOTING · 세로 슈팅"
   },
   {
+    "title": "스카이 체이서 · 모바일 시험판",
+    "description": "갤럭시 크롬 세로 조작 시험판. 왼쪽 패드로 이동하고 오른쪽 버튼으로 차지샷·폭탄을 사용하세요. 자동 사격·정밀 이동·감도 조절을 지원합니다.",
+    "thumbnail": "thumbs/sky-chaser-v2.png",
+    "url": "games/sky-chaser/mobile.html?v=0.1.0",
+    "category": "MOBILE TEST · 세로 슈팅"
+  },
+  {
     "title": "NEON TERRITORY",
     "description": "선을 잇고, 나만의 영역을 넓혀봐. 적의 움직임을 피해 10개의 스테이지를 돌파하는 땅따먹기.",
     "thumbnail": "thumbs/neon_territory.svg",
