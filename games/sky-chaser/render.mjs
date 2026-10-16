@@ -1,9 +1,9 @@
-import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES} from './engine.mjs?v=0.5.1';
-import {ArtBank} from './art.mjs?v=0.5.1';
-import {drawLaser} from './laser-fx.mjs?v=0.5.1';
-import {drawMortars} from './forge-fx.mjs?v=0.5.1';
-import {renderRatio} from './frame-loop.mjs?v=0.5.1';
-import {glow,flame,normalShot} from './canvas-fx.mjs?v=0.5.1';
+import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=0.6.0';
+import {ArtBank} from './art.mjs?v=0.6.0';
+import {drawLaser} from './laser-fx.mjs?v=0.6.0';
+import {drawMortars} from './forge-fx.mjs?v=0.6.0';
+import {renderRatio} from './frame-loop.mjs?v=0.6.0';
+import {glow,flame,normalShot} from './canvas-fx.mjs?v=0.6.0';
 const TAU=Math.PI*2;
 const mix=(a,b,t)=>a+(b-a)*t;
 const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
@@ -242,14 +242,14 @@ export class Renderer {
     stamp(c,s,width);this.scarf(c,p,t);
     if(p.inv>0){c.globalAlpha=.3;stamp(c,s,width,Math.max(0,Math.sin(t*20))*.5,'flash');}
     c.restore();
-    if(p.charging){
-      const q=clamp(p.charge/1.15,0,1);
+    if(p.charge>=CHARGE_REQUIRED){
+      const q=1;
       glow(c,p.x,p.y-40*PLAYER_SCALE,(20+q*35)*PLAYER_SCALE,'#51d8ce',.3+q*.3);
       c.save();c.translate(p.x,p.y-5*PLAYER_SCALE);c.scale(PLAYER_SCALE,PLAYER_SCALE);c.rotate(-t*2);c.strokeStyle=q>=1?'#fff2ba':'#9df6e6';c.lineWidth=1.5;
       c.beginPath();c.arc(0,0,37,0,TAU*q);c.stroke();
       for(let i=0;i<6;i++){c.rotate(TAU/6);path(c,[[-3,-38],[0,-44],[3,-38]],'#fff5c9',1.1);}c.restore();
     }
-    if(focus||p.charging){ellipse(c,p.x,p.y,5,5,'#173248');ellipse(c,p.x,p.y,3.5,3.5,'#fff8df');ellipse(c,p.x,p.y,1.8,1.8,'#e55c83');}
+    if(focus){ellipse(c,p.x,p.y,5,5,'#173248');ellipse(c,p.x,p.y,3.5,3.5,'#fff8df');ellipse(c,p.x,p.y,1.8,1.8,'#e55c83');}
   }
   enemy(c,e,t){
     if(!this.art.loaded)return;
@@ -609,10 +609,10 @@ export class Renderer {
     if(this.flash>0&&this.motion){c.fillStyle='rgba(255,239,204,'+Math.min(.3,this.flash)+')';c.fillRect(0,0,W,H);}
     if(active)this.hud(c,game);
     if(game.introTimer>0){
-      c.save();c.fillStyle='#102536b8';c.fillRect(0,250,W,158);
+      c.save();c.fillStyle='#102536b8';c.fillRect(0,250,W,120);
       c.textAlign='center';c.fillStyle='#9fe7dc';c.font='700 13px sans-serif';c.fillText('STAGE 0'+game.stage,W/2,291);
       c.fillStyle='#fff1ca';c.font='900 33px sans-serif';c.fillText(STAGES[game.stage].name,W/2,338);
-      c.fillStyle='#d8e9e5';c.font='12px sans-serif';c.fillText(game.stage===3?'주황색 포탄을 쏴서 제거하라':'P를 회수해 화력을 유지하라',W/2,374);c.restore();
+      c.restore();
     }
   }
   hud(c,g){
@@ -637,7 +637,12 @@ export class Renderer {
       c.strokeStyle='#102e42';c.lineWidth=1;for(let i=1;i<20;i++){c.beginPath();c.moveTo(20+(W-40)*i/20,56);c.lineTo(20+(W-40)*i/20,62);c.stroke();}
     }else{c.fillStyle='#e5f3dfbb';c.font='11px sans-serif';c.textAlign='left';c.fillText(g.chapter,20,45);}
     if(g.combo>=3){c.textAlign='right';c.font='italic 800 19px sans-serif';c.fillStyle='#fff3c5';c.shadowColor='#163545';c.shadowBlur=4;c.fillText(g.combo+' CHAIN',W-20,94);c.shadowBlur=0;}
-    if(g.player.charging){const p=g.player;box(c,p.x-22*PLAYER_SCALE,p.y+48*PLAYER_SCALE,44*PLAYER_SCALE,4,'#12394ddd',3);box(c,p.x-22*PLAYER_SCALE,p.y+48*PLAYER_SCALE,44*PLAYER_SCALE*clamp(p.charge/1.15,0,1),4,p.charge>=1.15?'#ffe9b2':'#82f5cb',3);}
+    if(g.player.charge>0){
+      const p=g.player,q=clamp(p.charge/CHARGE_REQUIRED,0,1),y=p.y>H-95?p.y-44*PLAYER_SCALE:p.y+48*PLAYER_SCALE;
+      box(c,p.x-22*PLAYER_SCALE,y,44*PLAYER_SCALE,4,'#12394ddd',3);
+      box(c,p.x-22*PLAYER_SCALE,y,44*PLAYER_SCALE*q,4,q>=1?'#ffe9b2':'#82f5cb',3);
+      if(q>=1){c.font='800 10px sans-serif';c.textAlign='left';c.fillStyle='#fff0bf';c.fillText('C',p.x+25*PLAYER_SCALE,y+5);}
+    }
     const p=g.player,warning=p.power>1&&p.powerTime<=5;
     box(c,14,H-41,178,29,'#112d40dc',6);c.textAlign='left';c.font='700 11px sans-serif';
     c.fillStyle=warning?'#ffbd91':'#d8f6e4';

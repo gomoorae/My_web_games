@@ -1,6 +1,6 @@
 // Procedural light layers follow the locked collision ray and simulation age.
 // No text labels or screen flash; pause also freezes every filament and spark.
-import {glow} from './canvas-fx.mjs?v=0.5.1';
+import {glow} from './canvas-fx.mjs?v=0.6.0';
 const TAU=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=v=>{v=clamp(v,0,1);return v*v*(3-2*v);};

@@ -87,3 +87,5 @@
 @media (max-width: 759px) {
   #fullscreen { display: none; }
 }
+
+.charge-track span.ready{background:#bd8b3e}.touch-controls button:disabled{opacity:.55}.touch-controls button:not(:disabled){border-color:#b5e5d1}

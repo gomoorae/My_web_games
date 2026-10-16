@@ -1,12 +1,12 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES} from './engine.mjs?v=0.5.1';
-import {Renderer} from './render.mjs?v=0.5.1';
-import {Sound} from './audio.mjs?v=0.5.1';
-import {readRecords,writeRecords} from './records.mjs?v=0.5.1';
-import {FrameLoop} from './frame-loop.mjs?v=0.5.1';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.6.0';
+import {Renderer} from './render.mjs?v=0.6.0';
+import {Sound} from './audio.mjs?v=0.6.0';
+import {readRecords,writeRecords} from './records.mjs?v=0.6.0';
+import {FrameLoop} from './frame-loop.mjs?v=0.6.0';
 
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();
-let difficulty='normal',route='campaign',autofire=false,keys=new Set(),pointer=null,touchTarget=null,touchCharge=false;
+let difficulty='normal',route='campaign',autofire=false,keys=new Set(),pointer=null,touchTarget=null,touchCharge=false,chargeRequested=false;
 let accumulator=0,visualTime=0,countdown=0,noticeTimer=0,previousState='ready';
 let bests={campaign:{easy:0,normal:0},practice2:{easy:0,normal:0},practice3:{easy:0,normal:0}},newBest=false,artReady=false,artFailed=false;
 const format=n=>String(Math.floor(n)).padStart(7,'0');
@@ -28,14 +28,14 @@ function saveBest(){
   if(game.score>bests[game.mode][game.difficulty]){newBest=true;bests[game.mode][game.difficulty]=game.score;persist();}
 }
 function clearInput(){
-  keys.clear();touchTarget=null;touchCharge=false;pointer=null;
-  game.player.charging=false;game.player.charge=0;accumulator=0;
+  keys.clear();touchTarget=null;touchCharge=false;pointer=null;chargeRequested=false;
+  game.player.chargeHeld=false;accumulator=0;
 }
 function getInput(){
   return {x:Number(keys.has('ArrowRight')||keys.has('KeyD'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')),
     y:Number(keys.has('ArrowDown')||keys.has('KeyS'))-Number(keys.has('ArrowUp')||keys.has('KeyW')),
     focus:keys.has('ShiftLeft')||keys.has('ShiftRight'),
-    fire:keys.has('KeyZ')||autofire||pointer!==null,charge:keys.has('KeyC')||touchCharge,
+    fire:keys.has('KeyZ')||autofire||pointer!==null,charge:keys.has('KeyC')||touchCharge,chargePressed:chargeRequested,
     target:touchTarget};
 }
 function notice(text,seconds=2.8,warning=false){
@@ -139,6 +139,7 @@ window.addEventListener('keydown',e=>{
     e.preventDefault();start();return;
   }
   if(game.state!=='playing'||!playKeys.has(e.code))return;
+  if(e.code==='KeyC'){if(e.repeat)return;chargeRequested=true;}
   e.preventDefault();keys.add(e.code);
   if(e.code==='KeyX'&&!e.repeat&&countdown<=0)game.bomb();
 });
@@ -166,7 +167,7 @@ canvas.addEventListener('pointermove',e=>{
 function endPointer(e){if(pointer?.id===e.pointerId){pointer=null;touchTarget=null;}}
 canvas.addEventListener('pointerup',endPointer);canvas.addEventListener('pointercancel',endPointer);canvas.addEventListener('lostpointercapture',endPointer);
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
-$('touch-charge').addEventListener('pointerdown',e=>{if(game.state!=='playing')return;e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);touchCharge=true;});
+$('touch-charge').addEventListener('pointerdown',e=>{if(game.state!=='playing')return;e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);touchCharge=true;chargeRequested=true;});
 for(const name of ['pointerup','pointercancel','lostpointercapture'])$('touch-charge').addEventListener(name,()=>{touchCharge=false;});
 $('touch-bomb').addEventListener('pointerdown',e=>{e.preventDefault();if(countdown<=0)game.bomb();});
 let lastUi=0;
@@ -187,8 +188,11 @@ function ui(){
   text($('power-time'),timed?Math.ceil(game.player.powerTime)+'초':'기본 화력');
   $('power-fill').style.width=(timed?game.player.powerTime/POWER_DURATION*100:100)+'%';
   $('power-clock').classList.toggle('warning',timed&&game.player.powerTime<=5);
-  const charge=clamp(game.player.charge/1.15,0,1);
-  $('charge-fill').style.width=(charge*100)+'%';text($('charge-label'),charge>=1?'손을 떼면 발사!':charge>0?'룬 에너지 충전 중':'길게 눌러 충전');
+  const charge=clamp(game.player.charge/CHARGE_REQUIRED,0,1),chargeReady=charge>=1;
+  $('charge-fill').style.width=(charge*100)+'%';text($('charge-label'),chargeReady?'C · 발사 가능':charge>0?'적중 충전 '+Math.floor(charge*100)+'%':'적중으로 충전');
+  $('charge-fill').classList.toggle('ready',chargeReady);
+  $('touch-charge').disabled=!chargeReady||game.state!=='playing'||countdown>0||game.introTimer>0;
+  text($('touch-charge').querySelector('small'),chargeReady?'발사 가능':Math.floor(charge*100)+'%');
   text($('flight-clock'),timeLabel(game.time));
   text($('status-text'),({ready:'출격 대기',playing:countdown>0?'출격 준비':game.chapter,paused:'비행 일시정지',clear:'임무 완료',gameover:'비행 종료'})[game.state]);
   $('pause').disabled=!['playing','paused'].includes(game.state);text($('pause-label'),game.state==='paused'?'계속하기':'일시정지');
@@ -203,7 +207,7 @@ function ui(){
   document.querySelectorAll('.path-stop').forEach((el,i)=>el.classList.toggle('active',i<=stage));
   $('path-fill').style.height=(stage/3*100)+'%';
   text($('tutorial').querySelector('strong'),game.stage===3?'주황색 포탄은 쏴서 없애보자!':'하늘길을 열어볼까?');
-  text($('tutorial').querySelector('span'),game.stage===3?'폭발 표시 밖으로 이동 · 보라색 탄은 휘어져 날아와요':'방향키 이동 · Z 사격 · X 위기 탈출');
+  text($('tutorial').querySelector('span'),game.stage===3?'주황색 포탄 요격 · 보라색 탄은 휘어져 날아와요':'방향키 이동 · Z 사격 · X 위기 탈출');
   $('tutorial').hidden=game.state!=='playing'||game.time>7||countdown>0;
 }
 function advance(dt){
@@ -216,7 +220,7 @@ function advance(dt){
       if(countdown<=0){sound.setPlaying(true);notice('루미, 출격! 하늘길을 열자.',2);}
     }else{
       accumulator+=dt;
-      while(accumulator>=STEP){game.step(STEP,input);accumulator-=STEP;if(game.state!=='playing'){accumulator=0;break;}}
+      while(accumulator>=STEP){game.step(STEP,input);chargeRequested=false;input.chargePressed=false;accumulator-=STEP;if(game.state!=='playing'){accumulator=0;break;}}
     }
     if(noticeTimer>0){noticeTimer-=dt;if(noticeTimer<=0)$('notice').className='notice';}
   }
@@ -254,7 +258,7 @@ Object.defineProperty(window,'skyChaser',{value:Object.freeze({
   version:VERSION,
   snapshot:()=>({state:game.state,stage:game.stage,mode:game.mode,time:game.time,stageTime:game.stageTime,score:game.score,
     powerTime:game.player.powerTime,lasers:game.lasers.length,mortars:game.mortars.length,shellsDestroyed:game.shellsDestroyed,
-    lives:game.lives,bombs:game.bombs,power:game.player.power,charge:game.player.charge,
+    lives:game.lives,bombs:game.bombs,power:game.player.power,charge:game.player.charge,chargeRequired:CHARGE_REQUIRED,
     player:{x:game.player.x,y:game.player.y},enemies:game.enemies.length,bullets:game.bullets.length,
     boss:game.boss?{type:game.boss.type,hp:game.boss.hp,phase:game.boss.phase}:null,
     bombDamage:game.bombDamage,bomb:game.activeBomb?{name:game.activeBomb.spec.name,age:game.activeBomb.age,strikes:game.activeBomb.nextStrike}:null,autofire})

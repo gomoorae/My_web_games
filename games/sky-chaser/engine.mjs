@@ -1,10 +1,11 @@
 import {STAGES,RUN_MODES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.5.1';
-import {FORGE_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,moveMortar,mortarArmed} from './forge.mjs?v=0.5.1';
+  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.6.0';
+import {FORGE_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,moveMortar,mortarArmed} from './forge.mjs?v=0.6.0';
 export {STAGES,RUN_MODES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.5.1';
+export const VERSION = '0.6.0';
 export const PLAYER_SCALE = .8;
+export const CHARGE_REQUIRED = 240;
 export const ENEMY_ACTIVE_Y = 5;
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 export const PILOTS = Object.freeze({
@@ -81,7 +82,7 @@ export class Game {
     this.activeBomb = null; this.bombDamage = 0;
     this.player = {pilot: 'lumi', x: 240, y: 592, px: 240, py: 592, r: 4,
       power: this.mode === 'campaign' ? 1 : 3, powerTime: POWER_DURATION,
-      inv: 2.6, fire: 0, drone: .3, charge: 0, charging: false, bank: 0};
+      inv: 2.6, fire: 0, drone: .3, charge: 0, chargeHeld: false, bank: 0};
   }
   random() {
     this.rng = (Math.imul(this.rng, 1664525) + 1013904223) >>> 0;
@@ -96,12 +97,12 @@ export class Game {
     this.finalDefeated=false;this.clearTimer=0;this.introTimer=2.4;this.supplyTimer=3;this.supplies=0;
     this.enemies=[];this.bullets=[];this.shots=[];this.items=[];this.lasers=[];this.mortars=[];
     this.activeBomb=null;this.bombTimer=0;
-    Object.assign(this.player,{x:240,y:592,px:240,py:592,inv:2.6,charge:0,charging:false,bank:0});
+    Object.assign(this.player,{x:240,y:592,px:240,py:592,inv:2.6,chargeHeld:false,bank:0});
     this.event('stageStart',{stage:this.stage,text:'STAGE 0'+this.stage+' · '+STAGES[this.stage].name});
   }
   pause() {
     if (this.state === 'playing') {
-      this.state = 'paused'; this.player.charge = 0; this.player.charging = false;
+      this.state = 'paused'; this.player.chargeHeld = false;
     }
   }
   resume() { if (this.state === 'paused') this.state = 'playing'; }
@@ -175,14 +176,18 @@ export class Game {
     if (p.power >= 3) { add(-16, -70, 2); add(16, 70, 2); }
     this.shotsFired++; this.event('shot', {power: p.power});
   }
-  releaseCharge() {
-    const p = this.player, charge = p.charge;
-    if (charge < .3) return;
-    const full = charge >= 1.15;
+  chargeFromHit(shot,damage) {
+    if((shot.style==='shot'||shot.style==='homing')&&damage>0)
+      this.player.charge=Math.min(CHARGE_REQUIRED,this.player.charge+damage);
+  }
+  fireCharge() {
+    const p = this.player;
+    if(this.state!=='playing'||p.charge<CHARGE_REQUIRED||this.finalDefeated||this.introTimer>0)return false;
+    p.charge=0;
     this.shots.push({x: p.x, y: p.y - 41 * PLAYER_SCALE, px: p.x, py: p.y - 41 * PLAYER_SCALE,
-      vx: 0, vy: -810, r: full ? 23 : 13, damage: full ? 135 : 40,
-      style: full ? 'charge' : 'charge-small', dead: false, hitIds: new Set()});
-    this.event('charge', {full, x: p.x, y: p.y});
+      vx: 0, vy: -810, r: 23, damage: 135,
+      style: 'charge', dead: false, hitIds: new Set()});
+    this.event('charge', {full:true, x: p.x, y: p.y});return true;
   }
   bomb() {
     if (this.state !== 'playing' || this.bombs <= 0 || this.bombTimer > 0 || this.finalDefeated || this.introTimer > 0) return false;
@@ -225,7 +230,7 @@ export class Game {
     if (attack.age >= spec.duration) this.activeBomb = null;
   }
   damage(e, amount) {
-    if (e.dead || e.transition > 0 || e.y < ENEMY_ACTIVE_Y) return;
+    if (e.dead || e.transition > 0 || e.y < ENEMY_ACTIVE_Y) return 0;
     const before = e.hp;
     e.hp -= amount; e.flash = .065; this.hits++;
     if((e.type==='tempest'||e.type==='ignis') && e.phase<3 && e.hp<=e.maxHp*(e.phase===1?2/3:1/3)){
@@ -240,9 +245,11 @@ export class Game {
       this.event('transform', {x: e.x, y: e.y});
     } else if (e.hp <= 0) this.destroy(e);
     else if (amount > 15) this.event('impact', {x: e.x, y: e.y, amount: Math.min(before, amount)});
+    return Math.max(0,before-Math.max(0,e.hp));
   }
   damagePart(e,part,amount){
-    if(e.dead||e.transition>0||e.y<ENEMY_ACTIVE_Y||part.dead)return;
+    if(e.dead||e.transition>0||e.y<ENEMY_ACTIVE_Y||part.dead)return 0;
+    const before=part.hp;
     part.hp=Math.max(0,part.hp-amount);part.flash=.065;this.hits++;
     if(part.hp<=0){
       part.dead=true;this.score+=600;
@@ -251,6 +258,7 @@ export class Game {
       this.event('partBreak',{x:part.x,y:part.y});
       this.event('message',{text:(part.side<0?'왼쪽':'오른쪽')+' 포대 파괴!'});
     }
+    return before-part.hp;
   }
   laser(e,x,y,angle,warning,duration,width,partId=null){
     if(this.bombTimer>0||this.finalDefeated||e.transition>0||this.lasers.length>=2)return;
@@ -264,13 +272,15 @@ export class Game {
     if(this.bombTimer>0||this.finalDefeated||e.dead||e.transition>0||x<0||x>W||y<0||this.mortars.length>=6)return;
     const m={id:'m'+(++this.id),owner:e.id,partId,x,y,px:x,py:y,startX:x,startY:y,
       tx:clamp(tx,50,W-50),ty:clamp(ty,90,H-55),age:0,flight,fuse,blastDuration:.55,
-      blastRadius:this.difficulty==='easy'?28:36,r:10,hp:12,maxHp:12,exploded:false,dead:false};
+      blastRadius:this.difficulty==='easy'?70:90,r:10,hp:12,maxHp:12,exploded:false,dead:false};
     this.mortars.push(m);this.event('mortarLaunch',{x,y});return m;
   }
   damageMortar(m,amount){
-    if(!mortarArmed(m))return;
+    if(!mortarArmed(m))return 0;
+    const before=m.hp;
     m.hp=Math.max(0,m.hp-amount);this.hits++;
     if(m.hp===0){m.dead=true;this.shellsDestroyed++;this.score+=80;this.event('shellBreak',{x:m.x,y:m.y});}
+    return before-m.hp;
   }
   moveMortars(dt){
     for(const m of this.mortars){
@@ -326,7 +336,7 @@ export class Game {
     const p = this.player;
     if (p.inv > 0 || this.finalDefeated || this.state !== 'playing') return false;
     this.lives--; this.deaths++; this.combo = 0;
-    this.bullets.length = 0; this.lasers.length=0; this.mortars.length=0; p.inv = 3; p.charge = 0; p.charging = false;
+    this.bullets.length = 0; this.lasers.length=0; this.mortars.length=0; p.inv = 3; p.charge = 0; p.chargeHeld = false;
     this.event('hurt', {x: p.x, y: p.y});
     if (this.lives <= 0) { this.state = 'gameover'; this.event('gameover'); }
     else {
@@ -406,6 +416,7 @@ export class Game {
   step(dt, input = {}) {
     if (this.state !== 'playing') return;
     const p = this.player;
+    const chargePressed=!!input.chargePressed||!!input.charge&&!p.chargeHeld;p.chargeHeld=!!input.charge;
     this.time += dt; p.px = p.x; p.py = p.y;
     if(this.introTimer>0){this.introTimer=Math.max(0,this.introTimer-dt);return;}
     this.stageElapsed+=dt;
@@ -425,14 +436,12 @@ export class Game {
       if (dist) { p.x = clamp(p.x + tx / dist * step, 21, W - 21); p.y = clamp(p.y + ty / dist * step, 55, H - 30); }
     }
     p.bank += (dx - p.bank) * Math.min(1, dt * 12);
-    if (input.charge && !this.finalDefeated) {
-      p.charge = Math.min(1.3, p.charge + dt); p.charging = true;
-    } else if (p.charging) { this.releaseCharge(); p.charge = 0; p.charging = false; }
+    if(chargePressed)this.fireCharge();
     p.fire -= dt; p.drone -= dt;
-    if (input.fire && !input.charge && !this.finalDefeated && p.fire <= 0) {
+    if (input.fire && !this.finalDefeated && p.fire <= 0) {
       this.shoot(); p.fire = .115;
     }
-    if (input.fire && p.power >= 2 && !input.charge && p.drone <= 0 && !this.finalDefeated) {
+    if (input.fire && p.power >= 2 && p.drone <= 0 && !this.finalDefeated) {
       this.shots.push({x: p.x, y: p.y - 8, px: p.x, py: p.y - 8, vx: 0, vy: -350,
         r: 5, damage: 7, style: 'homing', dead: false, hitIds: new Set()});
       p.drone = .42;
@@ -472,7 +481,7 @@ export class Game {
       for(const m of this.mortars){
         if(!mortarArmed(m)||s.hitIds.has(m.id))continue;
         if(sweptHit(s.px-m.px,s.py-m.py,s.x-m.x,s.y-m.y,s.r+m.r)){
-          this.damageMortar(m,s.damage);s.hitIds.add(m.id);
+          this.chargeFromHit(s,this.damageMortar(m,s.damage));s.hitIds.add(m.id);
           if(s.style!=='charge'&&s.style!=='charge-small'){s.dead=true;break;}
         }
       }
@@ -482,7 +491,8 @@ export class Game {
         for(const target of [...(e.parts||[]).filter(p=>!p.dead),e]){
           if(s.hitIds.has(target.id))continue;
           if (sweptHit(s.px - target.px, s.py - target.py, s.x - target.x, s.y - target.y, s.r + target.r)) {
-            if(target===e)this.damage(e,s.damage);else this.damagePart(e,target,s.damage);
+            const dealt=target===e?this.damage(e,s.damage):this.damagePart(e,target,s.damage);
+            this.chargeFromHit(s,dealt);
             s.hitIds.add(target.id);
             if (s.style !== 'charge' && s.style !== 'charge-small') { s.dead = true; break; }
           }
