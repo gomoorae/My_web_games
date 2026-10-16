@@ -1,8 +1,8 @@
-import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.6.1';
-import {Renderer} from './render.mjs?v=0.6.1';
-import {Sound} from './audio.mjs?v=0.6.1';
-import {FrameLoop} from './frame-loop.mjs?v=0.6.1';
-import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.1.0';
+import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.7.0';
+import {Renderer} from './render.mjs?v=0.7.0';
+import {Sound} from './audio.mjs?v=0.7.0';
+import {FrameLoop} from './frame-loop.mjs?v=0.7.0';
+import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.7.0';
 
 const $=id=>document.getElementById(id),game=new Game(),sound=new Sound();
 let storage;try{storage=window.localStorage;}catch{}
@@ -94,12 +94,11 @@ function updateSettings(){
   $('sensitivity').value=String(profile.sensitivity);put($('sensitivity-value'),profile.sensitivity.toFixed(1));
   $('handedness').setAttribute('aria-pressed',String(profile.leftHanded));put($('handedness'),'이동 패드 · '+(profile.leftHanded?'오른쪽':'왼쪽'));
   $('sound').setAttribute('aria-pressed',String(sound.enabled));put($('sound'),sound.enabled?'소리 켜짐':'소리 꺼짐');
-  $('precision').setAttribute('aria-pressed',String(controls.precise));put($('precision'),controls.precise?'정밀 ON':'정밀 이동');
   $('fullscreen').hidden=!document.documentElement.requestFullscreen;put($('fullscreen'),document.fullscreenElement?'전체 화면 나가기':'전체 화면');
 }
 function ui(){
   const active=game.state!=='ready',p=game.player,q=Math.min(1,p.charge/CHARGE_REQUIRED),charged=q>=1;
-  put($('status'),active?'♥ '+game.lives+' · P'+p.power+(p.power>1?' · '+Math.ceil(p.powerTime)+'초':''):'모바일 조작 시험판');
+  put($('status'),active?'♥ '+game.lives+' · P'+p.power+(p.power>1?' · '+Math.ceil(p.powerTime)+'초':''):'모바일 · 자동 사격');
   $('pause').disabled=!['playing','paused'].includes(game.state);put($('pause'),game.state==='paused'?'▶':'Ⅱ');$('pause').setAttribute('aria-label',game.state==='paused'?'계속하기':'일시정지');
   $('charge').disabled=!canAct()||!charged;$('charge').classList.toggle('ready',charged);
   $('charge-fill').style.transform='scaleX('+q+')';put($('charge-label'),charged?'발사!':q>0?'충전 '+Math.floor(q*100)+'%':'적중으로 충전');
@@ -116,7 +115,6 @@ function advance(dt){
       if(game.introTimer>0)controls.rebase();
       const input=controls.sample(game.player,STEP);
       if(controls.moveId===null){input.x=Number(keys.has('ArrowRight')||keys.has('KeyD'))-Number(keys.has('ArrowLeft')||keys.has('KeyA'));input.y=Number(keys.has('ArrowDown')||keys.has('KeyS'))-Number(keys.has('ArrowUp')||keys.has('KeyW'));}
-      input.focus ||= keys.has('ShiftLeft')||keys.has('ShiftRight');
       const stage=game.stage;game.step(STEP,input);accumulator-=STEP;
       if(input.target&&game.stage===stage)game.player.bank+=(Math.max(-1,Math.min(1,(game.player.x-game.player.px)/(285*STEP)))-game.player.bank)*Math.min(1,STEP*12);
       if(game.state!=='playing'){accumulator=0;break;}
@@ -133,7 +131,7 @@ function advance(dt){
   if(game.state==='clear'||game.state==='gameover')result();
   sound.update(!!game.boss);
 }
-function draw(dt,now){if(game.state!=='ready')renderer.draw(game,game.time,dt,{focus:controls.precise});if(now-lastUi>80){ui();lastUi=now;}}
+function draw(dt,now){if(game.state!=='ready')renderer.draw(game,game.time,dt,{focus:false});if(now-lastUi>80){ui();lastUi=now;}}
 loop=new FrameLoop({active:()=>game.state==='playing',animate:()=>game.state==='playing'||(['clear','gameover'].includes(game.state)&&renderer.hasEffects()),update:advance,draw});
 
 function capture(el,e){try{el.setPointerCapture(e.pointerId);captures.set(e.pointerId,el);}catch{controls.end(e.pointerId);}}
@@ -150,13 +148,12 @@ function endPointer(e){
 }
 for(const name of ['pointerup','pointercancel','lostpointercapture'])pad.addEventListener(name,endPointer);
 function action(kind){
-  if(kind==='precision'){controls.setPrecision(!controls.precise,game.player);updateSettings();invalidate();return;}
   if(!canAct())return;
   if(kind==='bomb')game.bomb();
   if(kind==='charge'&&game.player.charge>=CHARGE_REQUIRED)controls.chargeRequested=true;
   invalidate();
 }
-for(const [id,kind] of [['charge','charge'],['bomb','bomb'],['precision','precision']]){
+for(const [id,kind] of [['charge','charge'],['bomb','bomb']]){
   const button=$(id);
   button.addEventListener('pointerdown',e=>{
     if(button.disabled||e.pointerType==='mouse'&&e.button!==0)return;
@@ -193,11 +190,11 @@ window.addEventListener('keydown',e=>{
   if(!$('settings').hidden||layout.landscape||['INPUT','SELECT','BUTTON','A'].includes(e.target.tagName))return;
   if(e.code==='Enter'&&game.state==='ready'&&!e.repeat){e.preventDefault();start();return;}
   if(game.state!=='playing')return;
-  if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight'].includes(e.code)){e.preventDefault();keys.add(e.code);}
+  if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD'].includes(e.code)){e.preventDefault();keys.add(e.code);}
   if(e.code==='KeyC'&&!e.repeat){e.preventDefault();action('charge');}
   if(e.code==='KeyX'&&!e.repeat){e.preventDefault();action('bomb');}
 });
 window.addEventListener('keyup',e=>keys.delete(e.code));
 renderer.ready.then(()=>{ready=true;$('start').disabled=false;put($('start'),'출격하기');$('asset-status').hidden=true;invalidate();}).catch(()=>{assetFailed=true;$('start').disabled=false;put($('start'),'그림 다시 불러오기');put($('asset-status'),'연결을 확인한 뒤 다시 눌러 주세요.');});
 updateSettings();ui();loop.suspend(document.hidden);
-Object.defineProperty(window,'skyChaserMobile',{value:Object.freeze({version:MOBILE_VERSION,coreVersion:VERSION,snapshot:()=>({state:game.state,time:game.time,stage:game.stage,score:game.score,lives:game.lives,bombs:game.bombs,charge:game.player.charge,chargeRequired:CHARGE_REQUIRED,player:{x:game.player.x,y:game.player.y},moving:controls.moveId!==null,pointers:controls.roles.size,precise:controls.precise,layout:{...layout}})}),writable:false});
+Object.defineProperty(window,'skyChaserMobile',{value:Object.freeze({version:MOBILE_VERSION,coreVersion:VERSION,snapshot:()=>({state:game.state,time:game.time,stage:game.stage,score:game.score,lives:game.lives,bombs:game.bombs,charge:game.player.charge,chargeRequired:CHARGE_REQUIRED,player:{x:game.player.x,y:game.player.y},moving:controls.moveId!==null,pointers:controls.roles.size,sensitivity:profile.sensitivity,layout:{...layout}})}),writable:false});

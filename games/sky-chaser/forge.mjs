@@ -1,4 +1,4 @@
-import {HOSTILE_DENSITY} from './stages.mjs?v=0.6.1';
+import {HOSTILE_DENSITY} from './stages.mjs?v=0.7.0';
 export const FORGE_SPECS={
   vulcan:{hp:1250,r:52,score:8500,vy:64},
   ignis:{hp:4200,r:70,score:28000,vy:62}

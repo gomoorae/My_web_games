@@ -10,17 +10,11 @@
   },
   {
     "title": "스카이 체이서 · SKY CHASER",
-    "description": "루미와 항구·뇌운의 협곡·홍련의 조선소를 돌파하세요. 포탄 요격과 곡선탄, 화로거북과 변신하는 기계룡까지 세 스테이지의 세로 슈팅. PC 방향키 · Z 사격 · C 차지 · X 폭탄.",
+    "description": "루미와 항구·뇌운의 협곡·홍련의 조선소를 돌파하는 세로 슈팅. PC는 키보드, 모바일은 이동 패드와 차지샷·폭탄 버튼으로 플레이하세요. 휴대폰에서는 모바일 조작이 자동으로 열립니다.",
     "thumbnail": "thumbs/sky-chaser-v2.png",
-    "url": "games/sky-chaser/index.html?v=0.6.1",
-    "category": "SHOOTING · 세로 슈팅"
-  },
-  {
-    "title": "스카이 체이서 · 모바일 시험판",
-    "description": "갤럭시 크롬 세로 조작 시험판. 왼쪽 패드로 이동하고 오른쪽 버튼으로 차지샷·폭탄을 사용하세요. 자동 사격·정밀 이동·감도 조절을 지원합니다.",
-    "thumbnail": "thumbs/sky-chaser-v2.png",
-    "url": "games/sky-chaser/mobile.html?v=0.1.0",
-    "category": "MOBILE TEST · 세로 슈팅"
+    "url": "games/sky-chaser/index.html?v=0.7.0",
+    "category": "SHOOTING · 세로 슈팅",
+    "detail": "KEYBOARD + TOUCH"
   },
   {
     "title": "NEON TERRITORY",
