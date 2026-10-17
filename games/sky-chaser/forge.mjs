@@ -1,4 +1,4 @@
-import {HOSTILE_DENSITY} from './stages.mjs?v=0.7.1';
+import {HOSTILE_DENSITY} from './stages.mjs?v=0.7.2';
 export const FORGE_SPECS={
   vulcan:{hp:1250,r:52,score:8500,vy:64},
   ignis:{hp:4200,r:70,score:28000,vy:62}
@@ -10,7 +10,7 @@ export function makeForgeWaves(){
       x:side?(side<0?62:418):70+i*340/Math.max(1,n-1),variant:side||(i%2?1:-1)});
   };
   row(3,'scout',4);row(7,'interceptor',3,-1);
-  row(13,'bomber',1);row(18,'scout',4); // Introduce shootable mortar shells alone.
+  row(13,'bomber',1);row(18,'scout',4); // Introduce bombers before the later mixed formations.
   row(24,'mine',3);row(29,'turret',2); // Learn the curved rounds before combining.
   row(35,'bomber',2);row(38,'interceptor',3,1);
   row(44,'scout',5);row(47,'mine',2);row(53,'turret',2);row(56,'interceptor',3,-1);
@@ -44,6 +44,8 @@ function curvedFan(g,e,side,count,speed,turn=.46){
 export function forgeMinorAttack(g,e){
   const easy=g.difficulty==='easy';
   if(e.type==='bomber'){
+    // Mortars supplement the familiar fan; their cap never silences the guns.
+    g.fan(e,5,.22,160,false,'rose');
     g.launchMortar(e,e.x,e.y+33,g.player.x,g.player.y,{flight:1.05});
     e.fire=3.1*(easy?1.15:1);return true;
   }
@@ -70,7 +72,7 @@ export function forgeAttack(g,e){
   if(e.type==='vulcan'){
     for(const p of pods)g.launchMortar(e,p.x,p.y+43,g.player.x+p.side*62,g.player.y,
       {partId:p.id,flight:.95});
-    if(e.volley%2===0||!pods.length)safeFan(g,e,easy?2:3,.22,150);
+    safeFan(g,e,easy?2:3,.22,150);
     e.fire=pods.length?2.7:2.05;
   }else if(e.phase===1){
     if(e.volley%3===1&&pods.length)scatterSalvo(g,e,Math.min(easy?3:4,pods.length*2),easy?.58:.46,pods);

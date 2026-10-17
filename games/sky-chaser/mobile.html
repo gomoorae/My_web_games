@@ -7,7 +7,7 @@
   <meta name="description" content="스카이 체이서 모바일. 왼쪽 패드로 이동하고 오른쪽 버튼으로 차지샷과 폭탄을 사용하세요.">
   <title>스카이 체이서 · 모바일</title>
   <link rel="icon" href="./assets/emblem.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./mobile.css?v=0.7.1">
+  <link rel="stylesheet" href="./mobile.css?v=0.7.2">
 </head>
 <body>
 <main id="mobile-app" class="mobile-app">
@@ -36,7 +36,7 @@
       </div>
       <section id="game-dialog" class="game-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" hidden>
         <div><p class="eyebrow" id="dialog-kicker">TAKE A BREATH</p><h2 id="dialog-title">비행 일시정지</h2><p id="dialog-copy">준비되면 다시 날아보자.</p><p id="result-score" hidden></p>
-        <button id="resume" class="primary">계속 비행하기</button><button id="retry" class="secondary">다시 출격</button><button id="home" class="text-button">출격 화면으로</button></div>
+        <button id="resume" class="primary">계속 비행하기</button><button id="retry" class="secondary">다시 출격</button><button id="home" class="text-button">출격 화면으로</button><a id="quit" class="secondary exit-link" href="https://gomoorae.github.io/My_web_games/">그만하고 홈페이지로</a></div>
       </section>
     </div>
   </section>
@@ -61,10 +61,10 @@
     <p id="settings-message" class="setting-hint" role="status"></p>
     <button id="settings-close" class="primary">닫기</button>
     <p class="mode-note">세로 화면 · 모바일 조작<br>모바일 기록은 PC 기록과 따로 저장해요.</p>
-    <div class="settings-links"><a href="./index.html?view=desktop&amp;v=0.7.1">PC 화면</a><a href="https://gomoorae.github.io/My_web_games/">게임 목록</a></div>
+    <div class="settings-links"><a href="./index.html?view=desktop&amp;v=0.7.2">PC 화면</a><a href="https://gomoorae.github.io/My_web_games/">게임 목록</a></div>
   </div>
 </section>
 <section id="rotate" class="rotate-overlay" role="dialog" aria-modal="true" aria-label="세로 화면 안내" hidden><div><span aria-hidden="true">↻</span><h2>세로 화면을 권장해요</h2><p>세로로 돌리면 전투 화면을 더 크게 볼 수 있어요.<br>이미 세로로 들고 있다면 그대로 플레이하세요.</p><button id="rotate-continue" class="primary">이 화면으로 플레이</button></div></section>
 <noscript>게임을 실행하려면 JavaScript가 필요합니다.</noscript>
-<script type="module" src="./mobile.mjs?v=0.7.1"></script>
+<script type="module" src="./mobile.mjs?v=0.7.2"></script>
 </body></html>

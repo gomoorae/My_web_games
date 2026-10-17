@@ -1,4 +1,4 @@
-import {RUN_MODES} from './stages.mjs?v=0.7.1';
+import {RUN_MODES} from './stages.mjs?v=0.7.2';
 // Preserve v1 (one stage) and v2 (two stages). Existing stage-two practice
 // scores migrate unchanged; three-stage campaigns have their own record.
 export function readRecords(storage){
