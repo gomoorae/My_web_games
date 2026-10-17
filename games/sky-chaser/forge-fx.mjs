@@ -1,4 +1,4 @@
-import {glow as cachedGlow} from './canvas-fx.mjs?v=0.7.3';
+import {glow as cachedGlow} from './canvas-fx.mjs?v=0.7.4';
 const TAU=Math.PI*2,clamp=v=>Math.max(0,Math.min(1,v));
 function circle(c,x,y,r,color){c.fillStyle=color;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();}
 function glow(c,x,y,r,color,alpha){

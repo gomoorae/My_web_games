@@ -1,14 +1,14 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.7.3';
-import {Renderer} from './render.mjs?v=0.7.3';
-import {Sound} from './audio.mjs?v=0.7.3';
-import {readRecords,writeRecords} from './records.mjs?v=0.7.3';
-import {FrameLoop} from './frame-loop.mjs?v=0.7.3';
-import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.7.3';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.7.4';
+import {Renderer} from './render.mjs?v=0.7.4';
+import {Sound} from './audio.mjs?v=0.7.4';
+import {readRecords,writeRecords} from './records.mjs?v=0.7.4';
+import {FrameLoop} from './frame-loop.mjs?v=0.7.4';
+import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.7.4';
 
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();
 let pcSensitivity=PC_SENSITIVITY.default;
-let difficulty='normal',route='campaign',autofire=false,keys=new Set(),pointer=null,touchTarget=null,touchCharge=false,chargeRequested=false;
+let difficulty='normal',route='campaign',keys=new Set(),pointer=null,touchTarget=null,touchCharge=false,chargeRequested=false;
 let accumulator=0,visualTime=0,countdown=0,noticeTimer=0,previousState='ready';
 let bests={campaign:{easy:0,normal:0},practice2:{easy:0,normal:0},practice3:{easy:0,normal:0}},newBest=false,artReady=false,artFailed=false;
 const format=n=>String(Math.floor(n)).padStart(7,'0');
@@ -37,7 +37,7 @@ function getInput(){
   return {x:Number(keys.has('ArrowRight')||keys.has('KeyD'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')),
     y:Number(keys.has('ArrowDown')||keys.has('KeyS'))-Number(keys.has('ArrowUp')||keys.has('KeyW')),
     focus:keys.has('ShiftLeft')||keys.has('ShiftRight'),moveScale:pcSensitivity,
-    fire:keys.has('KeyZ')||autofire||pointer!==null,charge:keys.has('KeyC')||touchCharge,chargePressed:chargeRequested,
+    fire:true,charge:keys.has('KeyC')||touchCharge,chargePressed:chargeRequested,
     target:touchTarget};
 }
 function notice(text,seconds=2.8,warning=false){
@@ -53,7 +53,6 @@ function updateSettings(){
   $('sound').setAttribute('aria-pressed',String(sound.enabled));$('sound-label').textContent=sound.enabled?'소리 켜짐':'소리 꺼짐';
   $('motion').setAttribute('aria-pressed',String(renderer.motion));
   $('motion').innerHTML='<span class="toggle-dot"></span>화면 흔들림 '+(renderer.motion?'켜짐':'꺼짐');
-  $('autofire').setAttribute('aria-pressed',String(autofire));$('autofire').textContent='자동사격 '+(autofire?'ON':'OFF');
 }
 async function start(){
   if(!$('pc-settings').hidden)return;
@@ -104,7 +103,6 @@ $('home').addEventListener('click',home);
 $('pause').addEventListener('click',()=>game.state==='paused'?resume():pause());
 $('sound').addEventListener('click',async()=>{await sound.unlock();sound.toggle();updateSettings();persist();});
 $('motion').addEventListener('click',()=>{renderer.motion=!renderer.motion;updateSettings();persist();invalidate();});
-$('autofire').addEventListener('click',()=>{autofire=!autofire;updateSettings();});
 function openSettings(){
   pause();clearInput();$('pc-settings').hidden=false;sensitivityLabel();$('pc-sensitivity').focus({preventScroll:true});
 }
@@ -144,7 +142,7 @@ for(const button of document.querySelectorAll('[data-route]'))button.addEventLis
   $('route-hint').textContent=RUN_MODES[route].hint;
   invalidate();
 });
-const playKeys=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD','KeyZ','KeyX','KeyC','ShiftLeft','ShiftRight','Escape']);
+const playKeys=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD','KeyX','KeyC','ShiftLeft','ShiftRight','Escape']);
 window.addEventListener('keydown',e=>{
   if(!$('pc-settings').hidden){
     if(e.code==='Escape'&&!e.repeat){e.preventDefault();closeSettings();}
@@ -235,7 +233,7 @@ function ui(){
   document.querySelectorAll('.path-stop').forEach((el,i)=>el.classList.toggle('active',i<=stage));
   $('path-fill').style.height=(stage/3*100)+'%';
   text($('tutorial').querySelector('strong'),game.stage===3?'주황색 포탄은 쏴서 없애보자!':'하늘길을 열어볼까?');
-  text($('tutorial').querySelector('span'),game.stage===3?'주황색 포탄 요격 · 보라색 탄은 휘어져 날아와요':'방향키 이동 · Z 사격 · X 위기 탈출');
+  text($('tutorial').querySelector('span'),game.stage===3?'주황색 포탄 요격 · 보라색 탄은 휘어져 날아와요':'방향키 이동 · Shift 정밀 이동 · X 폭탄');
   $('tutorial').hidden=game.state!=='playing'||game.time>7||countdown>0;
 }
 function advance(dt){
@@ -289,5 +287,5 @@ Object.defineProperty(window,'skyChaser',{value:Object.freeze({
     lives:game.lives,bombs:game.bombs,power:game.player.power,charge:game.player.charge,chargeRequired:CHARGE_REQUIRED,
     pcSensitivity,player:{x:game.player.x,y:game.player.y,r:game.player.r},enemies:game.enemies.length,bullets:game.bullets.length,
     boss:game.boss?{type:game.boss.type,hp:game.boss.hp,phase:game.boss.phase}:null,
-    bombDamage:game.bombDamage,bomb:game.activeBomb?{name:game.activeBomb.spec.name,age:game.activeBomb.age,strikes:game.activeBomb.nextStrike}:null,autofire})
+    bombDamage:game.bombDamage,bomb:game.activeBomb?{name:game.activeBomb.spec.name,age:game.activeBomb.age,strikes:game.activeBomb.nextStrike}:null,autofire:true,shotsFired:game.shotsFired})
 }),writable:false});

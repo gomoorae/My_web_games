@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#143b4a">
   <meta name="description" content="룬 사수 루미와 함께 공중 해적단을 추격하세요. 세 스테이지와 변신 보스에 도전하는 세로 스크롤 아케이드 슈팅.">
   <title>스카이 체이서 — Sky Chaser</title>
-  <script src="./entry.js?v=0.7.3"></script>
+  <script src="./entry.js?v=0.7.4"></script>
   <style>html[data-controls="mobile"] body{display:none}.start-hint a{color:inherit;text-underline-offset:3px}</style>
   <link rel="icon" href="./assets/emblem.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css?v=0.7.3">
-  <link rel="stylesheet" href="./desktop.css?v=0.7.3">
+  <link rel="stylesheet" href="./style.css?v=0.7.4">
+  <link rel="stylesheet" href="./desktop.css?v=0.7.4">
 </head>
 <body>
   <header class="topbar">
@@ -42,9 +42,9 @@
 
     <section class="arena-wrap" aria-label="게임 화면">
       <div class="arena" id="arena">
-        <canvas id="game" width="480" height="720" tabindex="0" aria-label="스카이 체이서 전투 화면. 방향키 이동, Z 사격, C 차지샷, X 폭탄, Shift 저속 이동."></canvas>
+        <canvas id="game" width="480" height="720" tabindex="0" aria-label="스카이 체이서 전투 화면. 기본 사격은 자동. 방향키 이동, C 차지샷, X 폭탄, Shift 저속 이동."></canvas>
         <div id="notice" class="notice" role="status" aria-live="polite"></div>
-        <div id="tutorial" class="tutorial" hidden><strong>하늘길을 열어볼까?</strong><span>방향키 이동 · Z 사격 · X 위기 탈출</span></div>
+        <div id="tutorial" class="tutorial" hidden><strong>하늘길을 열어볼까?</strong><span>방향키 이동 · Shift 정밀 이동 · X 폭탄</span></div>
         <div id="countdown" class="countdown" hidden aria-live="polite"></div>
         <div id="title-screen" class="title-screen">
           <img class="key-art" src="./assets/lumi-key-art.png" alt="주황빛 스카프와 룬 날개를 단 사수 루미가 항구 도시 위를 비행하는 모습">
@@ -61,7 +61,7 @@
             </div>
             <button id="start" class="primary" disabled>비행 준비 중…</button>
             <p id="asset-status" class="asset-status" role="status">세 스테이지의 그림을 불러오는 중입니다.</p>
-            <p class="start-hint">ENTER로 출격 · <a href="./mobile.html?v=0.7.3">모바일 조작으로 플레이</a></p>
+            <p class="start-hint">기본 사격 자동 · ENTER로 출격 · <a href="./mobile.html?v=0.7.4">모바일 조작으로 플레이</a></p>
           </div>
         </div>
         <div id="modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -94,10 +94,9 @@
       <div class="power-clock" id="power-clock"><div><span>P 유지 시간</span><b id="power-time">기본 화력</b></div><div class="power-track"><span id="power-fill"></span></div><small>P 획득 시 25초 · 시간 만료 시 한 단계 감소</small></div>
       <div class="charge-status"><div><span>차지샷 <kbd>C</kbd></span><b id="charge-label">적중으로 충전</b></div><div class="charge-track"><span id="charge-fill"></span></div></div>
       <div class="controls">
-        <div class="control-title"><span class="eyebrow">PILOT'S GUIDE</span><button id="autofire" class="tiny-toggle" aria-pressed="false">자동사격 OFF</button></div>
+        <div class="control-title"><span class="eyebrow">PILOT'S GUIDE</span><span class="auto-fire-label">기본 사격 자동</span></div>
         <dl>
           <div><dt><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd></dt><dd>이동 <small>WASD 가능</small></dd></div>
-          <div><dt><kbd>Z</kbd></dt><dd>연속 사격</dd></div>
           <div><dt><kbd>C</kbd></dt><dd>차지샷 <small>가득 차면 발사</small></dd></div>
           <div><dt><kbd>X</kbd></dt><dd>천익 섬광 <small>연속 룬 포격</small></dd></div>
           <div><dt><kbd>SHIFT</kbd></dt><dd>정밀 이동 <small>피격점 표시</small></dd></div>
@@ -121,8 +120,8 @@
       <p class="pc-setting-note">감도는 이 브라우저에 자동으로 저장됩니다.</p>
     </div>
   </section>
-  <footer class="page-footer"><span>푸른 하늘, 뜨거운 한 판.</span><span>3 STAGES <i>/</i> 1 PILOT <i>/</i> ENDLESS RETRIES</span><span>CRIMSON FOUNDRY — v0.7.3</span></footer>
+  <footer class="page-footer"><span>푸른 하늘, 뜨거운 한 판.</span><span>3 STAGES <i>/</i> 1 PILOT <i>/</i> ENDLESS RETRIES</span><span>CRIMSON FOUNDRY — v0.7.4</span></footer>
   <noscript>이 게임을 플레이하려면 브라우저에서 JavaScript를 허용해 주세요.</noscript>
-  <script type="module">if(document.documentElement.dataset.controls!=='mobile')import('./app.mjs?v=0.7.3');</script>
+  <script type="module">if(document.documentElement.dataset.controls!=='mobile')import('./app.mjs?v=0.7.4');</script>
 </body>
 </html>
