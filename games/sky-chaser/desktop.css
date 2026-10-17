@@ -89,3 +89,12 @@
 }
 
 .charge-track span.ready{background:#bd8b3e}.touch-controls button:disabled{opacity:.55}.touch-controls button:not(:disabled){border-color:#b5e5d1}
+
+.pc-settings{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:#102e3ce8;padding:20px;color:var(--ink)}
+.pc-settings-card{width:min(100%,380px);max-height:100%;overflow:auto;background:var(--paper);border:1px solid #d7ddc7;border-radius:14px;padding:28px;box-shadow:0 12px 50px #061b2855}
+.pc-settings-card .eyebrow{margin:0;color:#7d8f7f}.pc-settings-card h2{font-size:26px;margin:10px 0 28px;letter-spacing:-.8px}
+.pc-settings-card label{display:flex;justify-content:space-between;gap:12px;font-size:14px;font-weight:750}.pc-settings-card output{color:#367b6a;font-variant-numeric:tabular-nums}
+.pc-settings-card input{display:block;width:100%;height:44px;margin:7px 0 0;accent-color:#498a73;cursor:pointer}.pc-settings-card input:focus-visible{outline:3px solid #ec8054;outline-offset:2px;border-radius:4px}
+.pc-sensitivity-scale{display:flex;justify-content:space-between;font-size:10px;color:#849480}.pc-setting-hint{font-size:12px;line-height:1.8;color:#687e70;margin:20px 0}
+.pc-setting-reset{width:100%;min-height:44px;border:1px solid #b7c8b7;border-radius:5px;background:#e1e8d8;color:#466d5c;font-size:12px;font-weight:700;margin-bottom:13px}
+.pc-settings-card .primary{font-size:14px;padding:13px}.pc-setting-note{font-size:10px;color:#81917b;text-align:center;margin:17px 0 0}

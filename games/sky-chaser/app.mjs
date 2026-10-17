@@ -1,11 +1,13 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.7.2';
-import {Renderer} from './render.mjs?v=0.7.2';
-import {Sound} from './audio.mjs?v=0.7.2';
-import {readRecords,writeRecords} from './records.mjs?v=0.7.2';
-import {FrameLoop} from './frame-loop.mjs?v=0.7.2';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.7.3';
+import {Renderer} from './render.mjs?v=0.7.3';
+import {Sound} from './audio.mjs?v=0.7.3';
+import {readRecords,writeRecords} from './records.mjs?v=0.7.3';
+import {FrameLoop} from './frame-loop.mjs?v=0.7.3';
+import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.7.3';
 
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();
+let pcSensitivity=PC_SENSITIVITY.default;
 let difficulty='normal',route='campaign',autofire=false,keys=new Set(),pointer=null,touchTarget=null,touchCharge=false,chargeRequested=false;
 let accumulator=0,visualTime=0,countdown=0,noticeTimer=0,previousState='ready';
 let bests={campaign:{easy:0,normal:0},practice2:{easy:0,normal:0},practice3:{easy:0,normal:0}},newBest=false,artReady=false,artFailed=false;
@@ -16,13 +18,13 @@ const frameLoop=new FrameLoop({update:advance,draw:present,
   animate:()=>game.state==='playing'||(['clear','gameover'].includes(game.state)&&renderer.hasEffects())});
 function invalidate(reset=false){lastUi=-Infinity;frameLoop.invalidate(reset);}
 try{
-  const saved=readRecords(localStorage);bests=saved;
+  const saved=readRecords(localStorage);bests=saved;pcSensitivity=saved.pcSensitivity;
   if(saved.muted===true){sound.enabled=false;}
   if(saved.motion===false)renderer.motion=false;
 }catch{}
 if(matchMedia('(prefers-reduced-motion: reduce)').matches)renderer.motion=false;
 function persist(){
-  try{bests=writeRecords(localStorage,{...bests,muted:!sound.enabled,motion:renderer.motion});}catch{}
+  try{bests=writeRecords(localStorage,{...bests,muted:!sound.enabled,motion:renderer.motion,pcSensitivity});}catch{}
 }
 function saveBest(){
   if(game.score>bests[game.mode][game.difficulty]){newBest=true;bests[game.mode][game.difficulty]=game.score;persist();}
@@ -34,20 +36,27 @@ function clearInput(){
 function getInput(){
   return {x:Number(keys.has('ArrowRight')||keys.has('KeyD'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')),
     y:Number(keys.has('ArrowDown')||keys.has('KeyS'))-Number(keys.has('ArrowUp')||keys.has('KeyW')),
-    focus:keys.has('ShiftLeft')||keys.has('ShiftRight'),
+    focus:keys.has('ShiftLeft')||keys.has('ShiftRight'),moveScale:pcSensitivity,
     fire:keys.has('KeyZ')||autofire||pointer!==null,charge:keys.has('KeyC')||touchCharge,chargePressed:chargeRequested,
     target:touchTarget};
 }
 function notice(text,seconds=2.8,warning=false){
   $('notice').textContent=text;$('notice').className='notice visible'+(warning?' warning':'');noticeTimer=seconds;
 }
+function sensitivityLabel(){
+  const label=Math.round(pcSensitivity*100)+'%';
+  $('pc-sensitivity').value=String(pcSensitivity);$('pc-sensitivity-value').textContent=label;
+  $('pc-sensitivity').setAttribute('aria-valuetext',label);
+}
 function updateSettings(){
+  sensitivityLabel();
   $('sound').setAttribute('aria-pressed',String(sound.enabled));$('sound-label').textContent=sound.enabled?'소리 켜짐':'소리 꺼짐';
   $('motion').setAttribute('aria-pressed',String(renderer.motion));
   $('motion').innerHTML='<span class="toggle-dot"></span>화면 흔들림 '+(renderer.motion?'켜짐':'꺼짐');
   $('autofire').setAttribute('aria-pressed',String(autofire));$('autofire').textContent='자동사격 '+(autofire?'ON':'OFF');
 }
 async function start(){
+  if(!$('pc-settings').hidden)return;
   if(!artReady){if(artFailed)location.reload();return;}
   clearInput();game.start(difficulty,route);previousState='playing';newBest=false;countdown=2.4;
   renderer.reset();
@@ -73,10 +82,10 @@ function pause(){
   invalidate(true);
 }
 async function resume(){
-  if(game.state!=='paused')return;
+  if(game.state!=='paused'||!$('pc-settings').hidden)return;
   clearInput();game.resume();$('modal').hidden=true;$('game').focus({preventScroll:true});
   invalidate(true);
-  await sound.unlock();sound.setPlaying(countdown<=0);
+  await sound.unlock();sound.setPlaying(game.state==='playing'&&$('pc-settings').hidden&&countdown<=0);
 }
 function result(){
   clearInput();saveBest();sound.setPlaying(false);
@@ -96,6 +105,17 @@ $('pause').addEventListener('click',()=>game.state==='paused'?resume():pause());
 $('sound').addEventListener('click',async()=>{await sound.unlock();sound.toggle();updateSettings();persist();});
 $('motion').addEventListener('click',()=>{renderer.motion=!renderer.motion;updateSettings();persist();invalidate();});
 $('autofire').addEventListener('click',()=>{autofire=!autofire;updateSettings();});
+function openSettings(){
+  pause();clearInput();$('pc-settings').hidden=false;sensitivityLabel();$('pc-sensitivity').focus({preventScroll:true});
+}
+function closeSettings(){
+  persist();clearInput();$('pc-settings').hidden=true;$('pc-settings-open').focus({preventScroll:true});invalidate();
+}
+$('pc-settings-open').addEventListener('click',openSettings);
+$('pc-settings-close').addEventListener('click',closeSettings);
+$('pc-sensitivity').addEventListener('input',e=>{pcSensitivity=cleanPcSensitivity(Number(e.target.value));sensitivityLabel();});
+$('pc-sensitivity').addEventListener('change',persist);
+$('pc-sensitivity-reset').addEventListener('click',()=>{pcSensitivity=PC_SENSITIVITY.default;sensitivityLabel();persist();});
 async function toggleFullscreen(){
   try{
     if(document.fullscreenElement)await document.exitFullscreen();
@@ -126,6 +146,14 @@ for(const button of document.querySelectorAll('[data-route]'))button.addEventLis
 });
 const playKeys=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD','KeyZ','KeyX','KeyC','ShiftLeft','ShiftRight','Escape']);
 window.addEventListener('keydown',e=>{
+  if(!$('pc-settings').hidden){
+    if(e.code==='Escape'&&!e.repeat){e.preventDefault();closeSettings();}
+    if(e.code==='Tab'){
+      const items=[...$('pc-settings').querySelectorAll('input,button')],first=items[0],last=items.at(-1);
+      if(!$('pc-settings').contains(document.activeElement)||!e.shiftKey&&document.activeElement===last||e.shiftKey&&document.activeElement===first){e.preventDefault();(e.shiftKey?last:first).focus();}
+    }
+    return;
+  }
   if(e.code==='KeyF'&&!e.repeat){e.preventDefault();toggleFullscreen();return;}
   if(e.code==='Tab'&&!$('modal').hidden){
     const buttons=[...$('modal').querySelectorAll('button')].filter(b=>!b.hidden);
@@ -259,7 +287,7 @@ Object.defineProperty(window,'skyChaser',{value:Object.freeze({
   snapshot:()=>({state:game.state,stage:game.stage,mode:game.mode,time:game.time,stageTime:game.stageTime,score:game.score,
     powerTime:game.player.powerTime,lasers:game.lasers.length,mortars:game.mortars.length,shellsDestroyed:game.shellsDestroyed,
     lives:game.lives,bombs:game.bombs,power:game.player.power,charge:game.player.charge,chargeRequired:CHARGE_REQUIRED,
-    player:{x:game.player.x,y:game.player.y},enemies:game.enemies.length,bullets:game.bullets.length,
+    pcSensitivity,player:{x:game.player.x,y:game.player.y,r:game.player.r},enemies:game.enemies.length,bullets:game.bullets.length,
     boss:game.boss?{type:game.boss.type,hp:game.boss.hp,phase:game.boss.phase}:null,
     bombDamage:game.bombDamage,bomb:game.activeBomb?{name:game.activeBomb.spec.name,age:game.activeBomb.age,strikes:game.activeBomb.nextStrike}:null,autofire})
 }),writable:false});

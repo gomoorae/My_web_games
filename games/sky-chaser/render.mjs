@@ -1,9 +1,9 @@
-import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=0.7.2';
-import {ArtBank} from './art.mjs?v=0.7.2';
-import {drawLaser} from './laser-fx.mjs?v=0.7.2';
-import {drawMortars} from './forge-fx.mjs?v=0.7.2';
-import {renderRatio} from './frame-loop.mjs?v=0.7.2';
-import {glow,flame,normalShot} from './canvas-fx.mjs?v=0.7.2';
+import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=0.7.3';
+import {ArtBank} from './art.mjs?v=0.7.3';
+import {drawLaser} from './laser-fx.mjs?v=0.7.3';
+import {drawMortars} from './forge-fx.mjs?v=0.7.3';
+import {renderRatio} from './frame-loop.mjs?v=0.7.3';
+import {glow,flame,normalShot} from './canvas-fx.mjs?v=0.7.3';
 const TAU=Math.PI*2;
 const mix=(a,b,t)=>a+(b-a)*t;
 const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
@@ -253,7 +253,7 @@ export class Renderer {
       c.beginPath();c.arc(0,0,37,0,TAU*q);c.stroke();
       for(let i=0;i<6;i++){c.rotate(TAU/6);path(c,[[-3,-38],[0,-44],[3,-38]],'#fff5c9',1.1);}c.restore();
     }
-    if(focus){ellipse(c,p.x,p.y,5,5,'#173248');ellipse(c,p.x,p.y,3.5,3.5,'#fff8df');ellipse(c,p.x,p.y,1.8,1.8,'#e55c83');}
+    if(focus){ellipse(c,p.x,p.y,p.r+1,p.r+1,'#173248');ellipse(c,p.x,p.y,p.r,p.r,'#fff8df');ellipse(c,p.x,p.y,p.r*.45,p.r*.45,'#e55c83');}
   }
   enemy(c,e,t){
     if(!this.art.loaded)return;

@@ -1,10 +1,12 @@
 import {STAGES,RUN_MODES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.7.2';
-import {FORGE_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,moveMortar,mortarArmed} from './forge.mjs?v=0.7.2';
+  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.7.3';
+import {FORGE_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,moveMortar,mortarArmed} from './forge.mjs?v=0.7.3';
+import {keyboardSpeed} from './pc-controls.mjs?v=0.7.3';
 export {STAGES,RUN_MODES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.7.2';
-export const PLAYER_SCALE = .8;
+export const VERSION = '0.7.3';
+export const PLAYER_SCALE = .72;
+export const PLAYER_HIT_RADIUS = 3.6;
 export const CHARGE_REQUIRED = 240;
 export const ENEMY_ACTIVE_Y = 5;
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -80,7 +82,7 @@ export class Game {
     this.wave = 0; this.id = 0; this.killDrops = 0; this.midDefeated = false;
     this.finalDefeated = false; this.clearTimer = 0; this.bombTimer = 0;
     this.activeBomb = null; this.bombDamage = 0;
-    this.player = {pilot: 'lumi', x: 240, y: 592, px: 240, py: 592, r: 4,
+    this.player = {pilot: 'lumi', x: 240, y: 592, px: 240, py: 592, r: PLAYER_HIT_RADIUS,
       power: this.mode === 'campaign' ? 1 : 3, powerTime: POWER_DURATION,
       inv: 2.6, fire: 0, drone: .3, charge: 0, chargeHeld: false, bank: 0};
   }
@@ -445,7 +447,7 @@ export class Game {
     let dx = clamp(input.x || 0, -1, 1), dy = clamp(input.y || 0, -1, 1);
     const len = Math.hypot(dx, dy);
     if (len > 1) { dx /= len; dy /= len; }
-    const speed = input.focus ? 125 : 285;
+    const speed = keyboardSpeed(input.focus,input.moveScale);
     p.x = clamp(p.x + dx * speed * dt, 21, W - 21);
     p.y = clamp(p.y + dy * speed * dt, 55, H - 30);
     if (input.target) {
