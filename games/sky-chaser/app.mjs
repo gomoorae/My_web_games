@@ -1,9 +1,9 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.7.4';
-import {Renderer} from './render.mjs?v=0.7.4';
-import {Sound} from './audio.mjs?v=0.7.4';
-import {readRecords,writeRecords} from './records.mjs?v=0.7.4';
-import {FrameLoop} from './frame-loop.mjs?v=0.7.4';
-import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.7.4';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.7.5';
+import {Renderer} from './render.mjs?v=0.7.5';
+import {Sound} from './audio.mjs?v=0.7.5';
+import {readRecords,writeRecords} from './records.mjs?v=0.7.5';
+import {FrameLoop} from './frame-loop.mjs?v=0.7.5';
+import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.7.5';
 
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();

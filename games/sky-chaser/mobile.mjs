@@ -1,8 +1,8 @@
-import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.7.4';
-import {Renderer} from './render.mjs?v=0.7.4';
-import {Sound} from './audio.mjs?v=0.7.4';
-import {FrameLoop} from './frame-loop.mjs?v=0.7.4';
-import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.7.4';
+import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.7.5';
+import {Renderer} from './render.mjs?v=0.7.5';
+import {Sound} from './audio.mjs?v=0.7.5';
+import {FrameLoop} from './frame-loop.mjs?v=0.7.5';
+import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.7.5';
 
 const $=id=>document.getElementById(id),game=new Game(),sound=new Sound();
 let storage;try{storage=window.localStorage;}catch{}

@@ -1,4 +1,4 @@
-export const PC_SENSITIVITY=Object.freeze({default:.9,min:.5,max:1.2,step:.05});
+export const PC_SENSITIVITY=Object.freeze({default:1,min:.5,max:1.2,step:.05});
 
 export function cleanPcSensitivity(value,fallback=PC_SENSITIVITY.default){
   if(typeof value!=='number'||!Number.isFinite(value))return fallback;
@@ -6,9 +6,9 @@ export function cleanPcSensitivity(value,fallback=PC_SENSITIVITY.default){
   return Math.round(clamped*20)/20;
 }
 
-// Omitted input keeps the engine's original speed, including mobile controls.
-// The desktop UI explicitly supplies its saved preference after direction
-// normalization, so diagonal movement receives the same sensitivity.
+// Sensitivity applies after direction normalization, including diagonals.
+// Focus keeps 70 percent of normal speed at every selected sensitivity.
+// Relative touch-target movement has its own unchanged speed limit.
 export function keyboardSpeed(focus=false,sensitivity=1){
-  return (focus?125:285)*cleanPcSensitivity(sensitivity,1);
+  return 285*(focus?.7:1)*cleanPcSensitivity(sensitivity,1);
 }

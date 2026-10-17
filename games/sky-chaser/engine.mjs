@@ -1,10 +1,10 @@
 import {STAGES,RUN_MODES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.7.4';
-import {FORGE_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,moveMortar,mortarArmed} from './forge.mjs?v=0.7.4';
-import {keyboardSpeed} from './pc-controls.mjs?v=0.7.4';
+  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.7.5';
+import {FORGE_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,moveMortar,mortarArmed} from './forge.mjs?v=0.7.5';
+import {keyboardSpeed} from './pc-controls.mjs?v=0.7.5';
 export {STAGES,RUN_MODES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.7.4';
+export const VERSION = '0.7.5';
 export const PLAYER_SCALE = .72;
 export const PLAYER_HIT_RADIUS = 3.6;
 export const CHARGE_REQUIRED = 240;
