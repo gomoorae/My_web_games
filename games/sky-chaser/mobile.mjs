@@ -1,8 +1,8 @@
-import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.7.5';
-import {Renderer} from './render.mjs?v=0.7.5';
-import {Sound} from './audio.mjs?v=0.7.5';
-import {FrameLoop} from './frame-loop.mjs?v=0.7.5';
-import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.7.5';
+import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.7.6';
+import {Renderer} from './render.mjs?v=0.7.6';
+import {Sound} from './audio.mjs?v=0.7.6';
+import {FrameLoop} from './frame-loop.mjs?v=0.7.6';
+import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.7.6';
 
 const $=id=>document.getElementById(id),game=new Game(),sound=new Sound();
 let storage;try{storage=window.localStorage;}catch{}
@@ -197,7 +197,7 @@ window.addEventListener('keydown',e=>{
   if(e.code==='Enter'&&game.state==='ready'&&!e.repeat){e.preventDefault();start();return;}
   if(game.state!=='playing')return;
   if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD'].includes(e.code)){e.preventDefault();keys.add(e.code);}
-  if(e.code==='KeyC'&&!e.repeat){e.preventDefault();action('charge');}
+  if(e.code==='KeyZ'&&!e.repeat){e.preventDefault();action('charge');}
   if(e.code==='KeyX'&&!e.repeat){e.preventDefault();action('bomb');}
 });
 window.addEventListener('keyup',e=>keys.delete(e.code));

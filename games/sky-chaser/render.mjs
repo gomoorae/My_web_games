@@ -1,9 +1,9 @@
-import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=0.7.5';
-import {ArtBank} from './art.mjs?v=0.7.5';
-import {drawLaser} from './laser-fx.mjs?v=0.7.5';
-import {drawMortars} from './forge-fx.mjs?v=0.7.5';
-import {renderRatio} from './frame-loop.mjs?v=0.7.5';
-import {glow,flame,normalShot} from './canvas-fx.mjs?v=0.7.5';
+import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=0.7.6';
+import {ArtBank} from './art.mjs?v=0.7.6';
+import {drawLaser} from './laser-fx.mjs?v=0.7.6';
+import {drawMortars} from './forge-fx.mjs?v=0.7.6';
+import {renderRatio} from './frame-loop.mjs?v=0.7.6';
+import {glow,flame,normalShot} from './canvas-fx.mjs?v=0.7.6';
 const TAU=Math.PI*2;
 const mix=(a,b,t)=>a+(b-a)*t;
 const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
@@ -645,7 +645,7 @@ export class Renderer {
       const p=g.player,q=clamp(p.charge/CHARGE_REQUIRED,0,1),y=p.y>H-95?p.y-44*PLAYER_SCALE:p.y+48*PLAYER_SCALE;
       box(c,p.x-22*PLAYER_SCALE,y,44*PLAYER_SCALE,4,'#12394ddd',3);
       box(c,p.x-22*PLAYER_SCALE,y,44*PLAYER_SCALE*q,4,q>=1?'#ffe9b2':'#82f5cb',3);
-      if(q>=1){c.font='800 10px sans-serif';c.textAlign='left';c.fillStyle='#fff0bf';c.fillText('C',p.x+25*PLAYER_SCALE,y+5);}
+      if(q>=1){c.font='800 10px sans-serif';c.textAlign='left';c.fillStyle='#fff0bf';c.fillText('Z',p.x+25*PLAYER_SCALE,y+5);}
     }
     const p=g.player,warning=p.power>1&&p.powerTime<=5;
     box(c,14,H-41,178,29,'#112d40dc',6);c.textAlign='left';c.font='700 11px sans-serif';

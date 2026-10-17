@@ -1,9 +1,9 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.7.5';
-import {Renderer} from './render.mjs?v=0.7.5';
-import {Sound} from './audio.mjs?v=0.7.5';
-import {readRecords,writeRecords} from './records.mjs?v=0.7.5';
-import {FrameLoop} from './frame-loop.mjs?v=0.7.5';
-import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.7.5';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.7.6';
+import {Renderer} from './render.mjs?v=0.7.6';
+import {Sound} from './audio.mjs?v=0.7.6';
+import {readRecords,writeRecords} from './records.mjs?v=0.7.6';
+import {FrameLoop} from './frame-loop.mjs?v=0.7.6';
+import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.7.6';
 
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();
@@ -37,7 +37,7 @@ function getInput(){
   return {x:Number(keys.has('ArrowRight')||keys.has('KeyD'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')),
     y:Number(keys.has('ArrowDown')||keys.has('KeyS'))-Number(keys.has('ArrowUp')||keys.has('KeyW')),
     focus:keys.has('ShiftLeft')||keys.has('ShiftRight'),moveScale:pcSensitivity,
-    fire:true,charge:keys.has('KeyC')||touchCharge,chargePressed:chargeRequested,
+    fire:true,charge:keys.has('KeyZ')||touchCharge,chargePressed:chargeRequested,
     target:touchTarget};
 }
 function notice(text,seconds=2.8,warning=false){
@@ -142,7 +142,7 @@ for(const button of document.querySelectorAll('[data-route]'))button.addEventLis
   $('route-hint').textContent=RUN_MODES[route].hint;
   invalidate();
 });
-const playKeys=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD','KeyX','KeyC','ShiftLeft','ShiftRight','Escape']);
+const playKeys=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD','KeyX','KeyZ','ShiftLeft','ShiftRight','Escape']);
 window.addEventListener('keydown',e=>{
   if(!$('pc-settings').hidden){
     if(e.code==='Escape'&&!e.repeat){e.preventDefault();closeSettings();}
@@ -165,7 +165,7 @@ window.addEventListener('keydown',e=>{
     e.preventDefault();start();return;
   }
   if(game.state!=='playing'||!playKeys.has(e.code))return;
-  if(e.code==='KeyC'){if(e.repeat)return;chargeRequested=true;}
+  if(e.code==='KeyZ'){if(e.repeat)return;chargeRequested=true;}
   e.preventDefault();keys.add(e.code);
   if(e.code==='KeyX'&&!e.repeat&&countdown<=0)game.bomb();
 });
@@ -215,7 +215,7 @@ function ui(){
   $('power-fill').style.width=(timed?game.player.powerTime/POWER_DURATION*100:100)+'%';
   $('power-clock').classList.toggle('warning',timed&&game.player.powerTime<=5);
   const charge=clamp(game.player.charge/CHARGE_REQUIRED,0,1),chargeReady=charge>=1;
-  $('charge-fill').style.width=(charge*100)+'%';text($('charge-label'),chargeReady?'C · 발사 가능':charge>0?'적중 충전 '+Math.floor(charge*100)+'%':'적중으로 충전');
+  $('charge-fill').style.width=(charge*100)+'%';text($('charge-label'),chargeReady?'Z · 발사 가능':charge>0?'적중 충전 '+Math.floor(charge*100)+'%':'적중으로 충전');
   $('charge-fill').classList.toggle('ready',chargeReady);
   $('touch-charge').disabled=!chargeReady||game.state!=='playing'||countdown>0||game.introTimer>0;
   text($('touch-charge').querySelector('small'),chargeReady?'발사 가능':Math.floor(charge*100)+'%');
