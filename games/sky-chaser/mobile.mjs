@@ -1,19 +1,19 @@
-import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.7.0';
-import {Renderer} from './render.mjs?v=0.7.0';
-import {Sound} from './audio.mjs?v=0.7.0';
-import {FrameLoop} from './frame-loop.mjs?v=0.7.0';
-import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.7.0';
+import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.7.1';
+import {Renderer} from './render.mjs?v=0.7.1';
+import {Sound} from './audio.mjs?v=0.7.1';
+import {FrameLoop} from './frame-loop.mjs?v=0.7.1';
+import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.7.1';
 
 const $=id=>document.getElementById(id),game=new Game(),sound=new Sound();
 let storage;try{storage=window.localStorage;}catch{}
 const profile=loadProfile(storage),controls=new MobileControls(profile.sensitivity),keys=new Set(),captures=new Map();
 sound.enabled=!profile.muted;
 let renderer,loop,layout,layoutRequest=null,ready=false,assetFailed=false,difficulty='normal',route='campaign';
-let countdown=0,accumulator=0,noticeTime=0,lastUi=-Infinity,audioEpoch=0;
+let countdown=0,accumulator=0,noticeTime=0,lastUi=-Infinity,audioEpoch=0,allowCompact=false;
 const format=n=>String(Math.floor(n)).padStart(7,'0');
 const put=(el,value)=>{value=String(value);if(el.textContent!==value)el.textContent=value;};
 const writeProfile=()=>saveProfile(storage,profile);
-const canAct=()=>game.state==='playing'&&countdown<=0&&game.introTimer<=0&&!game.finalDefeated&&!layout.landscape;
+const canAct=()=>game.state==='playing'&&countdown<=0&&game.introTimer<=0&&!game.finalDefeated&&!layout.blocked;
 function invalidate(reset=false){lastUi=-Infinity;loop?.invalidate(reset);}
 function padDisplay(){
   $('movement-pad').classList.toggle('active',controls.moveId!==null);$('thumb').hidden=controls.moveId===null;
@@ -42,7 +42,7 @@ function saveBest(){
 function notice(message,seconds=2.5){put($('notice'),message);$('notice').hidden=false;noticeTime=seconds;}
 function start(){
   if(!ready){if(assetFailed)location.reload();return;}
-  if(layout.landscape)return;
+  if(layout.blocked)return;
   resetInput();game.start(difficulty,route);renderer.reset();countdown=2.4;noticeTime=0;
   $('title-screen').hidden=true;$('game-dialog').hidden=true;$('notice').hidden=true;$('countdown').hidden=false;
   $('game').focus({preventScroll:true});invalidate(true);wakeAudio();
@@ -54,7 +54,7 @@ function pause(){
   $('result-score').hidden=true;$('resume').hidden=false;put($('retry'),'다시 출격');$('game-dialog').hidden=false;invalidate(true);
 }
 function resume(){
-  if(game.state!=='paused'||layout.landscape||!$('settings').hidden||document.hidden)return;
+  if(game.state!=='paused'||layout.blocked||!$('settings').hidden||document.hidden)return;
   resetInput();game.resume();$('game-dialog').hidden=true;$('game').focus({preventScroll:true});invalidate(true);wakeAudio();
 }
 function home(){
@@ -72,13 +72,13 @@ function resize(){
   const touch=matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
   const width=Math.min(document.documentElement.clientWidth,touch?850:480),height=Math.floor(window.visualViewport?.height||window.innerHeight);
   const s=getComputedStyle($('mobile-app'));
-  const next=mobileLayout(width,height,{top:parseFloat(s.paddingTop),bottom:parseFloat(s.paddingBottom),left:parseFloat(s.paddingLeft),right:parseFloat(s.paddingRight)});
-  const rotation=layout&&(next.landscape!==layout.landscape||Math.abs(next.width-layout.width)>2);
+  const next=mobileLayout(width,height,{top:parseFloat(s.paddingTop),bottom:parseFloat(s.paddingBottom),left:parseFloat(s.paddingLeft),right:parseFloat(s.paddingRight)},{orientation:window.screen?.orientation?.type,allowCompact});
+  const rotation=layout&&(Math.abs(next.width-layout.width)>2||!layout.blocked&&next.blocked);
   if(rotation)pause();
   layout=next;
   for(const [key,value] of Object.entries({'app-height':height,'field-width':next.fieldWidth,'field-height':next.fieldHeight,'header-height':next.header,'controls-height':next.controls,'gap':next.gap}))$('mobile-app').style.setProperty('--'+key,value+'px');
-  $('mobile-app').style.width=width+'px';$('rotate').hidden=!next.landscape;
-  if(next.landscape){resetInput();quietAudio();}
+  $('mobile-app').style.width=width+'px';$('rotate').hidden=!next.blocked;
+  if(next.blocked){resetInput();quietAudio();}
   else controls.rebase();
   if(renderer){
     renderer.resize();
@@ -137,7 +137,7 @@ loop=new FrameLoop({active:()=>game.state==='playing',animate:()=>game.state==='
 function capture(el,e){try{el.setPointerCapture(e.pointerId);captures.set(e.pointerId,el);}catch{controls.end(e.pointerId);}}
 const pad=$('movement-pad');
 pad.addEventListener('pointerdown',e=>{
-  if(game.state!=='playing'||layout.landscape||!$('settings').hidden||e.pointerType==='mouse'&&e.button!==0)return;
+  if(game.state!=='playing'||layout.blocked||!$('settings').hidden||e.pointerType==='mouse'&&e.button!==0)return;
   e.preventDefault();if(controls.beginMove(e.pointerId,e.clientX,e.clientY,game.player)){capture(pad,e);padDisplay();}
 });
 pad.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&e.buttons===0){controls.end(e.pointerId);padDisplay();return;}if(controls.move(e.pointerId,e.clientX,e.clientY,$('game').getBoundingClientRect().width,game.player)){e.preventDefault();padDisplay();}});
@@ -177,17 +177,23 @@ $('sound').onclick=()=>{sound.toggle();profile.muted=!sound.enabled;updateSettin
 $('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();put($('settings-message'),'');}catch{put($('settings-message'),'전체 화면을 사용할 수 없어도 그대로 플레이할 수 있어요.');}};
 document.addEventListener('fullscreenchange',()=>{updateSettings();queueResize();});
 window.addEventListener('resize',queueResize);window.visualViewport?.addEventListener('resize',queueResize);
+window.screen?.orientation?.addEventListener?.('change',()=>{pause();resetInput();queueResize();});
+$('rotate-continue').onclick=()=>{
+  allowCompact=true;resetInput();resize();
+  const target=!$('settings').hidden?$('settings-close'):game.state==='paused'?$('resume'):$('start');
+  target.focus({preventScroll:true});
+};
 window.addEventListener('blur',()=>{pause();resetInput();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){pause();resetInput();quietAudio();saveBest();}else queueResize();loop.suspend(document.hidden);});
 window.addEventListener('pagehide',()=>{saveBest();quietAudio();resetInput();});
 window.addEventListener('keydown',e=>{
   if(e.code==='Tab'){
-    const modal=!$('settings').hidden?$('settings'):!$('game-dialog').hidden?$('game-dialog'):null;
+    const modal=!$('rotate').hidden?$('rotate'):!$('settings').hidden?$('settings'):!$('game-dialog').hidden?$('game-dialog'):null;
     if(modal){const items=[...modal.querySelectorAll('button,a,input,select')].filter(x=>!x.disabled&&x.getClientRects().length);const first=items[0],last=items.at(-1);
       if(first&&(!modal.contains(document.activeElement)||!e.shiftKey&&document.activeElement===last||e.shiftKey&&document.activeElement===first)){e.preventDefault();(e.shiftKey?last:first).focus();return;}}
   }
   if(e.code==='Escape'&&!e.repeat){e.preventDefault();if(!$('settings').hidden)closeSettings();else game.state==='paused'?resume():pause();return;}
-  if(!$('settings').hidden||layout.landscape||['INPUT','SELECT','BUTTON','A'].includes(e.target.tagName))return;
+  if(!$('settings').hidden||layout.blocked||['INPUT','SELECT','BUTTON','A'].includes(e.target.tagName))return;
   if(e.code==='Enter'&&game.state==='ready'&&!e.repeat){e.preventDefault();start();return;}
   if(game.state!=='playing')return;
   if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD'].includes(e.code)){e.preventDefault();keys.add(e.code);}

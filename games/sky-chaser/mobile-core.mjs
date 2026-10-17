@@ -1,4 +1,4 @@
-export const MOBILE_VERSION='0.7.0';
+export const MOBILE_VERSION='0.7.1';
 export const MOBILE_STORAGE='sky-chaser.mobile.v1';
 export const PREVIEW_STORAGE='sky-chaser.mobile-preview.v1';
 export const DEFAULT_SENSITIVITY=1.1;
@@ -29,12 +29,18 @@ export function loadProfile(storage){
 }
 export function saveProfile(storage,profile){try{storage.setItem(MOBILE_STORAGE,JSON.stringify(cleanProfile(profile)));return true;}catch{return false;}}
 
-export function mobileLayout(width,height,insets={}){
+export function mobileLayout(width,height,insets={},display={}){
   const left=Math.max(8,insets.left||0),right=Math.max(8,insets.right||0),top=Math.max(6,insets.top||0),bottom=Math.max(10,insets.bottom||0);
   const compact=height-top-bottom<680,header=compact?44:48,controls=compact?132:152,gap=6;
   const availableWidth=Math.max(80,width-left-right),availableHeight=Math.max(90,height-top-bottom-header-controls-gap*2);
   const fieldWidth=Math.min(availableWidth,availableHeight*2/3);
-  return {width,height,left,right,top,bottom,header,controls,gap,fieldWidth,fieldHeight:fieldWidth*1.5,landscape:width>height};
+  const fieldHeight=fieldWidth*1.5;
+  // Browser chrome can make an upright foldable viewport wider than it is tall.
+  // Ask for rotation only when a wide viewport leaves too little game space.
+  const portrait=display.orientation==='portrait-primary'||display.orientation==='portrait-secondary';
+  const recommendPortrait=!portrait&&width>height*1.25&&fieldHeight<300;
+  return {width,height,left,right,top,bottom,header,controls,gap,fieldWidth,fieldHeight,
+    recommendPortrait,blocked:recommendPortrait&&!display.allowCompact};
 }
 
 // Each pointer keeps its original role. Skill fingers never steal or end the
