@@ -1,6 +1,6 @@
-import {MusicPlayer} from './music.mjs?v=0.9.1';
-import {combatMusic,storyMusic} from './music-catalog.mjs?v=0.9.1';
-import {audioSettings,cleanVolume} from './audio-settings.mjs?v=0.9.1';
+import {MusicPlayer} from './music.mjs?v=0.9.2';
+import {combatMusic,storyMusic} from './music-catalog.mjs?v=0.9.2';
+import {audioSettings,cleanVolume} from './audio-settings.mjs?v=0.9.2';
 
 export class Sound {
   constructor(){

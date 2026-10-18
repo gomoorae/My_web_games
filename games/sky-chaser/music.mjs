@@ -1,4 +1,4 @@
-import {MUSIC_CATALOG} from './music-catalog.mjs?v=0.9.1';
+import {MUSIC_CATALOG} from './music-catalog.mjs?v=0.9.2';
 
 export function loopRegion(spec,duration){
   const start=Math.max(0,Math.min(spec.loopStart||0,duration-2));

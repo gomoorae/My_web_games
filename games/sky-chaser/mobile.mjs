@@ -1,11 +1,11 @@
-import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.9.1';
-import {Renderer} from './render.mjs?v=0.9.1';
-import {Sound} from './audio.mjs?v=0.9.1';
-import {FrameLoop} from './frame-loop.mjs?v=0.9.1';
-import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.9.1';
+import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.9.2';
+import {Renderer} from './render.mjs?v=0.9.2';
+import {Sound} from './audio.mjs?v=0.9.2';
+import {FrameLoop} from './frame-loop.mjs?v=0.9.2';
+import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.9.2';
 
-import {StoryPlayer} from './story.mjs?v=0.9.1';
-import {BOSS_STORIES,STAGE_STORIES} from './story-core.mjs?v=0.9.1';
+import {StoryPlayer} from './story.mjs?v=0.9.2';
+import {BOSS_STORIES,STAGE_STORIES} from './story-core.mjs?v=0.9.2';
 
 let story=null;
 const $=id=>document.getElementById(id),game=new Game(),sound=new Sound();

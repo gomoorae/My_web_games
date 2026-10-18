@@ -362,3 +362,86 @@ Original instrumental soundtrack for Sky Chaser, a colorful fantasy-steampunk ar
 새로운 이미지나 음원은 생성하지 않았습니다. 기존 그림 17개와 음원 13개의 바이트를 모두 유지했습니다. 게임과 감상 화면에서 실제 사용하는 음원은 타이틀, 스테이지 1·2·3, 보스 1·2·3, 엔딩의 여덟 곡입니다. midboss·launch·warning·clear·gameover는 사용·선행 로딩·감상 목록에서 제외했고, 이전 버전의 캐시가 참조하는 URL만 호환을 위해 보존했습니다.
 
 이야기 연출은 기존 lumi-key-art.png의 폭탄 컷인과 같은 영역을 크게 보여주고, 기존 보스 부품을 Canvas로 한 번 합성합니다. 배경과 이야기 그림도 그대로 사용합니다. CSS·SVG 룬·유한한 Web Animations로 진입·장면 전환·제목·대사를 표현하며, 이미지 파일을 가공하지 않았습니다. 화면 흔들림 끄기와 시스템의 움직임 줄이기를 존중하고 정지·닫기 때 애니메이션을 멈추거나 해제합니다.
+
+
+## 0.9.2 승인한 무언 코러스 · 2026-10-18
+
+새 그림은 생성하지 않았습니다. YuE2 MLX 8-bit, 32 steps, thinking=true, instrumental=false, vocalLanguage=none으로 생성한 두 곡을 사용자 청취 승인 후 사용합니다. Ah/Oh 가사를 실제로 전달하며 특정 언어 보컬 접두사는 붙이지 않았습니다. 이전 생성과 원본은 보존했습니다. 아래 발성 지시는 생성 입력이며 단독 자동 분석으로 발성 내용을 검증했다는 뜻은 아닙니다.
+
+웹용은 AAC 192 kbps / 48 kHz stereo, 기존 BGM과 같은 RMS -21 dBFS 목표, 5ms 시작 페이드와 2.8초 끝 페이드입니다. 음높이·재생 속도·편곡·보컬 분리를 변경하지 않았습니다. 반복 경계는 끝 페이드보다 앞에 있어 게임 중에는 끝 페이드나 생성 중단 지점이 들리지 않습니다. 반복 후보는 두 마디의 onset/chroma와 음량을 비교했습니다. 기술 검증 자료와 경계 전후 16초 미리듣기는 소스의 artifacts/music-loops-v0.9.2에 보관합니다.
+
+### stage2 · 뇌운을 가르는 날개
+
+- 원본 seed: 10918321, 목표 90초 / 실제 91.998667초
+- 원본 SHA-256: c8a634c9f9538e196972852018b61094e0cc0b022250754c0cd27ae2bcad4d11
+- 웹 파일: dist/assets/music/stage2-wordless-v092.m4a
+- 웹 SHA-256: 856ce731641b7fca3c91862786a683819650f540c412ec47fe0e1a8f5ee15a7b
+- 반복: 69.382032초 → 19.253520초, 겹침 0.783360초
+
+생성 스타일:
+
+Original orchestral arcade rock soundtrack for Sky Chaser, a colorful fantasy-steampunk shooting game. Crunchy electric rhythm guitar, melodic bass, tight live drums, fast strings and heroic brass carry the main melody. A small wordless background choir softly sustains only the open vowels Ah and Oh from the supplied lyrics, blended behind the guitars like an instrument. Follow those vowel syllables exactly throughout: no additional words, language, rap, spoken lines, scat syllables, vocal chops or improvised ad-libs. Strong instrumental hook and full rhythm from the start, recurring four-bar and eight-bar phrases, steady exciting pulse and clear space for game sound effects. No long quiet introduction or breakdown. Stage 2, racing through storm canyons: 156 BPM, steady 4/4, E minor with hopeful major flashes. Agile staccato strings, precise synth arpeggios, bright brass responses and driving guitars. Tense, nimble and adventurous. Wordless vowels are a distant airy harmony layer, never the lead.
+
+### stage3 · 홍련의 조선소
+
+- 원본 seed: 10918322, 목표 100초 / 실제 101.998667초
+- 원본 SHA-256: 69498a6590f2d38ba2e4384d0c0ca78fd9b4f383db7c83ab002439775f153716
+- 웹 파일: dist/assets/music/stage3-wordless-v092.m4a
+- 웹 SHA-256: 1615209c8efaf36996ed52c334b3ca9e1169cce92fca5289e5eee166a0c53fc2
+- 반복: 84.024483초 → 41.191480초, 겹침 0.669440초
+
+생성 스타일:
+
+Original orchestral arcade rock soundtrack for Sky Chaser, a colorful fantasy-steampunk shooting game. Crunchy electric rhythm guitar, melodic bass, tight live drums, fast strings and heroic brass carry the main melody. A small wordless background choir softly sustains only the open vowels Ah and Oh from the supplied lyrics, blended behind the guitars like an instrument. Follow those vowel syllables exactly throughout: no additional words, language, rap, spoken lines, scat syllables, vocal chops or improvised ad-libs. Strong instrumental hook and full rhythm from the start, recurring four-bar and eight-bar phrases, steady exciting pulse and clear space for game sound effects. No long quiet introduction or breakdown. Stage 3, assault on a blazing sky foundry: 164 BPM, steady 4/4, A minor. Heavier galloping guitar riffs, powerful low brass, metallic tuned percussion and urgent strings. A memorable heroic melody above the weight. Restrained wordless vowel harmonies support the riffs from behind. Build intensity through the last third without changing tempo.
+
+두 곡 공통 가사 입력:
+
+```text
+[Intro]
+Ah ah ah ah
+Oh oh oh oh
+Ah ah oh ah
+Oh oh ah ah
+
+[Verse]
+Ah ah ah ah
+Oh oh oh oh
+Ah ah oh ah
+Oh oh ah ah
+Ah ah ah ah
+Oh oh oh oh
+Ah ah oh ah
+Oh oh ah ah
+
+[Chorus]
+Ah ah ah ah
+Oh oh oh oh
+Ah ah oh ah
+Oh oh ah ah
+Ah ah ah ah
+Oh oh oh oh
+Ah ah oh ah
+Oh oh ah ah
+
+[Bridge]
+Ah ah ah ah
+Oh oh oh oh
+Ah ah oh ah
+Oh oh ah ah
+
+[Chorus]
+Ah ah ah ah
+Oh oh oh oh
+Ah ah oh ah
+Oh oh ah ah
+Ah ah ah ah
+Oh oh oh oh
+Ah ah oh ah
+Oh oh ah ah
+
+[Outro]
+Ah ah ah ah
+Oh oh oh oh
+Ah ah oh ah
+Oh oh ah ah
+```

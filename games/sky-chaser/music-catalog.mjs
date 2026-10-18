@@ -25,24 +25,24 @@ export const MUSIC_CATALOG={
   "stage2": {
     "id": "stage2",
     "title": "뇌운을 가르는 날개",
-    "file": "./assets/music/stage2.m4a",
+    "file": "./assets/music/stage2-wordless-v092.m4a",
     "kind": "music",
-    "duration": 77.39866666666667,
-    "loopStart": 2.15859,
-    "loopBoundary": 74.86899,
-    "loopEnd": 75.04899,
-    "crossfadeSeconds": 0.18
+    "duration": 91.99866666666667,
+    "loopStart": 19.25352,
+    "loopBoundary": 69.382032,
+    "loopEnd": 70.165392,
+    "crossfadeSeconds": 0.78336
   },
   "stage3": {
     "id": "stage3",
     "title": "홍련의 조선소",
-    "file": "./assets/music/stage3.m4a",
+    "file": "./assets/music/stage3-wordless-v092.m4a",
     "kind": "music",
-    "duration": 100.11866666666667,
-    "loopStart": 16.475549,
-    "loopBoundary": 86.877896,
-    "loopEnd": 87.057896,
-    "crossfadeSeconds": 0.18
+    "duration": 101.99866666666667,
+    "loopStart": 41.19148,
+    "loopBoundary": 84.024483,
+    "loopEnd": 84.693923,
+    "crossfadeSeconds": 0.66944
   },
   "boss1": {
     "id": "boss1",
