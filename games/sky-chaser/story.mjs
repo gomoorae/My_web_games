@@ -1,4 +1,4 @@
-import {STORIES,STORY_IDS,STORY_STORAGE,SceneTimer,loadStoryProgress,saveStoryProgress,shouldPlayStory} from './story-core.mjs?v=0.8.0';
+import {STORIES,STORY_IDS,STORY_STORAGE,SceneTimer,loadStoryProgress,saveStoryProgress,shouldPlayStory} from './story-core.mjs?v=0.8.1';
 
 export class StoryPlayer {
   constructor({storage,sprites=()=>({}),onOpen=()=>{},onClose=()=>{},onScene=()=>{},onPause=()=>{}}={}){

@@ -1,5 +1,5 @@
-import {RUN_MODES} from './stages.mjs?v=0.8.0';
-import {cleanPcSensitivity} from './pc-controls.mjs?v=0.8.0';
+import {RUN_MODES} from './stages.mjs?v=0.8.1';
+import {cleanPcSensitivity} from './pc-controls.mjs?v=0.8.1';
 // Preserve v1 (one stage) and v2 (two stages). Existing stage-two practice
 // scores migrate unchanged; three-stage campaigns have their own record.
 export function readRecords(storage){
@@ -13,7 +13,7 @@ export function readRecords(storage){
     const legacy=route==='practice2'?two.practice2?.[mode]:0;
     if(Number.isFinite(legacy)&&legacy>=0)empty[route][mode]=Math.max(empty[route][mode],Math.floor(legacy));
   }
-  // Before 0.8.0 the default was 90%, without a flag distinguishing it from
+  // Before 0.8.1 the default was 90%, without a flag distinguishing it from
   // a manually chosen 90%. Upgrade that value once; keep other adjustments.
   const controlsCurrent=Number.isFinite(saved.pcControlsVersion)&&saved.pcControlsVersion>=2;
   const sensitivity=!controlsCurrent&&saved.pcSensitivity===.9?1:saved.pcSensitivity;

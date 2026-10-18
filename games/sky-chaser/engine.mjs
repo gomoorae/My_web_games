@@ -1,10 +1,10 @@
 import {STAGES,RUN_MODES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.8.0';
-import {FORGE_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,moveMortar,mortarArmed} from './forge.mjs?v=0.8.0';
-import {keyboardSpeed} from './pc-controls.mjs?v=0.8.0';
+  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.8.1';
+import {FORGE_WAVES,FORGE_EASY_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,updateForgeBomber,moveMortar,mortarArmed,mortarCrossfire} from './forge.mjs?v=0.8.1';
+import {keyboardSpeed} from './pc-controls.mjs?v=0.8.1';
 export {STAGES,RUN_MODES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.8.0';
+export const VERSION = '0.8.1';
 export const PLAYER_SCALE = .72;
 export const PLAYER_HIT_RADIUS = 3.6;
 export const CHARGE_REQUIRED = 240;
@@ -271,9 +271,9 @@ export class Game {
       age:0,warning,duration,width});
     this.event('laserWarning');
   }
-  scheduleMortar(e,tx,ty,{delay=0,offsetX=0,offsetY=62,flight=1.05,fuse=this.difficulty==='easy'?1.15:.8,partId=null}={}){
+  scheduleMortar(e,tx,ty,{delay=0,offsetX=0,offsetY=62,flight=1.05,fuse=this.difficulty==='easy'?1.15:.8,partId=null,crossfire=false}={}){
     if(this.bombTimer>0||this.finalDefeated||e.dead||e.transition>0||this.mortarQueue.length>=6)return false;
-    this.mortarQueue.push({owner:e.id,phase:e.phase,tx,ty,delay,offsetX,offsetY,flight,fuse,partId});return true;
+    this.mortarQueue.push({owner:e.id,phase:e.phase,tx,ty,delay,offsetX,offsetY,flight,fuse,partId,crossfire});return true;
   }
   updateMortarQueue(dt){
     // Simulation time only: pause freezes pending launches; cancellation never
@@ -289,10 +289,10 @@ export class Game {
       return false;
     });
   }
-  launchMortar(e,x,y,tx,ty,{flight=.95,fuse=this.difficulty==='easy'?1.15:.8,partId=null}={}){
+  launchMortar(e,x,y,tx,ty,{flight=.95,fuse=this.difficulty==='easy'?1.15:.8,partId=null,crossfire=false}={}){
     if(this.bombTimer>0||this.finalDefeated||e.dead||e.transition>0||x<0||x>W||y<0||this.mortars.length>=6)return;
     const m={id:'m'+(++this.id),owner:e.id,partId,x,y,px:x,py:y,startX:x,startY:y,
-      tx:clamp(tx,50,W-50),ty:clamp(ty,90,H-55),age:0,flight,fuse,blastDuration:.55,
+      tx:clamp(tx,50,W-50),ty:clamp(ty,90,H-55),age:0,flight,fuse,blastDuration:.55,crossfire,phase:e.phase,
       blastRadius:this.difficulty==='easy'?70:90,r:10,hp:12,maxHp:12,exploded:false,dead:false};
     this.mortars.push(m);this.event('mortarLaunch',{x,y});return m;
   }
@@ -306,6 +306,9 @@ export class Game {
   moveMortars(dt){
     for(const m of this.mortars){
       if(m.dead)continue;moveMortar(m,dt);
+      if(m.crossfire&&!m.coverFired&&m.age>=m.flight+m.fuse-(this.difficulty==='easy'?1.35:.9)){
+        m.coverFired=true;mortarCrossfire(this,m);
+      }
       if(!m.exploded&&m.age>=m.flight+m.fuse){m.exploded=true;this.event('mortarBurst',{x:m.tx,y:m.ty,r:m.blastRadius});}
       if(m.age>=m.flight+m.fuse+m.blastDuration)m.dead=true;
     }
@@ -390,6 +393,7 @@ export class Game {
     // remain suppressed, as do attacks during Lumi's bomb.
     if (e.x < 0 || e.x > W || e.y < (big?38:ENEMY_ACTIVE_Y) || e.y > H - 95 || this.bombTimer > 0 ||
         (!forge&&Math.hypot(e.x - this.player.x, e.y - this.player.y) < 110)) return;
+    if(this.stage===3&&e.type==='bomber'){updateForgeBomber(this,e,dt);return;}
     e.fire -= dt;
     if (e.fire > 0) return;
     if((storm||forge)&&e.y<150)return;
@@ -474,7 +478,7 @@ export class Game {
         this.state = 'clear'; this.event('clear');return;
       }
     } else {
-      const spec=STAGES[this.stage],waves=this.stage===1?WAVES:this.stage===2?STORM_WAVES:FORGE_WAVES;
+      const spec=STAGES[this.stage],waves=this.stage===1?WAVES:this.stage===2?STORM_WAVES:this.difficulty==='easy'?FORGE_EASY_WAVES:FORGE_WAVES;
       const waitingMid = this.stageTime >= spec.midStop && !this.midDefeated;
       if (!waitingMid && this.stageTime < spec.bossAt+.1) this.stageTime += dt;
       while (this.wave < waves.length && waves[this.wave].t <= this.stageTime) {
