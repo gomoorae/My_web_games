@@ -1,11 +1,11 @@
-import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.9.0';
-import {Renderer} from './render.mjs?v=0.9.0';
-import {Sound} from './audio.mjs?v=0.9.0';
-import {FrameLoop} from './frame-loop.mjs?v=0.9.0';
-import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.9.0';
+import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.9.1';
+import {Renderer} from './render.mjs?v=0.9.1';
+import {Sound} from './audio.mjs?v=0.9.1';
+import {FrameLoop} from './frame-loop.mjs?v=0.9.1';
+import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.9.1';
 
-import {StoryPlayer} from './story.mjs?v=0.9.0';
-import {BOSS_STORIES,STAGE_STORIES} from './story-core.mjs?v=0.9.0';
+import {StoryPlayer} from './story.mjs?v=0.9.1';
+import {BOSS_STORIES,STAGE_STORIES} from './story-core.mjs?v=0.9.1';
 
 let story=null;
 const $=id=>document.getElementById(id),game=new Game(),sound=new Sound();
@@ -38,7 +38,7 @@ function quietAudio(){audioEpoch++;sound.setPlaying(false);sound.setAudible(fals
 async function wakeAudio(){
   const epoch=++audioEpoch;await sound.unlock();
   if(epoch!==audioEpoch||game.state!=='playing'||story?.active)return;
-  sound.battle(game,countdown<=0);sound.setAudible(true);
+  sound.battle(game,true);sound.setAudible(true);
 }
 function saveBest(){
   if(game.score>profile.bests[game.mode][game.difficulty]){profile.bests[game.mode][game.difficulty]=Math.floor(game.score);writeProfile();}
@@ -54,7 +54,7 @@ function beginRun(){
   if(!ready){if(assetFailed)location.reload();return;}
   if(layout.blocked)return;
   story.resetRun();resetInput();game.start(difficulty,route);renderer.reset();countdown=2.4;noticeTime=0;
-  sound.battle(game,false);
+  sound.battle(game,true);
   $('title-screen').hidden=true;$('game-dialog').hidden=true;$('notice').hidden=true;$('countdown').hidden=false;
   $('game').focus({preventScroll:true});invalidate(true);wakeAudio();
 }
@@ -81,8 +81,8 @@ function result(){
   showResult();
 }
 function showResult(){
-  resetInput();audioEpoch++;sound.setPlaying(false);saveBest();const won=game.state==='clear';
-  sound.finish(won);
+  resetInput();audioEpoch++;saveBest();const won=game.state==='clear';
+  sound.finish(game);
   put($('dialog-kicker'),won?'MISSION COMPLETE':'TRY AGAIN');put($('dialog-title'),won?'항로를 되찾았다!':'다시 날아볼까?');
   put($('dialog-copy'),RUN_MODES[game.mode].name+' · '+(game.difficulty==='easy'?'쉬움':'보통'));
   put($('result-score'),format(game.score));$('result-score').hidden=false;$('resume').hidden=true;put($('retry'),'다시 출격하기');$('game-dialog').hidden=false;lastUi=-Infinity;
@@ -129,7 +129,7 @@ function ui(){
 function advance(dt){
   if(countdown>0){
     countdown=Math.max(0,countdown-dt);put($('countdown'),countdown>1.6?'3':countdown>.8?'2':'1');$('countdown').hidden=countdown<=0;
-    if(countdown<=0){sound.setPlaying(true);sound.playCue('launch');}
+    if(countdown<=0)sound.setPlaying(true);
   }else{
     accumulator+=dt;
     while(accumulator>=STEP){
@@ -231,11 +231,11 @@ window.addEventListener('keydown',e=>{
 });
 window.addEventListener('keyup',e=>keys.delete(e.code));
 renderer.ready.then(()=>{ready=true;$('start').disabled=false;put($('start'),'출격하기');$('asset-status').hidden=true;invalidate();}).catch(()=>{assetFailed=true;$('start').disabled=false;put($('start'),'그림 다시 불러오기');put($('asset-status'),'연결을 확인한 뒤 다시 눌러 주세요.');});
-story=new StoryPlayer({storage,sprites:()=>renderer.art.sprites,
-  onOpen:()=>{audioEpoch++;resetInput();sound.beginStory();sound.setAudible(false);$('notice').hidden=true;noticeTime=0;invalidate(true);},
-  onClose:()=>{audioEpoch++;resetInput();sound.leaveStory(game,countdown<=0);if(game.state==='playing'&&(layout.blocked||document.hidden))pause();else sound.setAudible(!document.hidden&&!layout.blocked);invalidate(true);},
-  onScene:async(scene,generation)=>{const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||!story.active||story.paused||generation!==story.generation)return;sound.setAudible(true);sound.storyCue(scene.tone,story.sequence);},
-  onPause:paused=>{if(paused)sound.stopStoryCue();audioEpoch++;sound.setAudible(!paused&&!document.hidden);}
+story=new StoryPlayer({storage,sprites:()=>renderer.art.sprites,artReady:renderer.ready,motion:()=>renderer.motion,
+  onOpen:context=>{audioEpoch++;resetInput();sound.beginStory(context.sequence);sound.setAudible(!document.hidden&&!layout.blocked);$('notice').hidden=true;noticeTime=0;invalidate(true);},
+  onClose:()=>{audioEpoch++;resetInput();sound.leaveStory(game);if(game.state==='playing'&&(layout.blocked||document.hidden))pause();else sound.setAudible(!document.hidden&&!layout.blocked);invalidate(true);},
+  onScene:async(scene,generation)=>{const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||!story.active||story.paused||generation!==story.generation)return;sound.setAudible(true);sound.storyScene(story.sequence);},
+  onPause:paused=>{audioEpoch++;sound.setAudible(!paused&&!document.hidden);}
 });
 $('story-open').onclick=()=>story.openLibrary();
 for(const event of ['pointerdown','keydown'])window.addEventListener(event,()=>{if(!document.hidden)void sound.unlock();},{once:true});

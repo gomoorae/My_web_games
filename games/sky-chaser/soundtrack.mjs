@@ -1,6 +1,6 @@
-import {MUSIC_CATALOG} from './music-catalog.mjs?v=0.9.0';
+import {MUSIC_CATALOG} from './music-catalog.mjs?v=0.9.1';
 const $=id=>document.getElementById(id),audio=$('audio');audio.volume=.7;
-const entries=[['title','타이틀 · 오프닝'],['stage1','STAGE 01 · 해풍의 항구'],['stage2','STAGE 02 · 뇌운의 협곡'],['stage3','STAGE 03 · 홍련의 조선소'],['midboss','중간 보스'],['boss1','BOSS 01 · 아이언 레이븐'],['boss2','BOSS 02 · 템페스트'],['boss3','BOSS 03 · 이그니스'],['ending','엔딩 · 돌아온 바람'],['launch','출격'],['warning','보스 등장 · 변신'],['clear','클리어'],['gameover','게임 오버']];
+const entries=[['title','타이틀 · 오프닝'],['stage1','STAGE 01 · 해풍의 항구'],['stage2','STAGE 02 · 뇌운의 협곡'],['stage3','STAGE 03 · 홍련의 조선소'],['boss1','BOSS 01 · 아이언 레이븐'],['boss2','BOSS 02 · 템페스트'],['boss3','BOSS 03 · 이그니스'],['ending','엔딩 · 돌아온 바람']];
 let selected=null,serial=0;
 for(const [index,[id,label]] of entries.entries()){
   const spec=MUSIC_CATALOG[id],button=document.createElement('button');button.className='track';button.type='button';button.dataset.track=id;button.setAttribute('aria-pressed','false');
@@ -15,7 +15,7 @@ for(const [index,[id,label]] of entries.entries()){
     $('player-state').textContent='LOADING';
     try{await audio.play();}catch{if(token===serial)$('player-message').textContent='재생 버튼을 다시 눌러 주세요.';}
   };
-  $(index<9?'tracks':'cues').append(button);
+  $('tracks').append(button);
 }
 audio.addEventListener('playing',()=>{$('player-state').textContent='NOW PLAYING';$('player-message').textContent='';});
 audio.addEventListener('pause',()=>{$('player-state').textContent='PAUSED';});

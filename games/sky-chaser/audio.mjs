@@ -1,6 +1,6 @@
-import {MusicPlayer} from './music.mjs?v=0.9.0';
-import {combatMusic,storyMusic} from './music-catalog.mjs?v=0.9.0';
-import {audioSettings,cleanVolume} from './audio-settings.mjs?v=0.9.0';
+import {MusicPlayer} from './music.mjs?v=0.9.1';
+import {combatMusic,storyMusic} from './music-catalog.mjs?v=0.9.1';
+import {audioSettings,cleanVolume} from './audio-settings.mjs?v=0.9.1';
 
 export class Sound {
   constructor(){
@@ -19,7 +19,6 @@ export class Sound {
         this.music=new MusicPlayer(this.ctx,this.musicGain);
         this.noise=this.ctx.createBuffer(1,this.ctx.sampleRate*.5,this.ctx.sampleRate);
         const data=this.noise.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;
-        if(this.enabled)for(const id of ['launch','warning','clear','gameover'])this.music.preload(id);
       }
       if(this.ctx.state==='suspended'||this.ctx.state==='interrupted')await this.ctx.resume();
       this.applyMusic();
@@ -29,41 +28,39 @@ export class Sound {
   setAudible(value){
     this.audible=!!value;
     if(this.master)this.master.gain.setTargetAtTime(this.audible&&this.enabled?.38:0,this.ctx.currentTime,.025);
-    if(!this.audible)this.stopStoryCue();this.applyMusic();
+    this.applyMusic();
   }
   setVolumes({musicVolume=this.musicVolume,effectsVolume=this.effectsVolume}={}){
     this.musicVolume=cleanVolume(musicVolume,this.musicVolume);this.effectsVolume=cleanVolume(effectsVolume,this.effectsVolume);
     if(this.ctx){this.musicGain.gain.setTargetAtTime(this.musicVolume,this.ctx.currentTime,.04);this.effects.gain.setTargetAtTime(this.effectsVolume,this.ctx.currentTime,.04);}
-    if(this.musicVolume===0)this.stopStoryCue();this.applyMusic();
+    this.applyMusic();
   }
-  toggle(){this.enabled=!this.enabled;this.setAudible(this.audible);if(!this.enabled)this.stopStoryCue();return this.enabled;}
+  toggle(){this.enabled=!this.enabled;this.setAudible(this.audible);return this.enabled;}
   setPlaying(value){this.playing=!!value;this.applyMusic();}
-  title(){this.narrative=false;this.track='title';this.level=1;this.playing=true;this.stopStoryCue();this.applyMusic();}
+  title(){this.narrative=false;this.track='title';this.level=1;this.playing=true;this.applyMusic();}
   battle(game,playing=true){this.narrative=false;this.track=combatMusic(game);this.level=1;this.playing=playing;this.preloaded=null;this.applyMusic();if(this.enabled&&this.track)this.music?.preload(this.track);}
-  finish(won){this.narrative=false;this.track=won?'ending':null;this.level=1;this.playing=!!won;this.applyMusic();}
-  beginStory(){this.narrative=true;this.playing=false;this.stopStoryCue();this.applyMusic();}
-  stopStoryCue(){this.music?.stopCue();}
-  storyCue(kind,sequence){
-    const changed=this.storySequence!==sequence;this.storySequence=sequence;
-    this.narrative=true;this.track=storyMusic(sequence);this.level=.68;this.playing=true;this.applyMusic();
-    if(changed&&['raven','tempest','ignis'].includes(sequence))this.playCue('warning');
+  finish(game){this.narrative=false;this.track=game.state==='clear'?(game.mode==='campaign'?'ending':combatMusic(game)):null;this.level=1;this.playing=game.state==='clear';this.applyMusic();}
+  beginStory(sequence){
+    this.narrative=true;
+    if(sequence){this.track=storyMusic(sequence);this.level=1;this.playing=true;}
+    else this.playing=false;
+    this.applyMusic();
   }
-  leaveStory(game,playing=true){
-    this.storySequence=null;this.stopStoryCue();
-    if(game.state==='ready')this.title();else if(game.state==='clear'||game.state==='gameover')this.finish(game.state==='clear');else this.battle(game,game.state==='playing'&&playing);
+  storyScene(sequence){this.narrative=true;this.track=storyMusic(sequence);this.level=1;this.playing=true;this.applyMusic();}
+  leaveStory(game){
+    if(game.state==='ready')this.title();else if(game.state==='clear'||game.state==='gameover')this.finish(game);else this.battle(game,game.state==='playing');
   }
-  playCue(id){if(this.enabled&&this.audible&&this.musicVolume>0&&this.ctx?.state==='running')void this.music?.cue(id);}
   update(game){
     if(this.narrative)return;
     if(game.state==='playing'){
       this.track=combatMusic(game);this.applyMusic();
       if(this.enabled&&this.audible&&this.musicVolume>0){
-        const next=!game.midDefeated&&game.stageTime>50?'midboss':game.stageTime>130?`boss${game.stage}`:null;
+        const next=game.stageTime>130?`boss${game.stage}`:null;
         if(next&&next!==this.track&&next!==this.preloaded){this.preloaded=next;this.music?.preload(next);}
       }
     }
   }
-  snapshot(){return {enabled:this.enabled,audible:this.audible,musicVolume:this.musicVolume,effectsVolume:this.effectsVolume,...(this.music?.snapshot()||{track:this.track,active:false,status:'locked',position:0,loops:0,cue:null,voices:0,cachedFiles:0,decodedBytes:0})};}
+  snapshot(){return {enabled:this.enabled,audible:this.audible,musicVolume:this.musicVolume,effectsVolume:this.effectsVolume,...(this.music?.snapshot()||{track:this.track,active:false,status:'locked',position:0,loops:0,voices:0,cachedFiles:0,decodedBytes:0})};}
   tone(freq,duration,volume=.1,type='triangle',when=null,endFreq=null){
     if(!this.ctx||!this.enabled)return;
     const at=when??this.ctx.currentTime,o=this.ctx.createOscillator(),g=this.ctx.createGain();
@@ -105,9 +102,6 @@ export class Sound {
         if(e.final)this.tone(1047,.45,.15,'sine');
       }
       if(e.kind==='charge')this.tone(e.full?300:500,.26,.16,'triangle',null,e.full?1400:1000);
-      if(e.kind==='transform'||e.kind==='warning')this.playCue('warning');
-      if(e.kind==='explode'&&['boss','tempest','ignis','midboss','gemini','vulcan'].includes(e.type))this.playCue('clear');
-      if(e.kind==='gameover')this.playCue('gameover');
     }
   }
 }

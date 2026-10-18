@@ -1,6 +1,6 @@
-import {RUN_MODES} from './stages.mjs?v=0.9.0';
-import {cleanPcSensitivity} from './pc-controls.mjs?v=0.9.0';
-import {audioSettings} from './audio-settings.mjs?v=0.9.0';
+import {RUN_MODES} from './stages.mjs?v=0.9.1';
+import {cleanPcSensitivity} from './pc-controls.mjs?v=0.9.1';
+import {audioSettings} from './audio-settings.mjs?v=0.9.1';
 // Preserve v1 (one stage) and v2 (two stages). Existing stage-two practice
 // scores migrate unchanged; three-stage campaigns have their own record.
 export function readRecords(storage){

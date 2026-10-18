@@ -1,12 +1,12 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.9.0';
-import {Renderer} from './render.mjs?v=0.9.0';
-import {Sound} from './audio.mjs?v=0.9.0';
-import {readRecords,writeRecords} from './records.mjs?v=0.9.0';
-import {FrameLoop} from './frame-loop.mjs?v=0.9.0';
-import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.9.0';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.9.1';
+import {Renderer} from './render.mjs?v=0.9.1';
+import {Sound} from './audio.mjs?v=0.9.1';
+import {readRecords,writeRecords} from './records.mjs?v=0.9.1';
+import {FrameLoop} from './frame-loop.mjs?v=0.9.1';
+import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.9.1';
 
-import {StoryPlayer} from './story.mjs?v=0.9.0';
-import {BOSS_STORIES,STAGE_STORIES,STAGE_GOALS} from './story-core.mjs?v=0.9.0';
+import {StoryPlayer} from './story.mjs?v=0.9.1';
+import {BOSS_STORIES,STAGE_STORIES,STAGE_GOALS} from './story-core.mjs?v=0.9.1';
 
 let story=null,audioEpoch=0;
 const $=id=>document.getElementById(id);
@@ -70,13 +70,13 @@ async function beginRun(){
   if(!$('pc-settings').hidden)return;
   if(!artReady){if(artFailed)location.reload();return;}
   story.resetRun();clearInput();game.start(difficulty,route);previousState='playing';newBest=false;countdown=2.4;
-  sound.battle(game,false);
+  sound.battle(game,true);
   renderer.reset();
   $('title-screen').hidden=true;$('modal').hidden=true;$('countdown').hidden=false;
   $('notice').className='notice';noticeTimer=0;
   $('game').focus({preventScroll:true});
   invalidate(true);
-  const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||story.active||game.state!=='playing')return;sound.setAudible(true);sound.setPlaying(countdown<=0);
+  const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||story.active||game.state!=='playing')return;sound.setAudible(true);sound.setPlaying(true);
 }
 function home(){
   story?.cancel();audioEpoch++;sound.setAudible(false);
@@ -101,7 +101,7 @@ async function resume(){
   if(game.state!=='paused'||story?.active||!$('pc-settings').hidden)return;
   clearInput();game.resume();$('modal').hidden=true;$('game').focus({preventScroll:true});
   invalidate(true);
-  const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||story.active||game.state!=='playing')return;sound.setAudible(true);sound.setPlaying($('pc-settings').hidden&&countdown<=0);
+  const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||story.active||game.state!=='playing')return;sound.setAudible(true);sound.setPlaying($('pc-settings').hidden);
 }
 function result(){
   clearInput();saveBest();
@@ -109,9 +109,9 @@ function result(){
   showResult();
 }
 function showResult(){
-  clearInput();saveBest();sound.setPlaying(false);
+  clearInput();saveBest();
   const win=game.state==='clear';
-  sound.finish(win);
+  sound.finish(game);
   $('modal-kicker').textContent=win?'MISSION COMPLETE':'THE SKY IS WAITING';
   $('modal-title').textContent=win?'항로를 되찾았다!':'다시 날아볼까?';
   $('modal-copy').textContent=win?(game.mode==='practice2'?'2스테이지 연습 완료. 템페스트를 격추했어!':game.mode==='practice3'?'3스테이지 연습 완료. 이그니스를 격추했어!':'항구와 협곡, 홍련의 조선소까지. 모든 항로를 되찾았다!'):'P를 회수해 화력을 유지하고, 위험한 순간에는 X로 폭탄을 사용해 보세요.';
@@ -275,7 +275,7 @@ function advance(dt){
     if(countdown>0){
       countdown-=dt;$('countdown').hidden=countdown<=0;
       $('countdown').textContent=countdown>1.6?'3':countdown>.8?'2':'1';
-      if(countdown<=0){sound.setPlaying(true);sound.playCue('launch');notice('루미, 출격! 하늘길을 열자.',2);}
+      if(countdown<=0){sound.setPlaying(true);notice('루미, 출격! 하늘길을 열자.',2);}
     }else{
       accumulator+=dt;
       while(accumulator>=STEP){const stage=game.stage;game.step(STEP,input);chargeRequested=false;input.chargePressed=false;accumulator-=STEP;if(game.state!=='playing'||game.stage!==stage){accumulator=0;break;}}
@@ -311,11 +311,11 @@ renderer.ready.then(()=>{
   $('asset-status').textContent='그림을 불러오지 못했습니다. 연결을 확인한 뒤 다시 시도해 주세요.';
 });
 let storyStorage;try{storyStorage=localStorage;}catch{}
-story=new StoryPlayer({storage:storyStorage,sprites:()=>renderer.art.sprites,
-  onOpen:()=>{audioEpoch++;clearInput();sound.beginStory();sound.setAudible(false);$('notice').className='notice';noticeTimer=0;invalidate(true);},
-  onClose:()=>{audioEpoch++;clearInput();sound.leaveStory(game,countdown<=0);sound.setAudible(!document.hidden);invalidate(true);},
-  onScene:async(scene,generation)=>{const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||!story.active||story.paused||generation!==story.generation)return;sound.setAudible(true);sound.storyCue(scene.tone,story.sequence);},
-  onPause:paused=>{if(paused)sound.stopStoryCue();audioEpoch++;sound.setAudible(!paused&&!document.hidden);}
+story=new StoryPlayer({storage:storyStorage,sprites:()=>renderer.art.sprites,artReady:renderer.ready,motion:()=>renderer.motion,
+  onOpen:context=>{audioEpoch++;clearInput();sound.beginStory(context.sequence);sound.setAudible(!document.hidden);$('notice').className='notice';noticeTimer=0;invalidate(true);},
+  onClose:()=>{audioEpoch++;clearInput();sound.leaveStory(game);sound.setAudible(!document.hidden);invalidate(true);},
+  onScene:async(scene,generation)=>{const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||!story.active||story.paused||generation!==story.generation)return;sound.setAudible(true);sound.storyScene(story.sequence);},
+  onPause:paused=>{audioEpoch++;sound.setAudible(!paused&&!document.hidden);}
 });
 $('story-open').onclick=()=>story.openLibrary();
 for(const event of ['pointerdown','keydown'])window.addEventListener(event,()=>{if(!document.hidden)void sound.unlock();},{once:true});
