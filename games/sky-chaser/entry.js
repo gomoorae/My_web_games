@@ -10,7 +10,7 @@
   if (mobile) {
     const destination = new URL('./mobile.html', location.href);
     destination.search = location.search;
-    destination.searchParams.set('v', '0.8.1');
+    destination.searchParams.set('v', '0.9.0');
     destination.hash = location.hash;
     location.replace(destination.href);
   }

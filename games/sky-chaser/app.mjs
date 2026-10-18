@@ -1,12 +1,12 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.8.1';
-import {Renderer} from './render.mjs?v=0.8.1';
-import {Sound} from './audio.mjs?v=0.8.1';
-import {readRecords,writeRecords} from './records.mjs?v=0.8.1';
-import {FrameLoop} from './frame-loop.mjs?v=0.8.1';
-import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.8.1';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.9.0';
+import {Renderer} from './render.mjs?v=0.9.0';
+import {Sound} from './audio.mjs?v=0.9.0';
+import {readRecords,writeRecords} from './records.mjs?v=0.9.0';
+import {FrameLoop} from './frame-loop.mjs?v=0.9.0';
+import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.9.0';
 
-import {StoryPlayer} from './story.mjs?v=0.8.1';
-import {BOSS_STORIES,STAGE_STORIES,STAGE_GOALS} from './story-core.mjs?v=0.8.1';
+import {StoryPlayer} from './story.mjs?v=0.9.0';
+import {BOSS_STORIES,STAGE_STORIES,STAGE_GOALS} from './story-core.mjs?v=0.9.0';
 
 let story=null,audioEpoch=0;
 const $=id=>document.getElementById(id);
@@ -23,12 +23,13 @@ const frameLoop=new FrameLoop({update:advance,draw:present,
 function invalidate(reset=false){lastUi=-Infinity;frameLoop.invalidate(reset);}
 try{
   const saved=readRecords(localStorage);bests=saved;pcSensitivity=saved.pcSensitivity;
+  sound.setVolumes(saved);
   if(saved.muted===true){sound.enabled=false;}
   if(saved.motion===false)renderer.motion=false;
 }catch{}
 if(matchMedia('(prefers-reduced-motion: reduce)').matches)renderer.motion=false;
 function persist(){
-  try{bests=writeRecords(localStorage,{...bests,muted:!sound.enabled,motion:renderer.motion,pcSensitivity});}catch{}
+  try{bests=writeRecords(localStorage,{...bests,muted:!sound.enabled,motion:renderer.motion,pcSensitivity,musicVolume:sound.musicVolume,effectsVolume:sound.effectsVolume});}catch{}
 }
 function saveBest(){
   if(game.score>bests[game.mode][game.difficulty]){newBest=true;bests[game.mode][game.difficulty]=game.score;persist();}
@@ -54,6 +55,7 @@ function sensitivityLabel(){
 }
 function updateSettings(){
   sensitivityLabel();
+  for(const [id,value] of [['music',sound.musicVolume],['effects',sound.effectsVolume]]){$(id+'-volume').value=String(Math.round(value*100));$(id+'-volume-value').textContent=Math.round(value*100)+'%';}
   $('sound').setAttribute('aria-pressed',String(sound.enabled));$('sound-label').textContent=sound.enabled?'소리 켜짐':'소리 꺼짐';
   $('motion').setAttribute('aria-pressed',String(renderer.motion));
   $('motion').innerHTML='<span class="toggle-dot"></span>화면 흔들림 '+(renderer.motion?'켜짐':'꺼짐');
@@ -68,16 +70,18 @@ async function beginRun(){
   if(!$('pc-settings').hidden)return;
   if(!artReady){if(artFailed)location.reload();return;}
   story.resetRun();clearInput();game.start(difficulty,route);previousState='playing';newBest=false;countdown=2.4;
+  sound.battle(game,false);
   renderer.reset();
   $('title-screen').hidden=true;$('modal').hidden=true;$('countdown').hidden=false;
   $('notice').className='notice';noticeTimer=0;
   $('game').focus({preventScroll:true});
   invalidate(true);
-  const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||story.active||game.state!=='playing')return;sound.setAudible(true);sound.setPlaying(false);
+  const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||story.active||game.state!=='playing')return;sound.setAudible(true);sound.setPlaying(countdown<=0);
 }
 function home(){
   story?.cancel();audioEpoch++;sound.setAudible(false);
   clearInput();game.reset(difficulty,route);previousState='ready';countdown=0;sound.setPlaying(false);
+  sound.title();sound.setAudible(!document.hidden);
   $('modal').hidden=true;$('title-screen').hidden=false;$('countdown').hidden=true;$('tutorial').hidden=true;
   $('notice').className='notice';noticeTimer=0;renderer.reset();$('start').focus({preventScroll:true});
   invalidate(true);
@@ -107,6 +111,7 @@ function result(){
 function showResult(){
   clearInput();saveBest();sound.setPlaying(false);
   const win=game.state==='clear';
+  sound.finish(win);
   $('modal-kicker').textContent=win?'MISSION COMPLETE':'THE SKY IS WAITING';
   $('modal-title').textContent=win?'항로를 되찾았다!':'다시 날아볼까?';
   $('modal-copy').textContent=win?(game.mode==='practice2'?'2스테이지 연습 완료. 템페스트를 격추했어!':game.mode==='practice3'?'3스테이지 연습 완료. 이그니스를 격추했어!':'항구와 협곡, 홍련의 조선소까지. 모든 항로를 되찾았다!'):'P를 회수해 화력을 유지하고, 위험한 순간에는 X로 폭탄을 사용해 보세요.';
@@ -120,6 +125,10 @@ $('continue').addEventListener('click',resume);
 $('home').addEventListener('click',home);
 $('pause').addEventListener('click',()=>game.state==='paused'?resume():pause());
 $('sound').addEventListener('click',async()=>{await sound.unlock();sound.toggle();updateSettings();persist();});
+for(const [id,key] of [['music','musicVolume'],['effects','effectsVolume']]){
+  $(id+'-volume').addEventListener('input',e=>{sound.setVolumes({[key]:Number(e.target.value)/100});$(id+'-volume-value').textContent=e.target.value+'%';});
+  $(id+'-volume').addEventListener('change',persist);
+}
 $('motion').addEventListener('click',()=>{renderer.motion=!renderer.motion;updateSettings();persist();invalidate();});
 function openSettings(){
   if(story?.active)return;
@@ -190,12 +199,15 @@ window.addEventListener('keydown',e=>{
   if(e.code==='KeyX'&&!e.repeat&&countdown<=0)game.bomb();
 });
 window.addEventListener('keyup',e=>keys.delete(e.code));
-window.addEventListener('blur',()=>{if(game.state==='playing')pause();clearInput();});
+window.addEventListener('blur',()=>{if(game.state==='playing')pause();clearInput();sound.setAudible(false);});
+function restoreIdleAudio(){if(!document.hidden&&['ready','clear','gameover'].includes(game.state)&&!story?.active){sound.setAudible(true);if(sound.ctx)void sound.unlock();}}
+window.addEventListener('focus',restoreIdleAudio);
 document.addEventListener('visibilitychange',()=>{
-  if(document.hidden){if(game.state==='playing')pause();clearInput();saveBest();}
+  if(document.hidden){if(game.state==='playing')pause();clearInput();saveBest();sound.setAudible(false);}
+  else restoreIdleAudio();
   frameLoop.suspend(document.hidden);
 });
-window.addEventListener('pagehide',()=>{saveBest();});
+window.addEventListener('pagehide',()=>{saveBest();sound.setAudible(false);});
 window.addEventListener('resize',()=>{renderer.resize();if(game.state==='playing')pause();invalidate(true);});
 
 const canvas=$('game');
@@ -263,7 +275,7 @@ function advance(dt){
     if(countdown>0){
       countdown-=dt;$('countdown').hidden=countdown<=0;
       $('countdown').textContent=countdown>1.6?'3':countdown>.8?'2':'1';
-      if(countdown<=0){sound.setPlaying(true);notice('루미, 출격! 하늘길을 열자.',2);}
+      if(countdown<=0){sound.setPlaying(true);sound.playCue('launch');notice('루미, 출격! 하늘길을 열자.',2);}
     }else{
       accumulator+=dt;
       while(accumulator>=STEP){const stage=game.stage;game.step(STEP,input);chargeRequested=false;input.chargePressed=false;accumulator-=STEP;if(game.state!=='playing'||game.stage!==stage){accumulator=0;break;}}
@@ -281,7 +293,7 @@ function advance(dt){
     if(game.state==='clear'||game.state==='gameover')result();
     previousState=game.state;
   }
-  sound.update(!!game.boss);
+  sound.update(game);
 }
 function present(dt,now){
   // The opaque title illustration already fills the arena. Paused scenes draw
@@ -300,12 +312,14 @@ renderer.ready.then(()=>{
 });
 let storyStorage;try{storyStorage=localStorage;}catch{}
 story=new StoryPlayer({storage:storyStorage,sprites:()=>renderer.art.sprites,
-  onOpen:()=>{audioEpoch++;clearInput();sound.setPlaying(false);sound.setAudible(false);$('notice').className='notice';noticeTimer=0;invalidate(true);},
-  onClose:()=>{sound.stopStoryCue();audioEpoch++;clearInput();sound.setAudible(!document.hidden);sound.setPlaying(game.state==='playing'&&countdown<=0&&!document.hidden);invalidate(true);},
-  onScene:async(scene,generation)=>{const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||!story.active||story.paused||generation!==story.generation)return;sound.setAudible(true);sound.storyCue(scene.tone);},
+  onOpen:()=>{audioEpoch++;clearInput();sound.beginStory();sound.setAudible(false);$('notice').className='notice';noticeTimer=0;invalidate(true);},
+  onClose:()=>{audioEpoch++;clearInput();sound.leaveStory(game,countdown<=0);sound.setAudible(!document.hidden);invalidate(true);},
+  onScene:async(scene,generation)=>{const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||!story.active||story.paused||generation!==story.generation)return;sound.setAudible(true);sound.storyCue(scene.tone,story.sequence);},
   onPause:paused=>{if(paused)sound.stopStoryCue();audioEpoch++;sound.setAudible(!paused&&!document.hidden);}
 });
 $('story-open').onclick=()=>story.openLibrary();
+for(const event of ['pointerdown','keydown'])window.addEventListener(event,()=>{if(!document.hidden)void sound.unlock();},{once:true});
+sound.setAudible(!document.hidden);
 updateSettings();ui();frameLoop.suspend(document.hidden);
 // Read-only diagnostics for performance and manual QA; no gameplay shortcuts.
 Object.defineProperty(window,'skyChaser',{value:Object.freeze({
@@ -315,5 +329,5 @@ Object.defineProperty(window,'skyChaser',{value:Object.freeze({
     lives:game.lives,bombs:game.bombs,power:game.player.power,charge:game.player.charge,chargeRequired:CHARGE_REQUIRED,
     pcSensitivity,player:{x:game.player.x,y:game.player.y,r:game.player.r},enemies:game.enemies.length,bullets:game.bullets.length,
     boss:game.boss?{type:game.boss.type,hp:game.boss.hp,phase:game.boss.phase}:null,
-    bombDamage:game.bombDamage,bomb:game.activeBomb?{name:game.activeBomb.spec.name,age:game.activeBomb.age,strikes:game.activeBomb.nextStrike}:null,autofire:true,shotsFired:game.shotsFired,story:story.snapshot()})
+    bombDamage:game.bombDamage,bomb:game.activeBomb?{name:game.activeBomb.spec.name,age:game.activeBomb.age,strikes:game.activeBomb.nextStrike}:null,autofire:true,shotsFired:game.shotsFired,story:story.snapshot(),audio:sound.snapshot()})
 }),writable:false});

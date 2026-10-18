@@ -1,4 +1,5 @@
-export const MOBILE_VERSION='0.8.1';
+import {audioSettings} from './audio-settings.mjs?v=0.9.0';
+export const MOBILE_VERSION='0.9.0';
 export const MOBILE_STORAGE='sky-chaser.mobile.v1';
 export const PREVIEW_STORAGE='sky-chaser.mobile-preview.v1';
 export const DEFAULT_SENSITIVITY=1.1;
@@ -10,7 +11,7 @@ export function cleanProfile(raw={}){
   for(const mode of ['campaign','practice2','practice3']){
     bests[mode]={};for(const level of ['easy','normal'])bests[mode][level]=Math.floor(clamp(finite(raw.bests?.[mode]?.[level],0),0,999999999));
   }
-  return {sensitivity:clamp(finite(raw.sensitivity,DEFAULT_SENSITIVITY),.7,2),leftHanded:raw.leftHanded===true,muted:raw.muted===true,bests};
+  return {...audioSettings(raw),sensitivity:clamp(finite(raw.sensitivity,DEFAULT_SENSITIVITY),.7,2),leftHanded:raw.leftHanded===true,muted:raw.muted===true,bests};
 }
 function readProfile(storage,key){
   try{const raw=JSON.parse(storage.getItem(key));return raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:null;}catch{return null;}

@@ -98,3 +98,4 @@
 .pc-sensitivity-scale{display:flex;justify-content:space-between;font-size:10px;color:#849480}.pc-setting-hint{font-size:12px;line-height:1.8;color:#687e70;margin:20px 0}
 .pc-setting-reset{width:100%;min-height:44px;border:1px solid #b7c8b7;border-radius:5px;background:#e1e8d8;color:#466d5c;font-size:12px;font-weight:700;margin-bottom:13px}
 .pc-settings-card .primary{font-size:14px;padding:13px}.pc-setting-note{font-size:10px;color:#81917b;text-align:center;margin:17px 0 0}
+.audio-settings{border-top:1px solid #cbd4bf;margin:16px 0 10px;padding-top:16px}.audio-settings label:not(:first-child){margin-top:8px}
