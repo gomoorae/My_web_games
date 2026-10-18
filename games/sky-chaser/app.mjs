@@ -1,10 +1,14 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.7.6';
-import {Renderer} from './render.mjs?v=0.7.6';
-import {Sound} from './audio.mjs?v=0.7.6';
-import {readRecords,writeRecords} from './records.mjs?v=0.7.6';
-import {FrameLoop} from './frame-loop.mjs?v=0.7.6';
-import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.7.6';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.8.0';
+import {Renderer} from './render.mjs?v=0.8.0';
+import {Sound} from './audio.mjs?v=0.8.0';
+import {readRecords,writeRecords} from './records.mjs?v=0.8.0';
+import {FrameLoop} from './frame-loop.mjs?v=0.8.0';
+import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.8.0';
 
+import {StoryPlayer} from './story.mjs?v=0.8.0';
+import {BOSS_STORIES,STAGE_STORIES,STAGE_GOALS} from './story-core.mjs?v=0.8.0';
+
+let story=null,audioEpoch=0;
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();
 let pcSensitivity=PC_SENSITIVITY.default;
@@ -14,8 +18,8 @@ let bests={campaign:{easy:0,normal:0},practice2:{easy:0,normal:0},practice3:{eas
 const format=n=>String(Math.floor(n)).padStart(7,'0');
 const timeLabel=t=>String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0');
 const frameLoop=new FrameLoop({update:advance,draw:present,
-  active:()=>game.state==='playing',
-  animate:()=>game.state==='playing'||(['clear','gameover'].includes(game.state)&&renderer.hasEffects())});
+  active:()=>game.state==='playing'&&!story?.active,
+  animate:()=>!story?.active&&(game.state==='playing'||(['clear','gameover'].includes(game.state)&&renderer.hasEffects()))});
 function invalidate(reset=false){lastUi=-Infinity;frameLoop.invalidate(reset);}
 try{
   const saved=readRecords(localStorage);bests=saved;pcSensitivity=saved.pcSensitivity;
@@ -54,25 +58,34 @@ function updateSettings(){
   $('motion').setAttribute('aria-pressed',String(renderer.motion));
   $('motion').innerHTML='<span class="toggle-dot"></span>화면 흔들림 '+(renderer.motion?'켜짐':'꺼짐');
 }
-async function start(){
+function start(){
+  if(story?.active)return;
+  if(!artReady){beginRun();return;}
+  if(story.play('opening',{route,onDone:beginRun}))return;
+  beginRun();
+}
+async function beginRun(){
   if(!$('pc-settings').hidden)return;
   if(!artReady){if(artFailed)location.reload();return;}
-  clearInput();game.start(difficulty,route);previousState='playing';newBest=false;countdown=2.4;
+  story.resetRun();clearInput();game.start(difficulty,route);previousState='playing';newBest=false;countdown=2.4;
   renderer.reset();
   $('title-screen').hidden=true;$('modal').hidden=true;$('countdown').hidden=false;
   $('notice').className='notice';noticeTimer=0;
   $('game').focus({preventScroll:true});
   invalidate(true);
-  await sound.unlock();sound.setPlaying(false);
+  const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||story.active||game.state!=='playing')return;sound.setAudible(true);sound.setPlaying(false);
 }
 function home(){
+  story?.cancel();audioEpoch++;sound.setAudible(false);
   clearInput();game.reset(difficulty,route);previousState='ready';countdown=0;sound.setPlaying(false);
   $('modal').hidden=true;$('title-screen').hidden=false;$('countdown').hidden=true;$('tutorial').hidden=true;
   $('notice').className='notice';noticeTimer=0;renderer.reset();$('start').focus({preventScroll:true});
   invalidate(true);
 }
 function pause(){
+  if(story?.active){story.interrupt();return;}
   if(game.state!=='playing')return;
+  audioEpoch++;sound.setAudible(false);
   game.pause();clearInput();sound.setPlaying(false);
   $('modal-kicker').textContent='TAKE A BREATH';$('modal-title').textContent='비행 일시정지';
   $('modal-copy').textContent='숨을 고르고 다시 하늘로.';
@@ -81,12 +94,17 @@ function pause(){
   invalidate(true);
 }
 async function resume(){
-  if(game.state!=='paused'||!$('pc-settings').hidden)return;
+  if(game.state!=='paused'||story?.active||!$('pc-settings').hidden)return;
   clearInput();game.resume();$('modal').hidden=true;$('game').focus({preventScroll:true});
   invalidate(true);
-  await sound.unlock();sound.setPlaying(game.state==='playing'&&$('pc-settings').hidden&&countdown<=0);
+  const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||story.active||game.state!=='playing')return;sound.setAudible(true);sound.setPlaying($('pc-settings').hidden&&countdown<=0);
 }
 function result(){
+  clearInput();saveBest();
+  if(game.state==='clear'&&story.play('ending',{route:game.mode,onDone:showResult}))return;
+  showResult();
+}
+function showResult(){
   clearInput();saveBest();sound.setPlaying(false);
   const win=game.state==='clear';
   $('modal-kicker').textContent=win?'MISSION COMPLETE':'THE SKY IS WAITING';
@@ -104,6 +122,7 @@ $('pause').addEventListener('click',()=>game.state==='paused'?resume():pause());
 $('sound').addEventListener('click',async()=>{await sound.unlock();sound.toggle();updateSettings();persist();});
 $('motion').addEventListener('click',()=>{renderer.motion=!renderer.motion;updateSettings();persist();invalidate();});
 function openSettings(){
+  if(story?.active)return;
   pause();clearInput();$('pc-settings').hidden=false;sensitivityLabel();$('pc-sensitivity').focus({preventScroll:true});
 }
 function closeSettings(){
@@ -144,6 +163,7 @@ for(const button of document.querySelectorAll('[data-route]'))button.addEventLis
 });
 const playKeys=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD','KeyX','KeyZ','ShiftLeft','ShiftRight','Escape']);
 window.addEventListener('keydown',e=>{
+  if(story?.active)return;
   if(!$('pc-settings').hidden){
     if(e.code==='Escape'&&!e.repeat){e.preventDefault();closeSettings();}
     if(e.code==='Tab'){
@@ -180,7 +200,7 @@ window.addEventListener('resize',()=>{renderer.resize();if(game.state==='playing
 
 const canvas=$('game');
 canvas.addEventListener('pointerdown',e=>{
-  if(game.state!=='playing'||pointer!==null)return;
+  if(game.state!=='playing'||story?.active||pointer!==null)return;
   e.preventDefault();canvas.focus({preventScroll:true});canvas.setPointerCapture(e.pointerId);
   pointer={id:e.pointerId,x:e.clientX,y:e.clientY,px:game.player.x,py:game.player.y};
   touchTarget={x:game.player.x,y:game.player.y};
@@ -226,7 +246,7 @@ function ui(){
   const stage=game.stageTime<spec.midAt?0:game.stageTime<spec.midStop+1?1:game.stageTime<spec.bossAt?2:3;
   text($('mission-number'),'0'+game.stage);
   text($('mission-title'),spec.name);
-  text($('mission-copy'),game.stage===1?'해적의 기함을 격추하고 협곡으로 향하세요.':game.stage===2?'레이저 예고선을 읽고, 포대를 파괴해 길을 여세요.':'주황색 포탄을 요격하고, 휘어지는 탄의 길을 읽으세요.');
+  text($('mission-copy'),STAGE_GOALS[game.stage]);
   document.querySelectorAll('.path-name').forEach((el,i)=>text(el,spec.route[i]));
   const subtitles=game.stage===1?['출격 · 적 편대','중간 보스','해적의 경계선','변신 보스']:game.stage===2?['출격 · 교차 편대','포대 파괴 · 레이저','복합 편대 돌파','3단계 변신 보스']:['포탄 요격 · 곡선탄','화로 포대 파괴','폭발 지점 회피','기계룡 각성 · 과열'];
   document.querySelectorAll('.path-stop small').forEach((el,i)=>text(el,subtitles[i]));
@@ -246,15 +266,15 @@ function advance(dt){
       if(countdown<=0){sound.setPlaying(true);notice('루미, 출격! 하늘길을 열자.',2);}
     }else{
       accumulator+=dt;
-      while(accumulator>=STEP){game.step(STEP,input);chargeRequested=false;input.chargePressed=false;accumulator-=STEP;if(game.state!=='playing'){accumulator=0;break;}}
+      while(accumulator>=STEP){const stage=game.stage;game.step(STEP,input);chargeRequested=false;input.chargePressed=false;accumulator-=STEP;if(game.state!=='playing'||game.stage!==stage){accumulator=0;break;}}
     }
     if(noticeTimer>0){noticeTimer-=dt;if(noticeTimer<=0)$('notice').className='notice';}
   }
   const events=game.takeEvents();renderer.consume(events);sound.consume(events);
   for(const e of events){
-    if(e.kind==='warning')notice(e.text,3.5,true);
+    if(e.kind==='warning'){const id=BOSS_STORIES[game.boss?.type];if(!id||!story.play(id,{route:game.mode,once:true}))notice(e.text,3.5,true);}
     if(e.kind==='transform'){$('notice').className='notice';noticeTimer=0;}
-    if(e.kind==='stageStart'){clearInput();notice(e.text,2.4);}
+    if(e.kind==='stageStart'){clearInput();if(!story.play(STAGE_STORIES[e.stage],{route:game.mode}))notice(e.text,2.4);}
     if(e.kind==='message')notice(e.text,2.5);
   }
   if(game.state!==previousState){
@@ -266,7 +286,7 @@ function advance(dt){
 function present(dt,now){
   // The opaque title illustration already fills the arena. Paused scenes draw
   // once on invalidation; result effects finish before the scheduler goes idle.
-  if(game.state!=='ready')renderer.draw(game,visualTime,dt,getInput());
+  if(game.state!=='ready'&&!story?.active)renderer.draw(game,visualTime,dt,getInput());
   if(now-lastUi>80){ui();lastUi=now;}
 }
 $('start').disabled=true;$('start').textContent='비행 준비 중…';
@@ -278,6 +298,14 @@ renderer.ready.then(()=>{
   artFailed=true;$('start').disabled=false;$('start').textContent='그림 다시 불러오기';
   $('asset-status').textContent='그림을 불러오지 못했습니다. 연결을 확인한 뒤 다시 시도해 주세요.';
 });
+let storyStorage;try{storyStorage=localStorage;}catch{}
+story=new StoryPlayer({storage:storyStorage,sprites:()=>renderer.art.sprites,
+  onOpen:()=>{audioEpoch++;clearInput();sound.setPlaying(false);sound.setAudible(false);$('notice').className='notice';noticeTimer=0;invalidate(true);},
+  onClose:()=>{sound.stopStoryCue();audioEpoch++;clearInput();sound.setAudible(!document.hidden);sound.setPlaying(game.state==='playing'&&countdown<=0&&!document.hidden);invalidate(true);},
+  onScene:async(scene,generation)=>{const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||!story.active||story.paused||generation!==story.generation)return;sound.setAudible(true);sound.storyCue(scene.tone);},
+  onPause:paused=>{if(paused)sound.stopStoryCue();audioEpoch++;sound.setAudible(!paused&&!document.hidden);}
+});
+$('story-open').onclick=()=>story.openLibrary();
 updateSettings();ui();frameLoop.suspend(document.hidden);
 // Read-only diagnostics for performance and manual QA; no gameplay shortcuts.
 Object.defineProperty(window,'skyChaser',{value:Object.freeze({
@@ -287,5 +315,5 @@ Object.defineProperty(window,'skyChaser',{value:Object.freeze({
     lives:game.lives,bombs:game.bombs,power:game.player.power,charge:game.player.charge,chargeRequired:CHARGE_REQUIRED,
     pcSensitivity,player:{x:game.player.x,y:game.player.y,r:game.player.r},enemies:game.enemies.length,bullets:game.bullets.length,
     boss:game.boss?{type:game.boss.type,hp:game.boss.hp,phase:game.boss.phase}:null,
-    bombDamage:game.bombDamage,bomb:game.activeBomb?{name:game.activeBomb.spec.name,age:game.activeBomb.age,strikes:game.activeBomb.nextStrike}:null,autofire:true,shotsFired:game.shotsFired})
+    bombDamage:game.bombDamage,bomb:game.activeBomb?{name:game.activeBomb.spec.name,age:game.activeBomb.age,strikes:game.activeBomb.nextStrike}:null,autofire:true,shotsFired:game.shotsFired,story:story.snapshot()})
 }),writable:false});

@@ -13,6 +13,14 @@ export class Sound {
       if(this.ctx.state==='suspended')await this.ctx.resume();
     }catch{/* Audio may be unavailable; gameplay is independent. */}
   }
+  setAudible(value){if(this.master)this.master.gain.setTargetAtTime(value&&this.enabled?.38:0,this.ctx.currentTime,.025);}
+  stopStoryCue(){for(const node of this.storyNotes||[])try{node?.stop();}catch{}this.storyNotes=[];}
+  storyCue(kind){
+    this.stopStoryCue();this.setPlaying(false);if(!this.ctx||!this.enabled)return;
+    const notes=({warm:[523,659,784],launch:[659,784,1047],alarm:[196,233,294],storm:[220,330,440],foundry:[165,247,330],resolve:[392,523,659],victory:[523,659,784,1047]})[kind]||[523,659,784];
+    this.storyNotes=notes.map((note,i)=>this.tone(note,.65,.075,'sine',this.ctx.currentTime+i*.15));
+    if(kind==='storm'||kind==='foundry')this.storyNotes.push(this.hiss(.035,.35));
+  }
   toggle(){this.enabled=!this.enabled;if(this.master)this.master.gain.setTargetAtTime(this.enabled?.38:0,this.ctx.currentTime,.02);return this.enabled;}
   setPlaying(value){this.playing=value;if(this.ctx)this.nextBeat=this.ctx.currentTime+.05;}
   tone(freq,duration,volume=.1,type='triangle',when=null,endFreq=null){
@@ -22,7 +30,7 @@ export class Sound {
     g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(volume,at+.008);
     g.gain.exponentialRampToValueAtTime(.0001,at+duration);
     o.connect(g);g.connect(this.master);o.start(at);o.stop(at+duration+.03);
-    o.onended=()=>{o.disconnect();g.disconnect();};
+    o.onended=()=>{o.disconnect();g.disconnect();};return o;
   }
   hiss(volume=.12,duration=.2){
     if(!this.ctx||!this.enabled)return;
@@ -30,7 +38,7 @@ export class Sound {
     n.buffer=this.noise;f.type='lowpass';f.frequency.setValueAtTime(2400,at);f.frequency.exponentialRampToValueAtTime(150,at+duration);
     g.gain.setValueAtTime(volume,at);g.gain.exponentialRampToValueAtTime(.0001,at+duration);
     n.connect(f);f.connect(g);g.connect(this.master);n.start(at);n.stop(at+duration);
-    n.onended=()=>{n.disconnect();f.disconnect();g.disconnect();};
+    n.onended=()=>{n.disconnect();f.disconnect();g.disconnect();};return n;
   }
   update(boss=false){
     if(!this.ctx||!this.enabled||!this.playing||this.ctx.state!=='running')return;
