@@ -1,5 +1,5 @@
-import {audioSettings} from './audio-settings.mjs?v=0.9.2';
-export const MOBILE_VERSION='0.9.2';
+import {audioSettings} from './audio-settings.mjs?v=0.9.3';
+export const MOBILE_VERSION='0.9.3';
 export const MOBILE_STORAGE='sky-chaser.mobile.v1';
 export const PREVIEW_STORAGE='sky-chaser.mobile-preview.v1';
 export const DEFAULT_SENSITIVITY=1.1;

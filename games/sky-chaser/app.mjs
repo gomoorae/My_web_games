@@ -1,12 +1,12 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.9.2';
-import {Renderer} from './render.mjs?v=0.9.2';
-import {Sound} from './audio.mjs?v=0.9.2';
-import {readRecords,writeRecords} from './records.mjs?v=0.9.2';
-import {FrameLoop} from './frame-loop.mjs?v=0.9.2';
-import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.9.2';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.9.3';
+import {Renderer} from './render.mjs?v=0.9.3';
+import {Sound} from './audio.mjs?v=0.9.3';
+import {readRecords,writeRecords} from './records.mjs?v=0.9.3';
+import {FrameLoop} from './frame-loop.mjs?v=0.9.3';
+import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.9.3';
 
-import {StoryPlayer} from './story.mjs?v=0.9.2';
-import {BOSS_STORIES,STAGE_STORIES,STAGE_GOALS} from './story-core.mjs?v=0.9.2';
+import {StoryPlayer} from './story.mjs?v=0.9.3';
+import {BOSS_STORIES,START_STORIES,STAGE_STORIES,STAGE_GOALS} from './story-core.mjs?v=0.9.3';
 
 let story=null,audioEpoch=0;
 const $=id=>document.getElementById(id);
@@ -63,7 +63,7 @@ function updateSettings(){
 function start(){
   if(story?.active)return;
   if(!artReady){beginRun();return;}
-  if(story.play('opening',{route,onDone:beginRun}))return;
+  if(story.play(START_STORIES[route],{route,onDone:beginRun}))return;
   beginRun();
 }
 async function beginRun(){
@@ -313,7 +313,7 @@ renderer.ready.then(()=>{
 let storyStorage;try{storyStorage=localStorage;}catch{}
 story=new StoryPlayer({storage:storyStorage,sprites:()=>renderer.art.sprites,artReady:renderer.ready,motion:()=>renderer.motion,
   onOpen:context=>{audioEpoch++;clearInput();sound.beginStory(context.sequence);sound.setAudible(!document.hidden);$('notice').className='notice';noticeTimer=0;invalidate(true);},
-  onClose:()=>{audioEpoch++;clearInput();sound.leaveStory(game);sound.setAudible(!document.hidden);invalidate(true);},
+  onClose:({continues}={})=>{audioEpoch++;clearInput();if(!continues)sound.leaveStory(game);sound.setAudible(!document.hidden);invalidate(true);},
   onScene:async(scene,generation)=>{const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||!story.active||story.paused||generation!==story.generation)return;sound.setAudible(true);sound.storyScene(story.sequence);},
   onPause:paused=>{audioEpoch++;sound.setAudible(!paused&&!document.hidden);}
 });

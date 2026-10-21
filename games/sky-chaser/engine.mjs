@@ -1,10 +1,10 @@
 import {STAGES,RUN_MODES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.9.2';
-import {FORGE_WAVES,FORGE_EASY_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,updateForgeBomber,moveMortar,mortarArmed,mortarCrossfire} from './forge.mjs?v=0.9.2';
-import {keyboardSpeed} from './pc-controls.mjs?v=0.9.2';
+  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.9.3';
+import {FORGE_WAVES,FORGE_EASY_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,updateForgeBomber,moveMortar,mortarArmed,mortarCrossfire} from './forge.mjs?v=0.9.3';
+import {keyboardSpeed} from './pc-controls.mjs?v=0.9.3';
 export {STAGES,RUN_MODES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.9.2';
+export const VERSION = '0.9.3';
 export const PLAYER_SCALE = .72;
 export const PLAYER_HIT_RADIUS = 3.6;
 export const CHARGE_REQUIRED = 240;
@@ -61,8 +61,8 @@ const SPECS = {
   turret: {hp: 35, r: 22, score: 220, vy: 43},
   bomber: {hp: 64, r: 32, score: 400, vy: 43},
   mine: {hp: 24, r: 19, score: 180, vy: 62},
-  midboss: {hp: 680, r: 54, score: 4000, vy: 55},
-  boss: {hp: 2600, r: 72, score: 12000, vy: 50}
+  midboss: {hp: 1360, r: 54, score: 4000, vy: 55},
+  boss: {hp: 5200, r: 72, score: 12000, vy: 50}
 };
 
 export class Game {
@@ -148,7 +148,7 @@ export class Game {
       vy: Math.sin(angle) * speed * scale, r, style, age: 0, dead: false};
     this.bullets.push(b);return b;
   }
-  fan(e, count, spread, speed, aim = true, style = 'rose', offsetX = 0) {
+  fan(e, count, spread, speed, aim = true, style = 'rose', offsetX = 0, density = HOSTILE_DENSITY) {
     // Match the painted cannon muzzles. The boss's core remains the hitbox.
     const muzzles = {scout: 20, interceptor: 27, turret: 26, bomber: 33, midboss: 62,gemini:60,tempest:65,pod:45,vulcan:50,ignis:126};
     const x = e.x + offsetX * (e.type === 'boss' && e.phase === 2 ? 1.85 : 1);
@@ -158,8 +158,8 @@ export class Game {
       const angle=base+(i-(count-1)/2)*spread;
       // Retain every original aimed round, interleave its partner, and
       // alternate the extra edge so doubling never removes the centre shot.
-      for(let j=0;j<HOSTILE_DENSITY;j++)this.bullet(x,y,
-        angle+(e.volley%2?-1:1)*j*(count===1?.044:spread)/HOSTILE_DENSITY,speed,style);
+      for(let j=0;j<density;j++)this.bullet(x,y,
+        angle+(e.volley%2?-1:1)*j*(count===1?.044:spread)/density,speed,style);
     }
   }
   ring(e, count, speed, phase = 0) {

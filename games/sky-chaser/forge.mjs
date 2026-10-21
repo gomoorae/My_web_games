@@ -1,4 +1,4 @@
-import {HOSTILE_DENSITY} from './stages.mjs?v=0.9.2';
+import {HOSTILE_DENSITY} from './stages.mjs?v=0.9.3';
 export const FORGE_SPECS={
   vulcan:{hp:1250,r:52,score:8500,vy:64},
   ignis:{hp:4200,r:70,score:28000,vy:62}
@@ -38,8 +38,8 @@ export function attachForgePods(e){
   e.parts=[-1,1].map(side=>({id:`${e.id}:${side}`,side,hp,maxHp:hp,r:final?24:22,
     dx:side*dx,dy:24,x:e.x+side*dx,y:e.y+24,px:e.x+side*dx,py:e.y+24,dead:false,flash:0}));
 }
-function safeFan(g,e,count,spread,speed,aim=true,style='rose',offset=0){
-  if(Math.hypot(g.player.x-e.x-offset,g.player.y-e.y-(e.type==='ignis'?126:50))>110)g.fan(e,count,spread,speed,aim,style,offset);
+function safeFan(g,e,count,spread,speed,aim=true,style='rose',offset=0,density=HOSTILE_DENSITY){
+  if(Math.hypot(g.player.x-e.x-offset,g.player.y-e.y-(e.type==='ignis'?126:50))>110)g.fan(e,count,spread,speed,aim,style,offset,density);
 }
 function curvedFan(g,e,side,count,speed,turn=.46){
   const x=e.x+side*76,y=e.y+52;
@@ -103,7 +103,7 @@ export function forgeAttack(g,e){
   if(e.type==='vulcan'){
     for(const p of pods)g.launchMortar(e,p.x,p.y+43,g.player.x+p.side*62,g.player.y,
       {partId:p.id,flight:.95});
-    safeFan(g,e,easy?2:3,.22,150);
+    safeFan(g,e,easy?2:3,.22,150,true,'rose',0,HOSTILE_DENSITY*2);
     e.fire=pods.length?(easy?2.5:2.3):2.05;
   }else if(e.phase===1){
     if(e.volley%3===1&&pods.length)scatterSalvo(g,e,Math.min(easy?3:4,pods.length*2),easy?.58:.46,pods);

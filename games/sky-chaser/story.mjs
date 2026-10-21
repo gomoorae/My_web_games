@@ -1,5 +1,5 @@
-import {STORIES,STORY_IDS,STORY_STORAGE,SceneTimer,loadStoryProgress,saveStoryProgress,shouldPlayStory} from './story-core.mjs?v=0.9.2';
-import {StoryCinema,storyPresentation} from './story-cinema.mjs?v=0.9.2';
+import {STORIES,STORY_IDS,STORY_STORAGE,SceneTimer,loadStoryProgress,saveStoryProgress,shouldPlayStory} from './story-core.mjs?v=0.9.3';
+import {StoryCinema,storyPresentation} from './story-cinema.mjs?v=0.9.3';
 
 export class StoryPlayer {
   constructor({storage,sprites=()=>({}),artReady=Promise.resolve(),motion=()=>true,onOpen=()=>{},onClose=()=>{},onScene=()=>{},onPause=()=>{}}={}){
@@ -24,7 +24,7 @@ export class StoryPlayer {
         <div class="story-caption"><p class="story-chapter"></p><h2 id="story-title"></h2><span class="story-rule" aria-hidden="true"></span><p class="story-text"></p><p class="story-dialogue"><b></b><span></span></p></div>
         <footer class="story-footer"><div class="story-progress" aria-hidden="true"><span class="story-progress-fill"></span></div><span class="story-count"></span><button type="button" data-story-pause aria-pressed="false">자동 넘김 멈춤</button><button type="button" class="story-next" data-story-next>다음</button></footer>
       </div>
-      <div class="story-library" hidden><p class="story-eyebrow">FLIGHT JOURNAL</p><h2 id="story-library-title">빼앗긴 바람</h2><p class="story-library-copy">루미와 함께 되찾은 하늘길. 만난 장면을 다시 볼 수 있어요.</p><label class="story-preference"><input type="checkbox" data-story-preference> 본 이야기 자동 건너뛰기</label><div class="story-list"></div><button type="button" class="story-library-close" data-story-close>출격 화면으로</button></div>
+      <div class="story-library" hidden><p class="story-eyebrow">FLIGHT JOURNAL</p><h2 id="story-library-title">빼앗긴 바람</h2><p class="story-library-copy">이야기는 출격할 때마다 나와요. 언제든 건너뛰거나, 만난 장면을 여기서 다시 볼 수 있어요.</p><div class="story-list"></div><button type="button" class="story-library-close" data-story-close>출격 화면으로</button></div>
     </div>`;
     document.body.append(this.root);this.resize();
     window.addEventListener('resize',()=>{this.resize();this.interrupt();});
@@ -34,7 +34,6 @@ export class StoryPlayer {
     this.el('[data-story-close]').onclick=()=>this.close();
     this.el('[data-story-next]').onclick=e=>{e.stopPropagation();this.next();};
     this.el('[data-story-pause]').onclick=()=>this.togglePause();
-    this.el('[data-story-preference]').onchange=e=>{this.progress.skipSeen=e.target.checked;this.progress=saveStoryProgress(this.storage,this.progress,true);};
     window.addEventListener('keydown',e=>this.key(e),true);
     window.addEventListener('keyup',e=>{if(this.heldKeys.delete(e.code)){e.preventDefault();e.stopImmediatePropagation();}else if(this.active&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&this.gameKey(e.code))e.stopImmediatePropagation();},true);
     window.addEventListener('blur',()=>{this.heldKeys.clear();this.interrupt();});
@@ -48,9 +47,8 @@ export class StoryPlayer {
   save(){this.progress=saveStoryProgress(this.storage,this.progress);}
   unlock(id){if(!this.progress.unlocked.includes(id)){this.progress.unlocked.push(id);this.save();}}
   play(id,{route='campaign',replay=false,onDone=null,once=false}={}){
-    if(!Object.hasOwn(STORIES,id)||(!replay&&route!=='campaign'))return false;
-    if(!replay){if(once&&this.runCues.has(id))return false;this.runCues.add(id);this.unlock(id);}
     if(!shouldPlayStory(this.progress,id,route,replay))return false;
+    if(!replay){if(once&&this.runCues.has(id))return false;this.runCues.add(id);this.unlock(id);}
     if(this.mode==='sequence')return true;
     this.enter({sequence:id,replay});this.mode='sequence';this.root.dataset.mode='sequence';this.sequence=id;this.current=null;this.index=0;this.done=onDone;this.replay=replay;this.paused=false;
     this.el('.story-library').hidden=true;this.el('.story-reader').hidden=false;
@@ -99,7 +97,7 @@ export class StoryPlayer {
     this.progress.seen=[...new Set([...this.progress.seen,this.sequence])];this.save();
     const replay=this.replay,done=this.done;this.done=null;
     if(replay){this.openLibrary();return;}
-    this.close();done?.();
+    this.close({continues:!!done});done?.();
   }
   interrupt(){if(this.mode==='sequence'&&!this.paused){this.paused=true;this.timer.pause();this.cinema.pause();this.syncPause();this.onPause(true);}}
   togglePause(){
@@ -116,7 +114,6 @@ export class StoryPlayer {
     this.renderLibrary();this.onPause(true);this.el('[data-story-close]').focus({preventScroll:true});
   }
   renderLibrary(){
-    this.el('[data-story-preference]').checked=this.progress.skipSeen;
     const list=this.el('.story-list');list.replaceChildren();
     for(const id of STORY_IDS){
       const button=document.createElement('button');button.type='button';button.dataset.storyReplay=id;
@@ -126,11 +123,11 @@ export class StoryPlayer {
       button.onclick=()=>this.play(id,{replay:true});list.append(button);
     }
   }
-  close(){
+  close(context={}){
     if(!this.active)return;
     this.timer.stop();this.cinema.cancel();this.generation++;this.mode=null;this.current=null;this.done=null;this.paused=false;this.root.hidden=true;
     for(const [el,value] of this.inertRoots||[])el.inert=value;
-    this.onClose();if(this.returnFocus?.isConnected&&!this.returnFocus.closest('[hidden]'))this.returnFocus.focus({preventScroll:true});
+    this.onClose(context);if(this.returnFocus?.isConnected&&!this.returnFocus.closest('[hidden]'))this.returnFocus.focus({preventScroll:true});
   }
   cancel(){this.done=null;this.close();}
   gameKey(code){return ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','KeyZ','KeyX','KeyF','Enter','Space','Escape'].includes(code);}
@@ -147,5 +144,5 @@ export class StoryPlayer {
     if(['Enter','Space'].includes(e.code)&&['BUTTON','INPUT'].includes(e.target.tagName)){e.preventDefault();if(!e.repeat)e.target.click();return;}
     e.preventDefault();if(!e.repeat&&['Enter','Space'].includes(e.code))this.next();
   }
-  snapshot(){return {active:this.active,mode:this.mode,sequence:this.sequence||null,index:this.index,paused:this.paused,seen:[...this.progress.seen],unlocked:[...this.progress.unlocked],skipSeen:this.progress.skipSeen,cinema:this.cinema.snapshot(),presentation:this.root.dataset.kind||null};}
+  snapshot(){return {active:this.active,mode:this.mode,sequence:this.sequence||null,index:this.index,paused:this.paused,seen:[...this.progress.seen],unlocked:[...this.progress.unlocked],cinema:this.cinema.snapshot(),presentation:this.root.dataset.kind||null};}
 }

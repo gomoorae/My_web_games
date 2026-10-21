@@ -1,11 +1,11 @@
-import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.9.2';
-import {Renderer} from './render.mjs?v=0.9.2';
-import {Sound} from './audio.mjs?v=0.9.2';
-import {FrameLoop} from './frame-loop.mjs?v=0.9.2';
-import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.9.2';
+import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.9.3';
+import {Renderer} from './render.mjs?v=0.9.3';
+import {Sound} from './audio.mjs?v=0.9.3';
+import {FrameLoop} from './frame-loop.mjs?v=0.9.3';
+import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.9.3';
 
-import {StoryPlayer} from './story.mjs?v=0.9.2';
-import {BOSS_STORIES,STAGE_STORIES} from './story-core.mjs?v=0.9.2';
+import {StoryPlayer} from './story.mjs?v=0.9.3';
+import {BOSS_STORIES,START_STORIES,STAGE_STORIES} from './story-core.mjs?v=0.9.3';
 
 let story=null;
 const $=id=>document.getElementById(id),game=new Game(),sound=new Sound();
@@ -47,7 +47,7 @@ function notice(message,seconds=2.5){put($('notice'),message);$('notice').hidden
 function start(){
   if(story?.active||layout.blocked)return;
   if(!ready){beginRun();return;}
-  if(story.play('opening',{route,onDone:beginRun}))return;
+  if(story.play(START_STORIES[route],{route,onDone:beginRun}))return;
   beginRun();
 }
 function beginRun(){
@@ -233,7 +233,7 @@ window.addEventListener('keyup',e=>keys.delete(e.code));
 renderer.ready.then(()=>{ready=true;$('start').disabled=false;put($('start'),'출격하기');$('asset-status').hidden=true;invalidate();}).catch(()=>{assetFailed=true;$('start').disabled=false;put($('start'),'그림 다시 불러오기');put($('asset-status'),'연결을 확인한 뒤 다시 눌러 주세요.');});
 story=new StoryPlayer({storage,sprites:()=>renderer.art.sprites,artReady:renderer.ready,motion:()=>renderer.motion,
   onOpen:context=>{audioEpoch++;resetInput();sound.beginStory(context.sequence);sound.setAudible(!document.hidden&&!layout.blocked);$('notice').hidden=true;noticeTime=0;invalidate(true);},
-  onClose:()=>{audioEpoch++;resetInput();sound.leaveStory(game);if(game.state==='playing'&&(layout.blocked||document.hidden))pause();else sound.setAudible(!document.hidden&&!layout.blocked);invalidate(true);},
+  onClose:({continues}={})=>{audioEpoch++;resetInput();if(!continues)sound.leaveStory(game);if(game.state==='playing'&&(layout.blocked||document.hidden))pause();else sound.setAudible(!document.hidden&&!layout.blocked);invalidate(true);},
   onScene:async(scene,generation)=>{const epoch=++audioEpoch;await sound.unlock();if(epoch!==audioEpoch||!story.active||story.paused||generation!==story.generation)return;sound.setAudible(true);sound.storyScene(story.sequence);},
   onPause:paused=>{audioEpoch++;sound.setAudible(!paused&&!document.hidden);}
 });

@@ -8,6 +8,7 @@ export const STAGE_GOALS={
 };
 export const BOSS_STORIES={boss:'raven',tempest:'tempest',ignis:'ignis'};
 export const STAGE_STORIES={2:'canyon',3:'foundry'};
+export const START_STORIES={campaign:'opening',practice2:'canyon',practice3:'foundry'};
 export const STORIES={
   opening:{label:'오프닝 · 빼앗긴 바람',chapter:'PROLOGUE',scenes:[
     {title:'하늘길을 달리는 배달부',text:'섬과 도시를 잇는 바람길. 룬 등대의 「바람의 심장」이 그 길을 지켜 왔다.',line:'루미에게 이 하늘은, 매일 누군가의 소식을 전하던 길이었다.',art:asset('harbor-painted-v2.png'),position:'50% 50%',duration:5500,theme:'harbor'},
@@ -40,14 +41,12 @@ const validIds=value=>Array.isArray(value)?value.filter(id=>STORY_IDS.includes(i
 export function cleanStoryProgress(raw={}){
   raw=raw&&typeof raw==='object'?raw:{};
   const seen=[...new Set(validIds(raw.seen))];
-  return {skipSeen:raw.skipSeen!==false,seen,unlocked:[...new Set(['opening',...validIds(raw.unlocked),...seen])]};
+  return {seen,unlocked:[...new Set(['opening',...validIds(raw.unlocked),...seen])]};
 }
 export function loadStoryProgress(storage){try{return cleanStoryProgress(JSON.parse(storage.getItem(STORY_STORAGE)||'{}'));}catch{return cleanStoryProgress();}}
-export function saveStoryProgress(storage,progress,preferenceChanged=false){
+export function saveStoryProgress(storage,progress){
   const old=loadStoryProgress(storage),next=cleanStoryProgress(progress);
-  let storedPreference;try{storedPreference=JSON.parse(storage.getItem(STORY_STORAGE)||'null')?.skipSeen;}catch{}
-  const skipSeen=preferenceChanged?next.skipSeen:typeof storedPreference==='boolean'?storedPreference:next.skipSeen;
-  const merged=cleanStoryProgress({skipSeen,
+  const merged=cleanStoryProgress({
     seen:[...old.seen,...next.seen],unlocked:[...old.unlocked,...next.unlocked]});
   try{storage.setItem(STORY_STORAGE,JSON.stringify(merged));}catch{}
   return merged;
@@ -55,7 +54,10 @@ export function saveStoryProgress(storage,progress,preferenceChanged=false){
 export function shouldPlayStory(progress,id,mode='campaign',replay=false){
   if(!Object.hasOwn(STORIES,id))return false;
   if(replay)return progress.unlocked.includes(id);
-  return mode==='campaign'&&(!progress.skipSeen||!progress.seen.includes(id));
+  if(mode==='campaign')return true;
+  // Practice shows its own arrival and boss; the campaign ending stays earned
+  // by completing all three stages. Seen flags only track the replay library.
+  return mode==='practice2'&&['canyon','tempest'].includes(id)||mode==='practice3'&&['foundry','ignis'].includes(id);
 }
 
 // One timer per scene; cancellation and pause never run an old completion.

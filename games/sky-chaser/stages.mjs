@@ -38,12 +38,12 @@ export function makeStormWaves(){
 }
 export const STORM_WAVES = makeStormWaves();
 export const STORM_SPECS = {
-  gemini:{hp:920,r:48,score:6500,vy:65},
-  tempest:{hp:3900,r:70,score:22000,vy:65}
+  gemini:{hp:1380,r:48,score:6500,vy:65},
+  tempest:{hp:5850,r:70,score:22000,vy:65}
 };
 export function attachPods(e){
   if(!STORM_SPECS[e.type])return;
-  const final=e.type==='tempest',hp=final?240:150;
+  const final=e.type==='tempest',hp=final?360:225;
   e.parts=[-1,1].map(side=>({id:`${e.id}:${side}`,side,hp,maxHp:hp,r:final?25:21,
     dx:side*(final?119:81),dy:final?21:24,x:e.x+side*(final?119:81),y:e.y+24,
     px:e.x+side*(final?119:81),py:e.y+24,dead:false,flash:0}));
@@ -60,8 +60,8 @@ export function stormAttack(g,e){
     if(laserPod){
       const y=laserPod.y+45,a=Math.atan2(g.player.y-y,g.player.x-laserPod.x);
       g.laser(e,laserPod.x,y,a,easy?1.15:.9,.65,12,laserPod.id);
-      for(const p of pods)if(p!==laserPod)g.fan({...p,type:'pod'},3,.28,114,false,'amber');
-    }else g.fan(e,easy?3:5,.21,150,true,'amber');
+      for(const p of pods)if(p!==laserPod)g.fan({...p,type:'pod'},3,.28,114,false,'amber',0,HOSTILE_DENSITY*2);
+    }else g.fan(e,easy?3:5,.21,150,true,'amber',0,HOSTILE_DENSITY*2);
     e.fire=2.8;
     return;
   }

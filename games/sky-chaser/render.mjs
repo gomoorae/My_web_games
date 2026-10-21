@@ -1,9 +1,9 @@
-import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=0.9.2';
-import {ArtBank} from './art.mjs?v=0.9.2';
-import {drawLaser} from './laser-fx.mjs?v=0.9.2';
-import {drawMortars} from './forge-fx.mjs?v=0.9.2';
-import {renderRatio} from './frame-loop.mjs?v=0.9.2';
-import {glow,flame,normalShot} from './canvas-fx.mjs?v=0.9.2';
+import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=0.9.3';
+import {ArtBank} from './art.mjs?v=0.9.3';
+import {drawLaser} from './laser-fx.mjs?v=0.9.3';
+import {drawMortars} from './forge-fx.mjs?v=0.9.3';
+import {renderRatio} from './frame-loop.mjs?v=0.9.3';
+import {glow,flame,normalShot} from './canvas-fx.mjs?v=0.9.3';
 const TAU=Math.PI*2;
 const mix=(a,b,t)=>a+(b-a)*t;
 const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};

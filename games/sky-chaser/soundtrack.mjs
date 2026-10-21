@@ -1,4 +1,4 @@
-import {MUSIC_CATALOG} from './music-catalog.mjs?v=0.9.2';
+import {MUSIC_CATALOG} from './music-catalog.mjs?v=0.9.3';
 const $=id=>document.getElementById(id),audio=$('audio');audio.volume=.7;
 const entries=[['title','타이틀 · 오프닝'],['stage1','STAGE 01 · 해풍의 항구'],['stage2','STAGE 02 · 뇌운의 협곡'],['stage3','STAGE 03 · 홍련의 조선소'],['boss1','BOSS 01 · 아이언 레이븐'],['boss2','BOSS 02 · 템페스트'],['boss3','BOSS 03 · 이그니스'],['ending','엔딩 · 돌아온 바람']];
 let selected=null,serial=0;
