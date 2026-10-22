@@ -26,11 +26,11 @@
   },
   {
     "title": "NEON TERRITORY",
-    "description": "선을 잇고, 나만의 영역을 넓혀봐. 적의 움직임을 피해 10개의 스테이지를 돌파하는 땅따먹기.",
+    "description": "예고를 읽고 크게 차지해! 네 가지 적과 달라지는 지형, 점수·메달·자동 저장을 갖춘 10스테이지 땅따먹기. PC와 모바일에서 이어서 즐기세요.",
     "thumbnail": "thumbs/neon_territory.svg",
-    "url": "games/neon_territory/index.html",
+    "url": "games/neon_territory/?v=0.5.0",
     "category": "TERRITORY · 땅따먹기",
-    "detail": "10 STAGES"
+    "detail": "KEYBOARD + TOUCH · 10 STAGES"
   },
   {
     "title": "월하무쌍",
