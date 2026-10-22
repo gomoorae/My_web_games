@@ -1,5 +1,5 @@
-import {regularInterval} from './difficulty.mjs?v=0.10.0';
-import {HOSTILE_DENSITY} from './stages.mjs?v=0.10.0';
+import {regularInterval} from './difficulty.mjs?v=0.10.1';
+import {HOSTILE_DENSITY} from './stages.mjs?v=0.10.1';
 export const FORGE_SPECS={
   vulcan:{hp:1800,r:52,score:8500,vy:64},
   ignis:{hp:6400,r:70,score:28000,vy:62}
