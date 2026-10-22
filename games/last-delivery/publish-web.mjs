@@ -26,5 +26,5 @@ for(const name of await readdir(path.join(destination,'dist'))){
   await writeFile(target,(await readFile(target,'utf8')).replace(/assets\/([a-zA-Z0-9_-]+)\.png/g,'assets/$1.webp'));
 }
 const html=await readFile(path.join(destination,'dist/index.html'),'utf8');
-await writeFile(path.join(destination,'index.html'),html.replace(/href="([^"/]+\.css)"/g,'href="dist/$1"').replace(/src="game\.js(\?[^"<>]*)?"/,'src="dist/game.js$1"'));
+await writeFile(path.join(destination,'index.html'),html.replace(/href="([^"/]+\.css)(\?[^"<>]*)?"/g,'href="dist/$1$2"').replace(/src="game\.js(\?[^"<>]*)?"/,'src="dist/game.js$1"'));
 console.log(JSON.stringify({destination,sourceImageBytes:sourceBytes,webImageBytes:webBytes}));

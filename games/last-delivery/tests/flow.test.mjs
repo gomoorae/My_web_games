@@ -224,7 +224,7 @@ test('paid refinement previews exact gains, shows persistent before/after result
  const r=E.createRun('sword',4);r.phase='prepare';r.gold=200;
  const h=harness(new Map([['last-delivery.run.v2',JSON.stringify(r)]]));h.click({action:'continue'});
  const w=r.items.find(i=>i.type==='sword'),book=r.items.find(i=>i.type==='swordbook');h.click({item:w.uid});
- assert.match(h.app.innerHTML,/다음 연마 · \+0 → \+1/);assert.match(h.app.innerHTML,/기본 설명 · 연마 전/);
+ assert.match(h.app.innerHTML,/다음 연마 · \+0 → \+1/);assert.match(h.app.innerHTML,/기본 효과 · 연마 전/);
  const expected=compareItemLevels(r,w.uid,0,1),priorArt=r.items.find(i=>i.uid===book.uid).level;
  h.click({action:'upgrade'});const after=h.state(),report=after.refinementReport;
  assert.equal(after.gold,180);assert.equal(report.source,'paid');assert.equal(report.entries.length,1);

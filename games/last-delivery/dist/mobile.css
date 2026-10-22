@@ -15,7 +15,7 @@
   .header-actions{gap:4px;flex:none}
   .header-actions>.button{font-size:11px;padding:8px;min-height:44px}
   .icon-btn{width:44px;height:44px;flex:none}
-  .button,.button.small-btn,.text-btn,.shop-item .buy,.reserve-rotate,.modal-close,.refinement-dismiss,.performance-more>summary,.item-base-description>summary,.enemy-relation{min-height:44px}
+  .button,.button.small-btn,.text-btn,.shop-item .buy,.reserve-rotate,.modal-close,.refinement-dismiss,.performance-more>summary,.enemy-relation{min-height:44px}
   .button{white-space:normal;line-height:1.45;padding:10px 13px}
   .button.small-btn{padding:8px 11px}
   .shell{padding:12px max(12px,env(safe-area-inset-right)) calc(85px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
@@ -57,7 +57,7 @@
   .footer{font-size:10px;line-height:1.7;margin-top:18px}
   .footer>span:last-child{display:none}
 
-  /* Touch order: board, selected-item controls, then storage. */
+  /* Touch order: board, controls, selected item effects, then storage. */
   .bag-panel{flex-direction:column;max-width:530px;width:100%;margin:0 auto;padding:16px 13px;min-width:0}
   .bag-panel>*{order:20;min-width:0}
   .bag-panel>.section-heading{order:0;margin-bottom:16px;gap:8px}
@@ -66,15 +66,15 @@
   .capacity{font-size:10px;flex:none}
   .bag-panel>.bag-cloth{order:1;width:100%;margin-inline:0;padding:7px;border-width:4px}
   .bag-panel>.bag-touch-tools{order:2}
-  .bag-panel>.reserve-head{order:3;margin-top:13px}
-  .bag-panel>.reserve{order:4}
-  .bag-panel>.placement-feedback{order:5;margin:8px 0 0;font-size:11px}
-  .bag-panel>.connection-legend{order:6;margin-top:4px;margin-bottom:10px}
-  .bag-panel>.connection-readout{order:7}
-  .bag-panel>.loadout-performance{order:8}
-  .bag-panel>.loadout-line{order:9;overflow-wrap:anywhere}
-  .bag-panel>.inventory-error{order:10}
-  .bag-panel>.item-details{order:11}
+  .bag-panel>.reserve-head{order:4;margin-top:13px}
+  .bag-panel>.reserve{order:5}
+  .bag-panel>.placement-feedback{order:6;margin:8px 0 0;font-size:11px}
+  .bag-panel>.connection-legend{order:7;margin-top:4px;margin-bottom:10px}
+  .bag-panel>.connection-readout{order:8}
+  .bag-panel>.loadout-performance{order:9}
+  .bag-panel>.loadout-line{order:10;overflow-wrap:anywhere}
+  .bag-panel>.inventory-error{order:11}
+  .bag-panel>.item-details{order:3}
   .bag-touch-tools{display:block;margin-top:10px;padding:10px;background:#e9eddd;border:1px solid #b6c2a8;border-radius:4px}
   .bag-touch-selection{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:3px 10px;min-width:0;margin-bottom:8px}
   .bag-touch-selection strong{font-size:13px;color:#36583f;overflow-wrap:anywhere}
@@ -93,7 +93,7 @@
   .item-details .tools{gap:7px}
   .item-details .tools .button{flex:1 1 110px}
   .item-details .tools .text-btn{min-width:88px}
-  .performance-more>summary,.item-base-description>summary{display:flex;align-items:center;font-size:12px}
+  .performance-more>summary{display:flex;align-items:center;font-size:12px}
   .performance-item-link{min-height:44px;padding:6px 2px}
   .performance-inner-list .performance-item-link{padding:7px 9px}
   .loadout-line span{font-size:11px}

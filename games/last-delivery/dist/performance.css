@@ -48,7 +48,7 @@
 .refinement-dismiss:focus-visible{outline:2px solid #5e866b;outline-offset:2px}
 .refinement-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:0 24px}.refinement-result{max-width:460px;min-width:0;margin:9px 0 12px}.refinement-result>h4{font-size:12px}.refinement-result>h4 span{font-size:10px;font-weight:400;margin-left:5px;color:#69815d}
 .refinement-receipt .refinement-recovery{font:600 11px/1.6 system-ui,sans-serif;color:#397750;margin:7px 0}
-.item-details .tools{flex-wrap:wrap}.item-base-description{margin-top:10px;border-top:1px solid #d5cdbb;padding-top:8px}.item-base-description>summary{font-size:10px;color:#7e7868;cursor:pointer}
+.item-details .tools{flex-wrap:wrap}
 @media(max-width:420px){.loadout-performance{padding:10px}.performance-card{padding:8px}.performance-card>strong{font-size:17px}.performance-comparison{font-size:10px}.performance-comparison th,.performance-comparison td{padding:6px 2px}.refinement-preview{padding:9px}.refinement-receipt{padding:11px}}
 
 /* Every weapon remains individually readable next to the combined rate. */
@@ -70,3 +70,8 @@
 .performance-supports>ul{list-style:none;padding:0;margin:0}.performance-supports li{display:flex;flex-direction:column;gap:3px;padding:6px 0;border-bottom:1px solid #d5decb;overflow-wrap:anywhere}
 .performance-supports li:last-child{border-bottom:0}.performance-supports li>strong{font:600 11px/1.6 system-ui,sans-serif;color:#46623f}.performance-supports li>span{font:10px/1.6 system-ui,sans-serif;color:#526b48;font-variant-numeric:tabular-nums}
 .item-details .performance-support-cap{color:#926439}
+
+/* Item identity and base effects stay visible before effective combat numbers. */
+.item-details .item-base-description{margin:10px 0;padding:11px 12px;background:#f7f3e8;border-left:3px solid #7d9478}
+.item-details .item-base-description>h4{margin:0 0 5px;font:600 11px/1.5 system-ui,sans-serif;color:#52634b}
+.item-details .item-base-description>p{margin:0;font:13px/1.8 system-ui,sans-serif;color:#353e31;overflow-wrap:anywhere}

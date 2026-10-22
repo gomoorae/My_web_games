@@ -32,7 +32,6 @@
 .assembly-links{font-size:11px;line-height:1.8;color:var(--muted)}.assembly-links summary{cursor:pointer;min-height:32px;padding:5px 0}.assembly-links ul{list-style:none;margin:0;padding:0}.assembly-links li{padding:7px 0;border-top:1px solid var(--line)}.assembly-links strong,.assembly-links span{display:block}.assembly-links strong{color:var(--ink);font-weight:500}
 .assembly-note{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line)}
 .bag-assembly-link{margin:0 0 10px;text-align:right}.bag-assembly-link .button{min-height:36px;font-size:11px}
-.item-fit-hint{font-size:12px;line-height:1.8;color:var(--jade);background:rgba(57,88,75,.05);padding:10px 12px;margin:12px 0}.item-fit-hint strong{display:block;font-size:10px;font-weight:600;letter-spacing:.08em;margin-bottom:3px}
 .catalog-card .catalog-fit-hint{font-size:11px;color:var(--jade);border-top:1px solid var(--line);padding-top:8px;margin:8px 0 0}
 .migration-notice{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;margin:0 0 16px;border:1px solid #b9c7b9;border-left:3px solid var(--jade);background:#edf0e5;color:var(--ink)}
 .migration-notice strong{font-size:13px;font-weight:600}.migration-notice p{font-size:12px;line-height:1.7;margin-top:4px}.migration-notice .button{flex-shrink:0;min-height:44px}
