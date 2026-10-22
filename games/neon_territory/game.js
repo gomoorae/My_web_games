@@ -156,7 +156,7 @@
     else if(engine.state==='lost')return startStage(engine.stageIndex);
     else if(engine.state==='won')return startStage(engine.stageIndex+1,true);
     else if(engine.state==='complete')return startStage(0);
-    restored=false;resetClock();message(engine.trail.length?'선을 안전 영역에 연결해.':'선 긋기를 켜고 빈 땅으로 이동해봐.');
+    restored=false;resetClock();message(engine.trail.length?'선을 안전 영역에 연결해.':engine.armed?'선 긋기가 켜져 있어. 빈 땅으로 출발해.':'선 긋기를 켜고 빈 땅으로 이동해봐.');
     save();syncUI(true);focusGame();
   }
   function pauseGame() {
@@ -167,7 +167,11 @@
     if(engine.state==='paused')activate();else pauseGame();
   }
   function draw() {
-    unlockAudio();engine.toggleDraw();
+    unlockAudio();
+    if(!engine.toggleDraw()){
+      if(engine.trail.length)message('그리던 선을 안전 영역에 연결해야 해. 긴급 귀환은 기회 1개를 사용해.');
+      return;
+    }
     if(engine.state==='playing')message(engine.armed?'선 긋기 준비 완료. 어두운 땅으로 출발해.':'안전 영역에서는 더 빠르게 움직일 수 있어.');
     syncUI();focusGame();
   }
