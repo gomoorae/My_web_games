@@ -10,7 +10,7 @@ for(let i=0;i<assets.length;i++){
 }
 css=`:root{${declarations.join(';')}}\n`+css;
 const script=readFileSync(new URL('dist/game.js',root),'utf8').replaceAll('</script','<\\/script');
-let html=readFileSync(new URL('dist/index.html',root),'utf8').replace('<link rel="stylesheet" href="style.css">',`<style>${css}</style>`).replace('<link rel="stylesheet" href="vfx.css">','').replace('<link rel="stylesheet" href="inventory.css">','').replace('<link rel="stylesheet" href="cutscene.css">','').replace('<script defer src="game.js"></script>','');
+let html=readFileSync(new URL('dist/index.html',root),'utf8').replace('<link rel="stylesheet" href="style.css">',`<style>${css}</style>`).replace('<link rel="stylesheet" href="vfx.css">','').replace('<link rel="stylesheet" href="inventory.css">','').replace('<link rel="stylesheet" href="cutscene.css">','').replace(/<script defer src="game\.js(?:\?[^"<>]*)?"><\/script>/,'');
 html=html.replace('<link rel="stylesheet" href="inventory-board.css">','').replace('<link rel="stylesheet" href="performance.css">','').replace('<link rel="stylesheet" href="mobile.css">','').replace('<link rel="stylesheet" href="assembly.css">','').replace('</body>',`<script>${script}</script>\n</body>`);
 const license=readFileSync(new URL('dist/assets/NotoSerif-LICENSE.txt',root),'utf8').replaceAll('--','—');
 html+=`\n<!-- Bundled font license\n${license}\n-->`;
