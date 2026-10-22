@@ -1,12 +1,12 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.9.3';
-import {Renderer} from './render.mjs?v=0.9.3';
-import {Sound} from './audio.mjs?v=0.9.3';
-import {readRecords,writeRecords} from './records.mjs?v=0.9.3';
-import {FrameLoop} from './frame-loop.mjs?v=0.9.3';
-import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.9.3';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.10.0';
+import {Renderer} from './render.mjs?v=0.10.0';
+import {Sound} from './audio.mjs?v=0.10.0';
+import {readRecords,writeRecords} from './records.mjs?v=0.10.0';
+import {FrameLoop} from './frame-loop.mjs?v=0.10.0';
+import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.10.0';
 
-import {StoryPlayer} from './story.mjs?v=0.9.3';
-import {BOSS_STORIES,START_STORIES,STAGE_STORIES,STAGE_GOALS} from './story-core.mjs?v=0.9.3';
+import {StoryPlayer} from './story.mjs?v=0.10.0';
+import {BOSS_STORIES,START_STORIES,STAGE_STORIES,STAGE_GOALS} from './story-core.mjs?v=0.10.0';
 
 let story=null,audioEpoch=0;
 const $=id=>document.getElementById(id);

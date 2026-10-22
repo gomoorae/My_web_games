@@ -19,20 +19,20 @@ export const isFinal = e => ['boss','tempest','ignis'].includes(e.type);
 export function makeStormWaves(){
   const waves=[];
   const row=(t,type,n,side=0)=>{
-    for(let i=0;i<n;i++)waves.push({t:t+i*.32,type,
+    for(let i=0;i<n;i++)waves.push({t:t+i*.42,type,
       x:side?(side<0?62:418):68+i*344/Math.max(1,n-1),variant:side||(i%2?1:-1)});
   };
   // Teach lateral interception, then slow coverage plus aimed pressure.
   row(3,'scout',5);row(6,'interceptor',3,-1);row(11,'scout',4);row(13,'interceptor',3,1);
-  row(20,'turret',2);row(23,'bomber',1);row(28,'mine',3);row(31,'scout',5);
+  row(20,'turret',2);row(24,'bomber',1);row(28,'mine',2);row(31,'scout',5);
   row(37,'bomber',2);row(40,'interceptor',3,-1);row(46,'mine',3);row(49,'turret',2);
-  row(55,'scout',5);row(58,'interceptor',3,1);
+  row(55,'scout',4);row(58,'interceptor',3,1);
   waves.push({t:67,type:'gemini',x:240,variant:0});
   // Familiar pairs combine after Gemini, with a quiet approach to Tempest.
-  row(75,'scout',5);row(77,'interceptor',3,-1);row(83,'bomber',2);row(85,'turret',2);
-  row(92,'mine',3);row(94,'interceptor',4,1);row(101,'scout',5);row(103,'turret',3);
-  row(110,'bomber',2);row(112,'interceptor',3,-1);row(119,'mine',3);row(122,'scout',5);
-  row(129,'turret',2);row(131,'interceptor',4,1);
+  row(75,'scout',5);row(79,'interceptor',3,-1);row(84,'bomber',2);row(88,'turret',2);
+  row(94,'mine',2);row(98,'interceptor',3,1);row(104,'scout',5);row(108,'turret',2);
+  row(114,'bomber',2);row(118,'interceptor',3,-1);row(123,'mine',2);row(126,'turret',2);
+  row(130,'scout',4);row(134,'interceptor',3,1);
   waves.push({t:147,type:'tempest',x:240,variant:0});
   return waves.sort((a,b)=>a.t-b.t);
 }
@@ -53,41 +53,41 @@ export function syncPods(e,dt){
     p.px=p.x;p.py=p.y;p.x=e.x+p.dx;p.y=e.y+p.dy;p.flash=Math.max(0,p.flash-dt);
   }
 }
+// Body guns keep their own simulation clock, including while machinery fires.
+// Losing a pod removes its special attack without switching the core gun off.
+export function updateStormGuns(g,e,dt){
+  e.gunFire=(e.gunFire??0)-dt;
+  if(e.y<150||e.gunFire>0)return;
+  const easy=g.difficulty==='easy',gemini=e.type==='gemini';
+  const count=gemini?(easy?3:5):e.phase===1?(easy?2:4):e.phase===2?(easy?1:2):(easy?3:5);
+  const speed=gemini?200:e.phase===1?205:e.phase===2?215:210;
+  g.fan(e,count,e.phase===2?.13:.15,speed,true,gemini?'amber':'rose');
+  e.gunFire=gemini?(easy?1.65:1.08):e.phase===1?(easy?1.7:1.05):e.phase===2?(easy?2.4:1.65):(easy?1.7:1.1);
+}
 export function stormAttack(g,e){
   const easy=g.difficulty==='easy',pods=e.parts.filter(p=>!p.dead);
   if(e.type==='gemini'){
     const laserPod=pods[e.volley%Math.max(1,pods.length)];
     if(laserPod){
       const y=laserPod.y+45,a=Math.atan2(g.player.y-y,g.player.x-laserPod.x);
-      g.laser(e,laserPod.x,y,a,easy?1.15:.9,.65,12,laserPod.id);
-      for(const p of pods)if(p!==laserPod)g.fan({...p,type:'pod'},3,.28,114,false,'amber',0,HOSTILE_DENSITY*2);
-    }else g.fan(e,easy?3:5,.21,150,true,'amber',0,HOSTILE_DENSITY*2);
-    e.fire=2.8;
-    return;
+      g.laser(e,laserPod.x,y,a,easy?1.25:.9,.6,12,laserPod.id);
+      for(const p of pods)if(p!==laserPod)g.fan({...p,type:'pod'},easy?2:3,.25,155,false,'amber');
+    }
+    e.fire=easy?3.1:2.4;return;
   }
   if(e.phase===1){
-    for(const p of pods)g.fan({...p,type:'pod'},easy?3:5,.24,135,false,'rose');
-    if(e.volley%2===0)g.fan(e,3,.15,185,true,'amber');
-    e.fire=1.45;
+    for(const p of pods)g.fan({...p,type:'pod'},easy?3:5,.24,150,false,'amber');
+    e.fire=easy?2.3:1.75;
   }else if(e.phase===2){
-    // Complete, evenly spaced rings. Their lanes open naturally with distance.
-    const count=(easy?22:30)*HOSTILE_DENSITY;
-    for(let i=0;i<count;i++)g.bullet(e.x,e.y+12,i*Math.PI*2/count,132,'amber');
-    if(e.volley%4===0)g.fan(e,1,0,182,true,'rose');
-    e.fire=1.18;
+    // Complete rings rotate half a gap per volley; there is no permanent lane.
+    const count=(easy?18:26)*HOSTILE_DENSITY,phase=(e.volley-1)*Math.PI/count;
+    for(let i=0;i<count;i++)g.bullet(e.x,e.y+12,phase+i*Math.PI*2/count,165,'amber');
+    e.fire=easy?1.62:1.18;
   }else{
-    // Two stationary rails never form a closed cage. Every warning locks
-    // before firing; all corridors are wide enough to escape at focus speed.
-    if(e.volley%2){
-      const pair=e.volley%4===1?[120,350]:[180,410];
-      for(const x of pair)g.laser(e,x,e.y+65,Math.PI/2,easy?1.4:1.1,.8,14);
-      e.fire=2.35;
-    }else{
-      g.fan(e,easy?3:5,.14,215,true,'rose');
-      e.fire=1.05;
-    }
+    const pair=e.volley%2?[120,350]:[180,410];
+    for(const x of pair)g.laser(e,x,e.y+65,Math.PI/2,easy?1.45:1.05,.75,14);
+    e.fire=easy?3.3:2.45;
   }
-  if(easy)e.fire*=1.15;
 }
 
 function pointSegment(px,py,ax,ay,bx,by){

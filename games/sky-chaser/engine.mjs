@@ -1,10 +1,11 @@
+import {hostileSpeed,regularInterval,regularCanFire} from './difficulty.mjs?v=0.10.0';
 import {STAGES,RUN_MODES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,crossesLaser} from './stages.mjs?v=0.9.3';
-import {FORGE_WAVES,FORGE_EASY_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,updateForgeBomber,moveMortar,mortarArmed,mortarCrossfire} from './forge.mjs?v=0.9.3';
-import {keyboardSpeed} from './pc-controls.mjs?v=0.9.3';
+  attachPods,syncPods,stormAttack,updateStormGuns,crossesLaser} from './stages.mjs?v=0.10.0';
+import {FORGE_WAVES,FORGE_EASY_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,updateForgeBomber,moveMortar,mortarArmed,mortarCrossfire,updateForgeGuns} from './forge.mjs?v=0.10.0';
+import {keyboardSpeed} from './pc-controls.mjs?v=0.10.0';
 export {STAGES,RUN_MODES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.9.3';
+export const VERSION = '0.10.0';
 export const PLAYER_SCALE = .72;
 export const PLAYER_HIT_RADIUS = 3.6;
 export const CHARGE_REQUIRED = 240;
@@ -33,24 +34,24 @@ function makeWaves() {
   const a = [];
   const row = (t, type, n, side = 0) => {
     for (let i = 0; i < n; i++) a.push({
-      t: t + i * .25, type, x: side ? (side < 0 ? 62 : W - 62) : 60 + i * (W - 120) / Math.max(1, n - 1),
+      t: t + i * .42, type, x: side ? (side < 0 ? 62 : W - 62) : 60 + i * (W - 120) / Math.max(1, n - 1),
       variant: side || (i % 2 ? 1 : -1)
     });
   };
-  row(3, 'scout', 5); row(8, 'scout', 5);
-  row(13, 'interceptor', 4, -1); row(17, 'interceptor', 4, 1);
-  row(22, 'turret', 2); row(25, 'scout', 5);
-  row(30, 'bomber', 2); row(35, 'interceptor', 5, -1);
-  row(40, 'turret', 3); row(44, 'scout', 5);
-  row(49, 'mine', 4); row(54, 'interceptor', 4, 1);
-  row(60, 'bomber', 2); row(64, 'scout', 4);
+  row(3, 'scout', 4); row(8, 'scout', 4);
+  row(13, 'interceptor', 3, -1); row(17, 'interceptor', 3, 1);
+  row(22, 'turret', 1); row(26, 'scout', 4);
+  row(31, 'bomber', 1); row(36, 'interceptor', 3, -1);
+  row(41, 'turret', 2); row(45, 'scout', 4);
+  row(50, 'mine', 2); row(55, 'interceptor', 3, 1);
+  row(60, 'bomber', 1); row(64, 'scout', 4);
   a.push({t: 69, type: 'midboss', x: W / 2, variant: 0});
-  row(76, 'scout', 6); row(81, 'interceptor', 5, -1);
-  row(86, 'turret', 3); row(90, 'mine', 4);
-  row(95, 'bomber', 2); row(100, 'interceptor', 5, 1);
-  row(105, 'scout', 6); row(109, 'mine', 4);
-  row(114, 'turret', 3); row(118, 'bomber', 2);
-  row(122, 'interceptor', 4, -1);
+  row(76, 'scout', 5); row(82, 'interceptor', 4, -1);
+  row(87, 'turret', 2); row(92, 'mine', 3);
+  row(97, 'bomber', 1); row(102, 'interceptor', 4, 1);
+  row(105, 'scout', 5); row(109, 'mine', 3);
+  row(114, 'turret', 2); row(118, 'bomber', 1);
+  row(122, 'interceptor', 3, -1);
   a.push({t: 134, type: 'boss', x: W / 2, variant: 0});
   return a.sort((a, b) => a.t - b.t);
 }
@@ -123,6 +124,7 @@ export class Game {
     this.enemies.push(e);
     attachPods(e);
     attachForgePods(e);
+    if(STORM_SPECS[type]||FORGE_SPECS[type])e.gunFire=0;
     if(type==='vulcan')this.event('warning',{text:'화로거북 볼칸 · 주황색 포탄을 요격하라'});
     if(type==='ignis'){
       this.bullets.length=0;this.lasers.length=0;this.mortars.length=0;this.mortarQueue.length=0;
@@ -143,7 +145,7 @@ export class Game {
   }
   bullet(x, y, angle, speed, style = 'rose', r = 4) {
     if (this.bullets.length >= 420*HOSTILE_DENSITY) return;
-    const scale = (this.difficulty === 'easy' ? .72 : 1) * (this.stage >= 2 ? 1.18 : 1);
+    const scale = hostileSpeed(this.stage,this.difficulty);
     const b={x, y, px: x, py: y, vx: Math.cos(angle) * speed * scale,
       vy: Math.sin(angle) * speed * scale, r, style, age: 0, dead: false};
     this.bullets.push(b);return b;
@@ -236,7 +238,7 @@ export class Game {
     const before = e.hp;
     e.hp -= amount; e.flash = .065; this.hits++;
     if((e.type==='tempest'||e.type==='ignis') && e.phase<3 && e.hp<=e.maxHp*(e.phase===1?2/3:1/3)){
-      e.hp=e.maxHp*(e.phase===1?2/3:1/3);e.phase++;e.transition=e.type==='ignis'?2.6:2.2;e.fire=.7;
+      e.hp=e.maxHp*(e.phase===1?2/3:1/3);e.phase++;e.transition=e.type==='ignis'?2.6:2.2;e.fire=.7;e.gunFire=.55;
       this.bullets.length=0;this.lasers.length=0;this.mortars.length=0;this.mortarQueue.length=0;this.score+=1800;
       for(const part of e.parts)if(!part.dead){part.dead=true;this.event('partBreak',{x:part.x,y:part.y});}
       this.event('transform',{x:e.x,y:e.y,type:e.type,phase:e.phase});
@@ -393,6 +395,9 @@ export class Game {
     // remain suppressed, as do attacks during Lumi's bomb.
     if (e.x < 0 || e.x > W || e.y < (big?38:ENEMY_ACTIVE_Y) || e.y > H - 95 || this.bombTimer > 0 ||
         (!forge&&Math.hypot(e.x - this.player.x, e.y - this.player.y) < 110)) return;
+    if(!big&&!regularCanFire(e,this.stage))return;
+    if(storm)updateStormGuns(this,e,dt);
+    if(forge)updateForgeGuns(this,e,dt);
     if(this.stage===3&&e.type==='bomber'){updateForgeBomber(this,e,dt);return;}
     e.fire -= dt;
     if (e.fire > 0) return;
@@ -408,16 +413,16 @@ export class Game {
     if (e.type === 'bomber') { this.fan(e, 5, .22, 160, false, 'rose'); e.fire = 2.3; }
     if (e.type === 'mine') { this.ring(e, easy ? 6 : 8, 112, e.age * .2); e.fire = 3; }
     if (e.type === 'midboss') {
-      if (e.volley % 3 === 0) this.ring(e, easy ? 10 : 14, 120, e.age * .15);
-      else { this.fan(e, 3, .21, 175, true, 'rose', -32); this.fan(e, 3, .21, 175, true, 'rose', 32); }
+      if (e.volley % 3 === 0) this.ring(e, easy ? 8 : 14, 120, e.age * .15);
+      else { this.fan(e, easy?2:3, .21, 175, true, 'rose', -32); this.fan(e, easy?2:3, .21, 175, true, 'rose', 32); }
       e.fire = 1.3;
     }
     if (e.type === 'boss') {
       const phase = Math.floor(e.age / 6) % 3;
       if (e.phase === 1) {
         if (phase === 0) {
-          this.fan(e, easy ? 5 : 7, .18, 166, false, 'rose', -45);
-          this.fan(e, easy ? 5 : 7, .18, 166, false, 'rose', 45);
+          this.fan(e, easy ? 4 : 6, .18, 166, false, 'rose', -45);
+          this.fan(e, easy ? 4 : 6, .18, 166, false, 'rose', 45);
         } else if (phase === 1) this.fan(e, easy ? 3 : 5, .12, 230, true, 'amber');
         else this.ring(e, easy ? 12 : 18, 140, e.volley * .17);
         e.fire = phase === 1 ? .95 : 1.35;
@@ -425,18 +430,17 @@ export class Game {
         if (phase === 0) {
           this.ring(e, easy ? 12 : 20, 140, e.volley * .22); e.fire = 1.15;
         } else if (phase === 1) {
-          this.fan(e, 3, .17, 245, true, 'rose', -45);
-          this.fan(e, 3, .17, 245, true, 'rose', 45); e.fire = .85;
+          this.fan(e, easy?2:3, .17, 225, true, 'rose', -45);
+          this.fan(e, easy?2:3, .17, 225, true, 'rose', 45); e.fire = 1.0;
         } else {
           const base = Math.PI / 2 + Math.sin(e.volley * .45) * .7;
           for (let i = -2; i <= 2; i++)for(let j=0;j<HOSTILE_DENSITY;j++)
             this.bullet(e.x,e.y+40,base+(i+(e.volley%2?-1:1)*j/HOSTILE_DENSITY)*.22,185,'amber');
-          e.fire = .38;
+          e.fire = .5;
         }
       }
     }
-    if (easy) e.fire *= 1.15;
-    if(this.stage>=2)e.fire*=.8;
+    if(big){if(easy)e.fire*=1.22;}else e.fire*=regularInterval(this.stage,this.difficulty);
   }
   step(dt, input = {}) {
     if (this.state !== 'playing') return;
