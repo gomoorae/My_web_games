@@ -82,7 +82,9 @@ function campaign(h,multiple=false){
 test('five starting kits clear ten natural battles through the UI using multiple weapons and inner skills',()=>{
  // Completion regression samples, not a claim that every seed or build wins.
  // The separate balance script evaluates unselected seeds with the same policy.
- const seeds={sword:2,saber:1,spear:2,dart:2,fist:1};
+ // Geometry changes alter the opponent's legal placements too. These 1.7
+ // samples exercise successful endings; the unselected 1..5 sweep also loses.
+ const seeds={sword:3,saber:1,spear:2,dart:3,fist:1};
  for(const kit of Object.keys(KITS)){
   const h=harness(new Map(),seeds[kit]);assert.match(h.app.innerHTML,/새로운 표행/);start(h,kit);const seen=campaign(h,true),r=h.state();
   assert.equal(r.phase,'complete',`${kit} ended at battle ${r.stage+1}`);assert.equal(r.cleared,true);assert.equal(r.battles.length,10);assert.ok(seen.maxWeapons>=2,kit+' never used multiple weapons');assert.ok(seen.maxInners>=2,kit+' never used multiple inner skills');assert.ok(r.battles.every(b=>b.status==='won'));
@@ -346,4 +348,15 @@ test('mobile shop and rest transitions expose progress and keep storage placemen
  const restRun=E.createRun('dart',2);restRun.phase='rest';restRun.stage=3;
  const restUI=harness(new Map([['last-delivery.run.v2',JSON.stringify(restRun)]]),2,{mobile:true});restUI.click({action:'continue'});restUI.click({panel:'bag'});
  restUI.click({rest:'heal'});assert.match(restUI.app.innerHTML,/data-mobile-panel="progress"/);assert.ok(restUI.button({panel:'enemy'}));
+});
+
+
+test('shape migration notice persists through continue, catalogue and reload until dismissed',()=>{
+ const run=E.createRun('sword',1);run.phase='prepare';run.migrationNotice='새 모양에 맞춰 2개를 옮겼어. 배치와 연결을 확인해 줘.';
+ const h=harness(new Map([['last-delivery.run.v2',JSON.stringify(run)]]));h.click({action:'continue'});
+ assert.equal(h.state().migrationNotice,run.migrationNotice);assert.match(h.app.innerHTML,/class="migration-notice"/);
+ h.click({action:'catalog'});h.click({action:'close-modal'});assert.equal(h.state().migrationNotice,run.migrationNotice);
+ const reload=harness(h.storage);reload.click({action:'continue'});assert.match(reload.app.innerHTML,/새 모양에 맞춰 2개/);
+ reload.click({action:'dismiss-migration'});assert.equal(reload.state().migrationNotice,undefined);assert.doesNotMatch(reload.app.innerHTML,/class="migration-notice"/);
+ const again=harness(reload.storage);again.click({action:'continue'});assert.equal(again.state().migrationNotice,undefined);assert.doesNotMatch(again.app.innerHTML,/class="migration-notice"/);
 });

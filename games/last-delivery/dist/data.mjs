@@ -63,34 +63,37 @@ export const ITEMS={
  revitalizer:item('revitalizer','회생고','consumable','any',1,2,58,26,3,'체력 25% 이하 · 80 회복','체력이 25% 이하가 되면 체력을 80 회복하고 중독을 제거한다. 치명상을 대신 막아 주지는 않는다.',{trigger:'lowhp',threshold:.25,heal:80,cleanse:true}),
  plumwine:item('plumwine','매화주','consumable','any',1,2,59,18,2,'전투 시작 · 내공 4 · 방어막 12','전투가 시작되면 한 번 마셔 내공 4와 방어막 12를 얻는다.',{trigger:'start',energy:4,shield:12})
 };
-// The silhouette is also the occupied footprint. Empty cells inside an item
-// remain usable, and every silhouette supports all four clockwise rotations.
+// Footprints are an assembly language, not rarity decoration. Keep each item's
+// occupied-cell budget while giving related gear complementary edges and slots.
+// Swords use rails/collars; sabers pair elbows; spears share long lanes;
+// darts expose small status sockets; fists nest inside defensive frames.
+// No orientation, named recipe, or matching outline grants a hidden set bonus.
 const ITEM_FOOTPRINTS={
- darts:{shape:['110','011'],shapeName:'엇갈림'},
+ darts:{shape:['111','010'],shapeName:'양쪽 홈'},
  moonblade:{shape:['01','01','11'],shapeName:'갈고리'},
  saber:{shape:['10','10','11'],shapeName:'긴 ㄴ자'},
  bloodsaber:{shape:['100','111'],shapeName:'긴 ㄴ자'},
- dragonlance:{shape:['010','010','111','010'],shapeName:'십자 장형'},
+ dragonlance:{shape:['11','10','10','11'],shapeName:'긴 받침'},
  needles:{shape:['101','111'],shapeName:'ㄷ자'},
  gauntlet:{shape:['11','10'],shapeName:'모서리'},
- jadeglove:{shape:['110','011'],shapeName:'엇갈림'},
- swordguard:{shape:['111','010'],shapeName:'ㅜ자'},
- saberbleed:{shape:['110','011'],shapeName:'엇갈림'},
+ jadeglove:{w:2,h:2,shapeName:'정방형'},
+ swordguard:{shape:['10','10','11'],shapeName:'검날 받침'},
+ saberbleed:{shape:['11','01','01'],shapeName:'맞물림 모서리'},
  saberexecute:{w:4,h:1,shapeName:'장형'},
  spearpierce:{w:1,h:4,shapeName:'장형'},
- spearstorm:{shape:['010','111','010'],shapeName:'십자'},
+ spearstorm:{shape:['10','10','10','11'],shapeName:'긴 옆날'},
  dartpoison:{shape:['111','101'],shapeName:'ㄷ자'},
  dartstun:{shape:['100','111'],shapeName:'긴 ㄴ자'},
- fistheal:{shape:['10','11'],shapeName:'모서리'},
- fistshock:{w:3,h:2,shapeName:'넓은 직사각형'},
- ironpalm:{shape:['111','101','111'],shapeName:'고리'},
- phoenix:{shape:['010','111','010'],shapeName:'십자'},
+ fistheal:{shape:['01','11'],shapeName:'맞물림 모서리'},
+ fistshock:{shape:['001','011','111'],shapeName:'계단 받침'},
+ ironpalm:{shape:['1001','1001','1111'],shapeName:'큰 감쌈'},
+ phoenix:{shape:['111','100','100'],shapeName:'기공 모서리'},
  innerbalanced:{w:2,h:3,shapeName:'넓은 직사각형'},
  innerpoison:{shape:['111','101'],shapeName:'ㄷ자'},
- innerblood:{shape:['110','011'],shapeName:'엇갈림'},
- inneriron:{w:2,h:3,shapeName:'넓은 직사각형'},
+ innerblood:{shape:['11','01','01'],shapeName:'맞물림 모서리'},
+ inneriron:{shape:['1111','1001'],shapeName:'가로 받침'},
  innerwind:{shape:['01','11'],shapeName:'모서리'},
- inneryang:{shape:['010','111','010'],shapeName:'십자'},
+ inneryang:{shape:['111','101'],shapeName:'ㄷ자'},
  tigerseal:{shape:['10','11'],shapeName:'모서리'},
  jinglingbell:{shape:['111','010'],shapeName:'ㅜ자'},
  dragonteeth:{shape:['10','11'],shapeName:'모서리'},
@@ -108,6 +111,60 @@ for(const [id,profile] of Object.entries(ITEM_FOOTPRINTS)){
  if(d.shape){d.w=Math.max(...d.shape.map(row=>row.length));d.h=d.shape.length;}
 }
 for(const d of Object.values(ITEMS))d.shapeName??=d.w===1&&d.h===1?'한 칸':d.w===d.h?'정방형':d.w===1||d.h===1?'장형':'직사각형';
+
+const ITEM_FIT_HINTS={
+ sword:'긴 옆면을 비급과 보조품이 나눠 쓸 수 있어. 유운검법은 두 칸, 일선관월은 세 칸 길이로 나란히 붙여 봐.',
+ moonblade:'안쪽 두 칸 홈에 유운검법·숫돌·비단검대 중 하나가 들어가. 비급을 넣을지 무기 강화에 쓸지 선택해.',
+ swordbook:'두 칸 비급. 월영검의 홈에 넣거나, 긴 검의 한쪽을 차지하고 남는 접촉면을 다른 초식에 양보해.',
+ swordpierce:'세 칸 검과 같은 길이야. 나란히 붙이고 양 끝에 다른 비급이나 보조품을 연결하기 좋아.',
+ swordguard:'긴 검의 옆면을 감싸는 받침. 안쪽 두 칸은 비급 또는 보조품 자리로 활용할 수 있어.',
+ saber:'안쪽 두 칸에 벽력도법이 꼭 맞아. 혈하삼첩과 엇물리면 가운데 한 칸에 혈옥매듭을 끼울 수 있어.',
+ bloodsaber:'패왕도와 굽는 방향이 달라. 돌려서 두 칸 홈에 비급을 넣거나, 바깥 긴 면에 단악일도를 붙여 봐.',
+ saberbook:'도의 두 칸 홈을 채우는 작은 비급. 홈을 보조품에 내주고 바깥에 붙이는 배치도 가능해.',
+ saberbleed:'패왕도와 마주 걸면 3×3 안에 둘이 들어가고 한 칸이 남아. 그 칸의 혈옥매듭은 도에 출혈을 더해.',
+ saberexecute:'네 칸을 길게 차지하는 대신 직선 가장자리에 정리하기 좋아. 모서리형 도·혈하삼첩과 공간을 비교해.',
+ spear:'네 칸 옆면을 두 칸짜리 비급·창미술이 나눠 쓸 수 있어. 반대편에는 파갑관천을 나란히 붙여 봐.',
+ dragonlance:'가운데 두 칸 홈은 유성창법·창미술·비단검대가 공유하는 자리야. 홈에 무엇을 넣느냐에 따라 바깥 연결을 바꿔 봐.',
+ spearbook:'창 옆면의 절반을 쓰는 두 칸 비급. 나머지 절반에 창미술을 붙여 관통을 확보할 수 있어.',
+ spearpierce:'백랍창과 길이가 같아 빈틈 없이 나란히 놓기 좋아. 다른 쪽 면은 보조품이나 추가 초식에 남겨 둬.',
+ spearstorm:'네 칸 옆날과 끝의 받침으로 창을 감싸. 창을 한 칸 위로 빼면 옆날 전체가 맞물려.',
+ darts:'아래 양쪽 한 칸 홈은 독낭·혈옥매듭 자리로 쓰기 좋아. 홈 밖의 비급을 연결할 면은 남겨 둬.',
+ needles:'한 칸 홈에 독낭을 넣으면 3×2가 꽉 차. 바깥쪽은 낙성비도·만독귀침이나 추가 무기에 연결할 수 있어.',
+ dartbook:'짧은 두 칸 비급이라 암기의 바깥 가장자리에 붙이기 쉬워. 독낭 홈을 막지 않는 쪽으로 돌려 봐.',
+ dartpoison:'ㄷ자 홈은 독낭 자리로 활용할 수 있지만, 독낭은 무기에 직접 닿아야 해. 홈 입구에 암기를 붙여 봐.',
+ dartstun:'암기를 바깥에서 감싸는 긴 모서리야. 독낭 홈과 보조품이 닿을 면을 함께 남겨 봐.',
+ gauntlet:'청심장법과 엇물리면 2×3, 진산붕의 계단 홈에는 3×3으로 빈틈없이 들어가.',
+ jadeglove:'2×2 정방형이라 금강호체의 큰 홈에 꼭 맞아. 철권갑을 쓰면 한 칸이 남아 약품을 넣을 수 있어.',
+ fistbook:'두 칸짜리 작은 초식. 철벽호흡의 홈에 넣더라도 별도로 권 무기에 닿아야 활성화돼.',
+ fistheal:'철권갑과 서로 어긋나게 맞물리면 2×3이 돼. 바깥 면에는 약초함이나 무공 보조품을 붙여 봐.',
+ fistshock:'3×3 계단의 빈 세 칸에 철권갑이 들어가. 밀도를 높이는 대신 다른 비급을 붙일 권갑의 면이 줄어들어.',
+ ironpalm:'큰 홈에 청옥수가 꼭 맞고 철권갑은 약품 한 칸을 남겨. 감싸면 공간은 절약되지만 안쪽 무기에 붙일 보조품 자리는 줄어.',
+ phoenix:'모서리의 네 칸 빈 공간에 장비를 맞물릴 수 있어. 어떤 계열 무기든 직접 닿으면 활성화돼.',
+ cloudstep:'두 칸짜리 공통 비급. 두 무기 사이를 잇거나 긴 무기의 남은 면을 쓰기 좋아. 두 무기에 닿아도 시전은 한 번이야.',
+ stone:'두 무기 사이에 걸치면 양쪽 무기와 연결된 초식을 함께 강화해. 한 무기의 두 칸 홈을 채우는 선택도 가능해.',
+ poison:'비도갑 양쪽 홈·폭우침갑 가운데 홈에 들어가. 무기와 직접 닿아야 하고 같은 독낭을 여러 개 붙여도 각각 합산해.',
+ redthread:'비도갑의 작은 홈이나 패왕도·혈하삼첩 사이 한 칸에 들어가. 무기 기본 공격에 출혈을 더해.',
+ silkwrap:'긴 무기의 옆면 또는 월영검·용린창의 두 칸 홈에 붙일 수 있어. 기본 공격을 빠르게 하는 용도야.',
+ tassel:'백랍창의 옆면 절반이나 용린창 홈에 맞아. 창 전용 제한은 없으니 다른 무기와 공유해도 돼.',
+ tigerseal:'모서리로 무기를 감싸거나 두 무기에 걸쳐 치명타 효과를 공유해. 공격용 홈을 차지하는 비용도 비교해 봐.',
+ dragonteeth:'모서리형 무기 받침. 도·권갑 옆에 맞물리고, 두 무기에 동시에 닿으면 양쪽에서 흡혈을 얻어.',
+ oilflask:'모서리 홈을 감싸며 무기에 화상을 더해. 작은 독낭보다 공간을 더 쓰지만 다른 지속 피해를 함께 쌓을 수 있어.',
+ prayerbeads:'두 활성 무공 사이의 짧은 연결대로 쓸 수 있어. 여러 무공에 닿을수록 같은 두 칸의 효율이 높아져.',
+ inkstone:'활성 무공 둘 사이에 걸치면 내공 회복 +0.8/초. 틈을 꽉 채우는 배치와 연결 수를 늘리는 배치를 비교해 봐.',
+ jinglingbell:'세 갈래 면에 활성 무공을 모으면 재사용 단축을 공유해. 무공이 무기에도 직접 닿아야 한다는 점을 잊지 마.',
+ innerbalanced:'인접 조건이 없는 2×3 덩어리야. 가장자리에 두면 무기와 비급이 연결할 면을 아낄 수 있어.',
+ innerpoison:'한 칸 홈에 작은 도구나 약품을 넣어 공간을 줄여 봐. 심법 자체는 무기와 붙이지 않아도 적용돼.',
+ innerblood:'도·권갑의 모서리와 엇물리는 심법이야. 인접 보너스는 없으므로 빈 공간 정리에 활용해.',
+ inneriron:'아래 두 칸 홈에 비급이나 도구를 넣을 수 있어. 심법은 상시 효과이고, 넣은 비급의 무기 연결은 따로 필요해.',
+ innerwind:'한 칸이 빈 모서리라 약품·독낭 옆에 두기 좋아. 공격 속도와 회피는 인접 없이 적용돼.',
+ inneryang:'한 칸 홈에 약품이나 작은 도구를 넣어 빈틈을 줄여 봐. 내공과 무공 강화는 보따리 전체에 적용돼.',
+ armor:'단순한 2×2 방어 장비야. 인접이 필요 없으니 연결이 바쁜 중앙보다 가장자리를 활용해.',
+ herbcase:'한 칸 홈에 약품을 넣어 정리해 봐. 회복 강화는 인접과 관계없이 보따리 전체에 적용돼.',
+ ironspikes:'한 칸 홈이 있는 방어 장비야. 약품을 채우거나 다른 장비의 돌출부와 맞물릴 수 있어. 인접 조건은 없어.',
+ bambooamulet:'두 칸의 남는 가장자리나 홈을 채워 회피를 얻어. 어느 무기에 붙였는지는 효과와 무관해.',
+ jadependant:'모서리의 빈 한 칸을 약품과 함께 채우기 좋아. 내공 증가는 인접 없이 적용돼.'
+};
+for(const [id,fitHint] of Object.entries(ITEM_FIT_HINTS))ITEMS[id].fitHint=fitHint;
 
 export const KITS={
  sword:{name:'유운검객',weapon:'sword',art:'swordbook',support:'stone',desc:'빠른 검격과 치명타, 방어 초식을 엮는 균형형.'},

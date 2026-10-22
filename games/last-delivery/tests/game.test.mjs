@@ -92,7 +92,7 @@ test('all ten encounters lead through shops, rests, six scenes and the ending wi
  for(const kit of Object.keys(KITS)){
   const r=createRun(kit,77),visited=[];finishScene(r);
   for(let stage=0;stage<10;stage++){
-   assert.equal(r.stage,stage);assert.equal(r.phase,'prepare');r.phase='combat';r.battle=createBattle(r);r.battle.shield=100000;r.battle.multiplier*=20;finishBattle(r.battle);assert.equal(r.battle.status,'won',`${kit} ${stage}`);assert.ok(settleBattle(r));assert.ok(validateRun(r));
+   assert.equal(r.stage,stage);assert.equal(r.phase,'prepare');r.phase='combat';r.battle=createBattle(r);r.battle.shield=100000;for(const w of r.battle.weapons)w.effectiveBonuses.damage+=20;finishBattle(r.battle);assert.equal(r.battle.status,'won',`${kit} ${stage}`);assert.ok(settleBattle(r));assert.ok(validateRun(r));
    if(stage===9){assert.equal(r.phase,'story');assert.equal(r.scene,'ending');finishScene(r);break;}
    assert.equal(r.phase,'reward');assert.ok(selectReward(r,rewardChoices(r)[0]));
    while(r.phase!=='prepare'){
@@ -127,7 +127,7 @@ test('legacy saves keep their inventory and progress when a changed footprint ov
  assert.equal(migrated.gold,47);assert.equal(migrated.hp,88);assert.equal(migrated.stage,4);
  assert.deepEqual(migrated.items.map(i=>i.uid),old.items.map(i=>i.uid));
  assert.equal(inBag(migrated.items.find(i=>i.uid===weapon.uid)),true);
- assert.equal(inBag(migrated.items.find(i=>i.uid===medicine.uid)),false);
+ assert.equal(inBag(migrated.items.find(i=>i.uid===medicine.uid)),true);
  assert.equal(migrated.rulesVersion,3);
 });
 

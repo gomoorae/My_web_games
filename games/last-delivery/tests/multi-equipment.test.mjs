@@ -62,7 +62,7 @@ test('stun postpones every weapon once and generic arts use an actually connecte
 });
 
 test('multiple inner manuals sum actual shield, armor and energy once per item',()=>{
- const run=equipmentRun();putEquipment(run,'sword',0,0);const iron1=putEquipment(run,'inneriron',1,0),iron2=putEquipment(run,'inneriron',3,0),balanced=putEquipment(run,'innerbalanced',5,0);balanced.level=1;
+ const run=equipmentRun();putEquipment(run,'sword',0,0);const iron1=putEquipment(run,'inneriron',1,0,1),iron2=putEquipment(run,'inneriron',3,0,1),balanced=putEquipment(run,'innerbalanced',5,0);balanced.level=1;
  const stats=buildStats(run),b=createBattle(run);nearEquipment(stats.shield,80);nearEquipment(b.shield,80);nearEquipment(b.bonuses.armor,2);nearEquipment(b.bonuses.energyRegen,.6);nearEquipment(b.bonuses.artPower,.12);assert.deepEqual(b.shieldPools.map(p=>[p.uid,p.amount]),[[iron1.uid,40],[iron2.uid,40]]);
 });
 

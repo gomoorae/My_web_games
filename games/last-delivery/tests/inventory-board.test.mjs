@@ -5,13 +5,13 @@ import {renderFootprint,footprintText,renderBagItem,renderReadOnlyBag} from '../
 import {renderPlacementGhost} from '../dist/inventory-ui.mjs';
 import {createRun,addItem,moveItem,buildStats} from '../dist/engine.mjs';
 
-test('shape thumbnails and placement previews preserve a ring centre as a free cell',()=>{
+test('shape thumbnails and placement previews preserve the defensive frame cavity',()=>{
  const item={uid:'ring',type:'ironpalm',x:2,y:1,rot:0,level:0};
  assert.equal(localCells(item).length,8);
  const mini=renderFootprint(item),ghost=renderPlacementGhost(item,2,1,0,true);
- assert.equal((mini.match(/<rect /g)||[]).length,8);assert.match(mini,/viewBox="0 0 36 36"/);assert.doesNotMatch(mini,/<rect x="13" y="13"/);
+ assert.equal((mini.match(/<rect /g)||[]).length,8);assert.match(mini,/viewBox="0 0 48 36"/);assert.doesNotMatch(mini,/<rect x="13" y="13"/);
  assert.equal((ghost.match(/<rect /g)||[]).length,8);assert.doesNotMatch(ghost,/<rect x="303" y="203"/);
- assert.match(footprintText(item),/3×3 · 8칸 · 고리/);
+ assert.match(footprintText(item),/4×3 · 8칸 · 큰 감쌈/);
 });
 
 test('placed pieces expose buttons only on actual cells with one keyboard stop and one live source',()=>{
@@ -44,7 +44,7 @@ test('rotated footprint dimensions in labels and preview agree with occupied cel
 test('opponent inspection lists every equipped weapon and inner and more than three arts',()=>{
  const run=createRun('sword',11);run.items=[];run.cols=run.rows=8;
  const put=(type,x,y,rot=0,level=0)=>{const i=addItem(run,type);i.level=level;assert.ok(moveItem(run,i.uid,x,y,rot),type);return i;};
- const weapons=[put('sword',1,1,0,1),put('sword',2,1,0,2)],arts=[put('swordbook',1,0),put('swordbook',0,1,1),put('swordbook',3,1,1),put('swordbook',3,3)],inners=[put('inneriron',5,0),put('innerwind',5,4)];
+ const weapons=[put('sword',1,1,0,1),put('sword',2,1,0,2)],arts=[put('swordbook',1,0),put('swordbook',0,1,1),put('swordbook',3,1,1),put('swordbook',3,3)],inners=[put('inneriron',5,0,1),put('innerwind',5,4)];
  const stats=buildStats(run),html=renderReadOnlyBag(run,stats,{selectedUid:arts[0].uid});
  assert.equal(stats.weapons.length,2);assert.equal(stats.inners.length,2);assert.equal(stats.arts.length,4);
  assert.match(html,/무기 <b>2개<\/b>/);assert.match(html,/심법 <b>2개<\/b>/);assert.match(html,/활성 무공 <b>4개<\/b>/);assert.doesNotMatch(html,/4\/3/);

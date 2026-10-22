@@ -3,6 +3,8 @@ import {dimensions,inBag,cells,localCells,canPlace,adjacent,rotationIndex,nextRo
 import {enemyLoadout} from './enemy-loadouts.mjs';
 import {expandBag} from './expansion.mjs';
 export {dimensions,inBag,cells,localCells,canPlace,adjacent,rotationIndex,nextRotation,orientations,enemyLoadout};
+// Geometry changes can invalidate a bag without changing the combat protocol.
+export const FOOTPRINT_VERSION=2;
 export function moveItem(run,uid,x,y,rot=false){if(x===null&&y===null){const i=run.items.find(i=>i.uid===uid);if(!i)return false;i.x=null;i.y=null;return true;}if(!canPlace(run,uid,x,y,rot))return false;Object.assign(run.items.find(i=>i.uid===uid),{x,y,rot});return true;}
 export function addItem(run,type){if(!ITEMS[type])return null;const item={uid:`i${run.nextId++}`,type,x:null,y:null,rot:false,level:0};run.items.push(item);return item;}
 export function autoPlace(run,uid){const item=run.items.find(i=>i.uid===uid);if(!item)return false;const rotations=[item.rot,...orientations(item).filter(r=>r!==rotationIndex(item.rot))];for(const rot of rotations)for(let y=0;y<run.rows;y++)for(let x=0;x<run.cols;x++)if(moveItem(run,uid,x,y,rot))return true;return false;}
@@ -12,7 +14,7 @@ function shuffle(list,rng){const a=[...list];for(let n=a.length-1;n>0;n--){const
 function kitData(kit){return KITS[kit]||KITS.sword;}
 export function createRun(kit='sword',seed=Date.now()){
  if(!KITS[kit])kit='sword';const k=kitData(kit);
- const run={version:VERSION,rulesVersion:3,phase:'story',scene:'opening',sceneIndex:0,kit,seed:Number(seed)>>>0,stage:0,cols:6,rows:6,bagExpansions:[],hp:140,maxHp:140,gold:30,nextId:1,items:[],battles:[],battle:null,shopBought:[],shopRoll:0,restChoice:null,cleared:false};
+ const run={version:VERSION,rulesVersion:3,footprintVersion:FOOTPRINT_VERSION,phase:'story',scene:'opening',sceneIndex:0,kit,seed:Number(seed)>>>0,stage:0,cols:6,rows:6,bagExpansions:[],hp:140,maxHp:140,gold:30,nextId:1,items:[],battles:[],battle:null,shopBought:[],shopRoll:0,restChoice:null,cleared:false};
  const w=addItem(run,k.weapon);moveItem(run,w.uid,2,1,false);
  for(const type of [k.art,k.support]){const i=addItem(run,type);let placed=false;for(const rot of orientations(i))for(let y=0;y<run.rows;y++)for(let x=0;x<run.cols;x++)if(!placed&&canPlace(run,i.uid,x,y,rot)&&adjacent({...i,x,y,rot},w)){moveItem(run,i.uid,x,y,rot);placed=true;}if(!placed)autoPlace(run,i.uid);}
  const med=addItem(run,'medicine');autoPlace(run,med.uid);run.shopOwned=run.items.map(i=>i.type);run.shopTag=kit;return run;
@@ -303,19 +305,52 @@ export function validateRun(r){try{
  }
  return true;
 }catch{return false;}}
+function repairFootprints(run,placements){
+ // Reserve every still-valid original placement before moving anything. A
+ // repaired piece must not steal the unchanged position of a later item.
+ const pending=[];let moved=0,stowed=0;
+ for(const i of run.items){i.x=null;i.y=null;}
+ for(let n=0;n<run.items.length;n++){
+  const item=run.items[n],p=placements[n];if(p.x===null&&p.y===null)continue;
+  if(canPlace(run,item.uid,p.x,p.y,p.rot))Object.assign(item,p);else pending.push({item,p});
+ }
+ for(const {item,p}of pending){
+  const rotations=orientations(item);let fit=null;
+  // A turn at the same origin is less disruptive than moving across the bag.
+  for(const rot of rotations)if(canPlace(run,item.uid,p.x,p.y,rot)){fit={x:p.x,y:p.y,rot};break;}
+  if(!fit){
+   let distance=Infinity;
+   for(const rot of rotations)for(let y=0;y<run.rows;y++)for(let x=0;x<run.cols;x++){
+    const d=(x-p.x)**2+(y-p.y)**2;
+    if(d<distance&&canPlace(run,item.uid,x,y,rot)){distance=d;fit={x,y,rot};}
+   }
+  }
+  if(fit){Object.assign(item,fit);moved++;}else stowed++;
+ }
+ return {moved,stowed};
+}
 export function migrateRun(raw){try{
- if(!raw||raw.version!==VERSION)return null;
- if(raw.rulesVersion===3){
+ if(!raw||raw.version!==VERSION||raw.rulesVersion!==undefined&&(!Number.isInteger(raw.rulesVersion)||raw.rulesVersion<1||raw.rulesVersion>3)||raw.footprintVersion!==undefined&&(!Number.isInteger(raw.footprintVersion)||raw.footprintVersion<1||raw.footprintVersion>FOOTPRINT_VERSION))return null;
+ if(raw.rulesVersion===3&&raw.footprintVersion===FOOTPRINT_VERSION){
   if(!validateRun(raw))return null;
   if(raw.phase!=='combat'||raw.battle.itemBonusVersion===1&&raw.battle.rival.itemBonusVersion===1&&raw.battle.equipmentVersion===2&&raw.battle.rival.equipmentVersion===2)return raw;
   // Old battle snapshots retain HP, resources, status effects and already
   // scheduled timers; new per-art rules apply to subsequent attacks/casts.
   const restored=JSON.parse(JSON.stringify(raw));hydrateFighterBonuses(restored.battle,restored,restored.battle.t);hydrateFighterBonuses(restored.battle.rival,restored.battle.enemyLoadout,restored.battle.t);return validateRun(restored)?restored:null;
  }
- const run=JSON.parse(JSON.stringify(raw));if(!Array.isArray(run.items)||run.items.some(i=>!i||!ITEMS[i.type]||!(typeof i.rot==='boolean'||Number.isInteger(i.rot)&&i.rot>=0&&i.rot<4)))return null;
- const placements=run.items.map(i=>({x:i.x,y:i.y,rot:rotationIndex(i.rot)}));for(const i of run.items){i.x=null;i.y=null;}let stowed=0;
- for(let n=0;n<run.items.length;n++){const item=run.items[n],p=placements[n];item.rot=p.rot;if(p.x===null&&p.y===null)continue;if(canPlace(run,item.uid,p.x,p.y,p.rot)){item.x=p.x;item.y=p.y;}else stowed++;}
- const restarted=run.phase==='combat';if(restarted){run.phase='prepare';run.battle=null;}
- run.rulesVersion=3;run.bagExpansions??=[];run.migrationNotice=[stowed?`형태가 바뀌어 겹치는 물건 ${stowed}개를 창고로 옮겼어.`:'',restarted?'전투 규칙이 바뀌어 이번 전투는 준비 화면부터 다시 시작해.':''].filter(Boolean).join(' ');
+ const run=JSON.parse(JSON.stringify(raw));
+ if(!Array.isArray(run.items)||run.items.some(i=>!i||!ITEMS[i.type]||!(typeof i.rot==='boolean'||Number.isInteger(i.rot)&&i.rot>=0&&i.rot<4)||!(i.x===null&&i.y===null)&&(!inBag(i)||i.x<0||i.y<0||i.x>=run.cols||i.y>=run.rows)))return null;
+ const placements=run.items.map(i=>({x:i.x,y:i.y,rot:i.rot})),restarted=run.phase==='combat';
+ // Validate ownership, resources and route independently of the old geometry.
+ // Current-format corruption is never silently repaired by this branch.
+ const structural={...run,items:run.items.map(i=>({...i,x:null,y:null})),...(restarted?{phase:'prepare',battle:null}:{})};
+ if(!validateRun(structural))return null;
+ if(restarted&&raw.rulesVersion===3&&(!run.battle||run.battle.version!==3||run.battle.stage!==run.stage||run.battle.enemyId!==ENEMIES[run.stage].id||!validFighter(run.battle)||!validFighter(run.battle.rival)))return null;
+ const {moved,stowed}=repairFootprints(run,placements);
+ // run.hp is the pre-battle value; the live HP is held in battle.hp. Keeping
+ // run.hp and all inventory restarts cleanly without consuming items twice.
+ if(restarted){run.phase='prepare';run.battle=null;}
+ run.rulesVersion=3;run.footprintVersion=FOOTPRINT_VERSION;run.bagExpansions??=[];
+ run.migrationNotice=['물건 형태가 개편됐어. 연결과 빈칸을 다시 살펴봐.',moved?`겹치는 물건 ${moved}개는 가까운 빈칸에 다시 배치했어.`:'',stowed?`자리가 부족한 물건 ${stowed}개는 창고에 보관했어.`:'',restarted?'진행 중이던 전투는 이전 기혈과 물건을 유지하고 준비 화면부터 다시 시작해.':''].filter(Boolean).join(' ');
  return validateRun(run)?run:null;
 }catch{return null;}}

@@ -34,20 +34,21 @@ test('four clockwise rotations retain real occupied cells and accept legacy bool
  assert.deepEqual(orientations(piece('armor')),[0]);assert.deepEqual(orientations(piece('sword')),[0,1]);
 });
 
-test('a hollow item leaves its middle free and activates contacts around the inner boundary',()=>{
+test('a defensive frame leaves a usable cavity and activates its inner boundary',()=>{
  const ring=piece('ironpalm',1,1),med=piece('medicine'),run=board([ring,med]);
  assert.equal(localCells(ring).length,8);assert.equal(canPlace(run,med.uid,2,2),true);assert.equal(canPlace(run,med.uid,1,1),false);
  med.x=2;med.y=2;assert.equal(inBag(med),true);assert.equal(adjacent(ring,med),true);
- assert.equal(sharedEdge(ring,med).length,4);assert.equal(sharedEdge(ring,med).reduce((n,e)=>n+Math.abs(e.x2-e.x1)+Math.abs(e.y2-e.y1),0),4);
- const before=JSON.stringify(run);assert.equal(canPlace(run,ring.uid,1,1,3),true);assert.equal(JSON.stringify(run),before);
+ assert.equal(sharedEdge(ring,med).length,2);assert.equal(sharedEdge(ring,med).reduce((n,e)=>n+Math.abs(e.x2-e.x1)+Math.abs(e.y2-e.y1),0),2);
+ const before=JSON.stringify(run);assert.equal(canPlace(run,ring.uid,1,1,0),true);assert.equal(JSON.stringify(run),before);
+ const glove=piece('jadeglove');run.items=[ring,glove];assert.equal(canPlace(run,glove.uid,2,1),true);Object.assign(glove,{x:2,y:1});assert.equal(adjacent(ring,glove),true);
 });
 
 test('concave sides connect only on real cell edges and diagonal corners remain separate',()=>{
- const tee=piece('swordguard',1,1),med=piece('medicine',1,2);
+ const tee=piece('swordguard',1,1),med=piece('medicine',2,2);
  assert.equal(adjacent(tee,med),true);assert.equal(sharedEdge(tee,med).length,2);
  const sword=piece('sword',0,0),diagonal=piece('medicine',1,3);
  assert.equal(adjacent(sword,diagonal),false);assert.deepEqual(sharedEdge(sword,diagonal),[]);
- const run=board([tee,piece('medicine')]);assert.equal(canPlace(run,'medicine',1,2),true);assert.equal(canPlace(run,'medicine',2,2),false);
+ const run=board([tee,piece('medicine')]);assert.equal(canPlace(run,'medicine',2,2),true);assert.equal(canPlace(run,'medicine',1,2),false);
  assert.equal(canPlace(run,tee.uid,5,4,0),false);
 });
 
@@ -56,7 +57,7 @@ test('placement preserves 180 and 270 degree rotations and tap fallback cannot t
  for(let y=0;y<6;y++)for(let x=0;x<6;x++)if(!allowed.has(`${x},${y}`))run.items.push(piece('medicine',x,y,0,`m${x}-${y}`));
  const before=JSON.stringify(run);
  const occupiedTip=findCellPlacement(run,lance.uid,1,3,0);assert.equal(occupiedTip.valid,true);assert.deepEqual([occupiedTip.x,occupiedTip.y],[0,0]);
- const emptyCorner=findCellPlacement(run,lance.uid,2,3,0);assert.equal(emptyCorner.valid,false);assert.equal(emptyCorner.hasSpace,true);
+ const emptyCorner=findCellPlacement(run,lance.uid,1,2,0);assert.equal(emptyCorner.valid,false);assert.equal(emptyCorner.hasSpace,true);
  assert.equal(JSON.stringify(run),before);
  const open=board([piece('saber')]);for(const rot of [2,3]){const p=findPlacement(open,'saber',2.2,2.2,rot);assert.equal(p.valid,true);assert.equal(p.rot,rot);assert.equal(canPlace(open,'saber',p.x,p.y,p.rot),true);}
 });
