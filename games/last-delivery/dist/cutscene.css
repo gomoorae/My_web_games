@@ -1,0 +1,44 @@
+/* Cutscene layout deliberately does not reuse the combat portrait classes.
+   One clipped native-ratio atlas cell, one dialogue panel, no blending. */
+.scene-screen{position:fixed;inset:0;z-index:60;isolation:isolate;display:grid;grid-template-rows:auto 1fr auto;gap:24px;overflow:auto;min-width:320px;padding:clamp(22px,4vh,48px) clamp(20px,5vw,86px);color:#f6ebd5;background:#172327}
+.scene-backdrop{position:fixed;inset:0;z-index:-2;background-image:url('assets/battlefields.webp');background-size:200% 200%;background-position:var(--scene-bg-x) var(--scene-bg-y);background-repeat:no-repeat;filter:brightness(.42) saturate(.65)}
+.scene-screen:before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,#101c25a6,#12202b40 55%,#0e1820a6),linear-gradient(0deg,#122128bb,transparent 40%,#101b2488)}
+.scene-heading,.scene-stage,.scene-footnote{width:100%;max-width:1140px;margin-inline:auto;position:relative;min-width:0}
+.scene-heading{display:flex;justify-content:space-between;align-items:center;gap:24px;padding-bottom:18px;border-bottom:1px solid #cfbd9138}
+.scene-kicker{display:block;font-size:10px;letter-spacing:.2em;color:#d0c6ad;margin-bottom:9px}
+.scene-heading h1{font-size:clamp(24px,2.6vw,36px);letter-spacing:.04em;line-height:1.4;color:#f1e7cf}
+.scene-skip{flex-shrink:0;color:#ddcfb3;font-size:12px;padding:10px 0 10px 16px;display:flex;gap:13px;align-items:center;min-height:44px}
+.scene-skip span{font-size:18px}.scene-skip:hover{color:#fff4d6}
+.scene-stage{display:grid;grid-template-columns:minmax(260px,.92fr) minmax(0,1.08fr);gap:clamp(32px,5vw,80px);align-items:center;align-self:center;padding:10px 0}
+.scene-figure{margin:0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:18px}
+.scene-portrait-shell{width:100%;max-width:min(430px,54vh);position:relative;overflow:hidden;isolation:isolate;background:#eadbc0;border:1px solid #cab58a;box-shadow:0 20px 60px #060e1e6b,0 0 0 7px #b3a28113}
+.scene-speaker-art{display:block;width:100%;aspect-ratio:1;background-repeat:no-repeat;background-position:var(--scene-x) var(--scene-y);mix-blend-mode:normal;opacity:1;filter:none;mask-image:none;-webkit-mask-image:none}
+.scene-portrait-atlas{background-image:url('assets/portraits.webp');background-size:300% 200%}
+.scene-figure.is-body .scene-portrait-shell{max-width:min(330px,40.5vh);background:radial-gradient(ellipse at 50% 40%,#59625c,#283632 80%)}
+.scene-body-atlas{aspect-ratio:3/4;background-image:url('assets/foes.webp');background-size:400% 200%}
+.scene-figure figcaption{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;font-size:11px;color:#d5c5a6;line-height:1.6}
+.scene-figure figcaption strong{font:22px/1.4 InkSerif,serif;color:#faeacb;letter-spacing:.14em}.scene-figure figcaption span{padding-left:14px;border-left:1px solid #cbb78b66}
+.scene-dialogue{position:relative;min-width:0;padding:clamp(26px,3vw,43px);background:#f4ecd9;border:1px solid #c6b489;border-left:4px solid #a45b42;box-shadow:0 18px 65px #060e1d55;color:#302e27}
+.scene-dialogue-mark{font:17px/1.4 InkSerif,serif;color:#9f674d;border:1px solid #ac765b7d;padding:3px 5px;display:inline-block;margin-bottom:17px}
+.scene-speaker-name{font:25px/1.5 InkSerif,serif;color:#8f4233;margin-bottom:17px}
+.scene-dialogue-text{font:clamp(18px,1.55vw,22px)/1.95 InkSerif,'Batang',serif;word-break:keep-all;overflow-wrap:anywhere;letter-spacing:.015em;min-height:5.8em;color:#3c3a31;margin:0}
+.scene-dialogue-footer{margin-top:30px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #cbbd9f8c;padding-top:22px}
+.scene-progress{display:flex;gap:10px;align-items:center;font-size:11px;color:#95856a;font-variant-numeric:tabular-nums}.scene-progress>span:first-child{font-weight:700;color:#85523b}.scene-progress i{width:38px;height:1px;background:#baa983}
+.scene-next{min-width:118px;min-height:46px;justify-content:space-between;gap:24px}.scene-footnote{display:flex;justify-content:space-between;gap:12px;font:11px/1.7 InkSerif,serif;color:#d5c6a98c;padding-top:10px}.scene-footnote>span{font-family:system-ui,sans-serif;font-size:10px}
+@media(max-width:760px){
+ .scene-screen{padding:22px 20px 18px;gap:18px;grid-template-rows:auto 1fr auto}
+ .scene-heading{gap:12px;padding-bottom:12px}.scene-heading h1{font-size:25px}.scene-kicker{font-size:9px;letter-spacing:.13em;margin-bottom:6px}.scene-skip{font-size:10px;padding-left:8px;gap:7px}
+ .scene-stage{grid-template-columns:1fr;gap:24px;padding:0;max-width:540px}.scene-figure{gap:12px}
+ .scene-portrait-shell{max-width:min(300px,36vh)}.scene-figure.is-body .scene-portrait-shell{max-width:min(225px,27vh)}
+ .scene-figure figcaption{gap:10px;font-size:10px}.scene-figure figcaption strong{font-size:20px}.scene-figure figcaption span{padding-left:10px}
+ .scene-dialogue{padding:23px 25px 20px}.scene-dialogue-mark{display:none}.scene-speaker-name{font-size:21px;margin-bottom:10px}.scene-dialogue-text{font-size:17px;line-height:1.9;min-height:0}
+ .scene-dialogue-footer{margin-top:20px;padding-top:16px}.scene-next{min-height:44px;min-width:105px}.scene-footnote{font-size:10px}.scene-footnote>span{display:none}
+}
+@media(max-width:420px){
+ .scene-screen{padding:18px 16px;gap:17px}.scene-heading h1{font-size:23px}.scene-heading{gap:8px}.scene-skip{font-size:9px;gap:4px}.scene-skip span{font-size:15px}
+ .scene-stage{gap:20px}.scene-dialogue{padding:21px 21px 18px}.scene-dialogue-text{font-size:16px}.scene-portrait-shell{max-width:min(270px,34vh)}.scene-figure.is-body .scene-portrait-shell{max-width:min(202px,25.5vh)}
+}
+@media(max-height:540px) and (min-width:761px){
+ .scene-screen{gap:14px;padding:16px 4vw}.scene-heading{padding-bottom:9px}.scene-heading h1{font-size:24px}.scene-kicker{font-size:9px;margin-bottom:3px}.scene-stage{gap:30px;grid-template-columns:minmax(200px,.8fr) minmax(0,1.2fr);padding:0}
+ .scene-portrait-shell{max-width:56vh}.scene-figure.is-body .scene-portrait-shell{max-width:42vh}.scene-figure{gap:10px}.scene-dialogue{padding:22px 28px}.scene-dialogue-mark{display:none}.scene-speaker-name{font-size:21px;margin-bottom:9px}.scene-dialogue-text{font-size:17px;min-height:0}.scene-dialogue-footer{margin-top:17px;padding-top:14px}.scene-footnote{padding-top:0}
+}

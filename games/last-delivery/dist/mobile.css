@@ -1,0 +1,279 @@
+/* Phone controls are separate from the desktop three-column board. */
+.mobile-nav,.bag-touch-tools,.mobile-combat-controls{display:none}
+.game-list-link{display:inline-flex;align-items:center;min-height:44px;margin-right:15px;color:#5a6f55;font:inherit;text-decoration:underline;text-underline-offset:4px}
+.game-list-link:hover{color:#304e3c}
+
+@media(max-width:780px), (max-width:1100px) and (max-height:520px) and (pointer:coarse){
+  html{scroll-padding-top:82px;scroll-padding-bottom:90px}
+  body{min-width:320px}
+  button,a,summary{touch-action:manipulation}
+  .app-header,.title-screen .app-header{gap:8px;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 12px max(12px,env(safe-area-inset-left))}
+  .brand{min-width:0;gap:7px;min-height:44px}
+  .brand h1{font-size:18px;letter-spacing:.025em;white-space:nowrap}
+  .brand small{font-size:7px;letter-spacing:.12em}
+  .brand .seal{width:27px;height:33px;flex:none}
+  .header-actions{gap:4px;flex:none}
+  .header-actions>.button{font-size:11px;padding:8px;min-height:44px}
+  .icon-btn{width:44px;height:44px;flex:none}
+  .button,.button.small-btn,.text-btn,.shop-item .buy,.reserve-rotate,.modal-close,.refinement-dismiss,.performance-more>summary,.item-base-description>summary,.enemy-relation{min-height:44px}
+  .button{white-space:normal;line-height:1.45;padding:10px 13px}
+  .button.small-btn{padding:8px 11px}
+  .shell{padding:12px max(12px,env(safe-area-inset-right)) calc(85px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+  .route{margin-bottom:12px;padding-top:0;padding-bottom:20px;gap:2px;overflow:visible}
+  .route:before{top:12px}
+  .route-node{min-width:0;flex:1}
+  .route-node i{width:23px;height:23px}
+  .route-node.current>span{top:29px}
+
+  /* Keep vitals visible without consuming half a small screen. */
+  .character-status{top:env(safe-area-inset-top);grid-template-columns:minmax(0,1fr) auto;gap:8px 10px;padding:9px 11px;margin-bottom:14px;min-height:58px}
+  .character-vitals{gap:7px}
+  .status-portrait{width:29px;height:29px}
+  .status-vital-heading{gap:5px;margin-bottom:5px}
+  .status-vital-heading strong{font-size:15px}
+  .status-vital-heading>span{font-size:11px}
+  .character-resources{gap:11px;padding:0 0 0 10px;border-right:0}
+  .character-resources>div{gap:2px}
+  .character-resources>div:last-child,.character-loadout{display:none}
+  .character-resources small{font-size:9px}
+  .character-resources strong{font-size:15px}
+  .game-layout,.game-layout.has-rival{display:block;min-width:0}
+  .game-layout[data-mobile-panel]>.bag-panel,.game-layout[data-mobile-panel]>.right-column,.game-layout[data-mobile-panel]>.enemy-column{display:none}
+  .game-layout[data-mobile-panel='progress']>.right-column,.game-layout[data-mobile-panel='enemy']>.enemy-column{display:block}
+  .game-layout[data-mobile-panel='bag']>.bag-panel{display:flex}
+  .game-layout>.right-column,.game-layout>.enemy-column{max-width:590px;width:100%;margin:0 auto;min-width:0}
+  .game-layout,.bag-cloth,.item-details,.enemy-inventory-inspect{scroll-margin-top:84px;scroll-margin-bottom:90px}
+
+  .mobile-nav{display:flex;position:fixed;inset:auto 0 0;z-index:50;gap:5px;align-items:stretch;padding:7px max(10px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));border-top:1px solid #b9b49f;background:#eee8d9f5;box-shadow:0 -5px 24px #293a2920;backdrop-filter:blur(12px)}
+  .mobile-nav button{flex:1;min-width:0;min-height:48px;border:1px solid transparent;border-radius:4px;padding:8px 4px;color:#6a6b59;font-size:12px;line-height:1.4;font-weight:600}
+  .mobile-nav button[aria-pressed='true']{color:#faf3de;background:#405f50;border-color:#354e42;box-shadow:0 3px 8px #1b332322}
+  .mobile-nav button:focus-visible{outline-offset:-3px}
+  .mobile-combat-controls{display:flex;align-items:center;justify-content:space-between;gap:9px;max-width:590px;margin:0 auto 12px;padding:8px 10px;border:1px solid #c4c8b1;background:#f2eedf;border-radius:4px}
+  .mobile-combat-controls>span{min-width:0;font-size:11px;color:#536b53;line-height:1.5}
+  .mobile-combat-controls .row{gap:6px;flex:none}
+  .mobile-combat-controls .button{min-width:60px;padding:8px 10px;font-size:12px}
+  .battle-controls{display:none}
+  #toast{bottom:calc(84px + env(safe-area-inset-bottom));max-width:calc(100vw - 28px);width:max-content;padding:10px 15px;font-size:12px}
+  .footer{font-size:10px;line-height:1.7;margin-top:18px}
+  .footer>span:last-child{display:none}
+
+  /* Touch order: board, selected-item controls, then storage. */
+  .bag-panel{flex-direction:column;max-width:530px;width:100%;margin:0 auto;padding:16px 13px;min-width:0}
+  .bag-panel>*{order:20;min-width:0}
+  .bag-panel>.section-heading{order:0;margin-bottom:16px;gap:8px}
+  .section-heading h2{font-size:22px}
+  .section-heading .eyebrow{font-size:9px;letter-spacing:.1em}
+  .capacity{font-size:10px;flex:none}
+  .bag-panel>.bag-cloth{order:1;width:100%;margin-inline:0;padding:7px;border-width:4px}
+  .bag-panel>.bag-touch-tools{order:2}
+  .bag-panel>.reserve-head{order:3;margin-top:13px}
+  .bag-panel>.reserve{order:4}
+  .bag-panel>.placement-feedback{order:5;margin:8px 0 0;font-size:11px}
+  .bag-panel>.connection-legend{order:6;margin-top:4px;margin-bottom:10px}
+  .bag-panel>.connection-readout{order:7}
+  .bag-panel>.loadout-performance{order:8}
+  .bag-panel>.loadout-line{order:9;overflow-wrap:anywhere}
+  .bag-panel>.inventory-error{order:10}
+  .bag-panel>.item-details{order:11}
+  .bag-touch-tools{display:block;margin-top:10px;padding:10px;background:#e9eddd;border:1px solid #b6c2a8;border-radius:4px}
+  .bag-touch-selection{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:3px 10px;min-width:0;margin-bottom:8px}
+  .bag-touch-selection strong{font-size:13px;color:#36583f;overflow-wrap:anywhere}
+  .bag-touch-selection small{font-size:10px;line-height:1.5;color:#6e775e}
+  .bag-touch-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .bag-touch-actions>.button{flex:1 1 calc(50% - 6px);min-width:0;font-size:12px;padding:8px 5px}
+  .bag-touch-hint{font-size:11px;line-height:1.65;color:#647052;overflow-wrap:anywhere;margin:6px 0 0}
+  .reserve-head{gap:8px;line-height:1.5}
+  .reserve-head .small{font-size:10px}
+  .reserve{max-height:192px;overflow:auto;overscroll-behavior:contain;padding:6px;gap:6px}
+  .reserve-entry{flex:1 1 150px;min-width:0}
+  .reserve-entry .reserve-item{flex:1;min-height:48px;padding:6px;gap:5px}
+  .reserve-entry .reserve-item b{font-size:12px;overflow-wrap:anywhere}
+  .reserve-entry .reserve-item small{font-size:10px}
+  .reserve-rotate{min-width:44px;padding:5px 8px}
+  .item-details .tools{gap:7px}
+  .item-details .tools .button{flex:1 1 110px}
+  .item-details .tools .text-btn{min-width:88px}
+  .performance-more>summary,.item-base-description>summary{display:flex;align-items:center;font-size:12px}
+  .performance-item-link{min-height:44px;padding:6px 2px}
+  .performance-inner-list .performance-item-link{padding:7px 9px}
+  .loadout-line span{font-size:11px}
+
+  .enemy-inventory{margin:0;padding:16px 13px}
+  .enemy-inventory-layout{grid-template-columns:minmax(0,1fr);gap:14px}
+  .enemy-bag-cloth{width:100%;max-width:450px;margin:auto;padding:7px}
+  .enemy-bag-stats{justify-content:center;font-size:11px}
+  .enemy-inventory-inspect{padding-top:12px;border-top:1px solid #c9ceb9}
+  .enemy-item-detail p{font-size:12px}
+  .enemy-item-detail .enemy-item-state{font-size:11px}
+  .enemy-detail-title{flex-wrap:wrap}
+  .enemy-detail-title small{font-size:10px}
+  .enemy-detail-links{max-height:none;overflow:visible;gap:7px}
+  .enemy-relation{padding:9px 10px}
+  .enemy-relation b{font-size:12px}
+  .enemy-relation span{font-size:11px}
+
+  .encounter-head{gap:10px;align-items:flex-start}
+  .encounter-head h2{font-size:25px;line-height:1.5}
+  .encounter-head .eyebrow{font-size:10px;letter-spacing:.1em;line-height:1.5}
+  .encounter-head .coin{font-size:12px;margin-top:5px}
+  .arena{aspect-ratio:1.5;height:auto}
+  .status-row{gap:15px;margin-top:14px}
+  .health-label{gap:5px;font-size:12px}
+  .health-label>span:first-child{min-width:0}
+  .health-label>span:last-child{flex:none;font-size:11px}
+  .energy-row{font-size:11px;flex-wrap:wrap;gap:3px 7px}
+  .energy-row>span:first-child{max-width:100%;overflow-wrap:anywhere}
+  .battle-log{height:155px;padding:11px}
+  .log-entry{font-size:12px;gap:7px}
+  .prepare-actions{flex-wrap:wrap;gap:12px;align-items:stretch}
+  .prepare-actions .button{min-width:0;flex:1 1 160px;min-height:48px}
+  .skill-preview{width:100%;font-size:12px}
+  .combat-tip{padding:12px;font-size:12px}
+  .preview-quote{font-size:16px}
+  .reward-title{font-size:13px;line-height:1.7}
+  .reward-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .reward-card{min-width:0;padding:14px 11px;min-height:230px}
+  .reward-card .tag{font-size:10px;white-space:normal;line-height:1.5}
+  .reward-card strong{font-size:19px}
+  .reward-card>span:not(.item-art):not(.tag){font-size:12px;line-height:1.7}
+  .reward-card small{font-size:11px;line-height:1.6}
+  .shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .shop-item{min-width:0;padding:13px;gap:10px}
+  .shop-item-head{min-width:0;gap:9px}
+  .shop-item-head>div{min-width:0}
+  .shop-item strong{font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+  .shop-item small{font-size:11px;line-height:1.5}
+  .shop-item p{font-size:12px;line-height:1.7;min-height:0}
+  .shop-item .buy{width:100%;align-self:stretch;margin-top:auto;font-size:13px}
+  .npc-card{padding:13px;gap:12px;align-items:flex-start}
+  .npc-card .portrait{width:60px}
+  .npc-card h3{font-size:18px;line-height:1.6}
+  .npc-card p{font-size:12px;line-height:1.8}
+  .expansion-panel{padding:13px}
+  .expansion-options{gap:8px}
+  .expansion-options .button{padding:10px;min-width:0}
+  .rest-option{padding:16px 13px;gap:12px}
+  .rest-option h3{font-size:18px}
+  .rest-option p{font-size:12px}
+  .result-banner{padding:15px}
+  .result-banner h3{font-size:22px}
+  .result-stats{gap:8px 16px;font-size:11px;line-height:1.7}
+
+  .title-content{max-width:100%;padding:35px max(24px,env(safe-area-inset-left)) 40px;margin:auto 0}
+  .title-content h2{font-size:62px;margin-top:19px}
+  .title-subtitle{font-size:16px;line-height:1.8;letter-spacing:.04em}
+  .title-copy{font-size:13px;line-height:1.9;margin:18px 0 24px}
+  .title-buttons{width:100%;max-width:390px;gap:9px}
+  .title-buttons .button{min-height:48px;min-width:0;flex:1 1 170px}
+  .title-note{font-size:11px;line-height:1.8}
+  .title-footer{gap:5px 15px;flex-wrap:wrap;align-items:center;padding:16px max(24px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left));line-height:1.6}
+  .title-footer>span:last-child{display:flex;align-items:center;flex-wrap:wrap;gap:0 12px}
+  .game-list-link{margin-right:0}
+  .modal-backdrop{padding:max(12px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))}
+  .modal{padding:25px 18px 20px;max-height:calc(100svh - max(12px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)));overscroll-behavior:contain}
+  .modal h2{font-size:24px;padding-right:27px;line-height:1.5}
+  .modal p{font-size:13px}
+  .modal-close{width:44px;height:44px;top:8px;right:8px;display:grid;place-items:center;border-radius:4px;font-size:25px}
+  .modal>.row{flex-wrap:wrap}
+  .modal>.row>.button{flex:1 1 120px}
+  .kit-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .kit-card{padding:16px 12px;min-width:0}
+  .kit-card h3{font-size:19px}
+  .kit-card p{font-size:12px;line-height:1.8}
+  .kit-card .tag{font-size:10px}
+  .kit-card .item-art{width:72px}
+  .catalog-filters{gap:7px}
+  .catalog-filters .button{font-size:12px}
+  .catalog-card{padding:13px;gap:11px;min-width:0}
+  .catalog-card>div{min-width:0}
+  .catalog-card>.footprint-mini{width:48px;height:48px}
+  .catalog-card h3{font-size:19px}
+  .catalog-card small{font-size:11px}
+  .catalog-card p{font-size:12px}
+  .scene-screen{padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+  .scene-skip{font-size:11px;min-height:44px}
+}
+
+@media(max-width:420px){
+  .status-vital-heading strong{display:none}
+  .bag-panel{padding:15px 10px}
+  .bag-panel>.bag-cloth{padding:5px}
+  .section-heading h2{font-size:21px}
+  .bag-touch-tools{padding:9px}
+  .bag-touch-actions{gap:5px}
+  .bag-touch-actions>.button{font-size:11px}
+  .connection-legend{gap:7px;font-size:10px}
+  .connection-legend>span:last-child{font-size:10px;margin-left:0}
+  .shop-grid,.reward-grid{grid-template-columns:minmax(0,1fr)}
+  .shop-item{padding:14px}
+  .shop-item-head .item-art{width:52px}
+  .shop-item strong{font-size:17px}
+  .reward-card{display:grid;grid-template-columns:65px minmax(0,1fr);align-items:start;gap:5px 13px;min-height:0;text-align:left;padding:14px}
+  .reward-card>.item-art{grid-column:1;grid-row:1/span 4;width:65px;align-self:center}
+  .reward-card>.tag,.reward-card>strong,.reward-card>span:not(.item-art),.reward-card>small{grid-column:2;max-width:100%;margin:0}
+  .reward-card>.tag{width:fit-content}
+  .reward-card>.footprint-mini{grid-column:1;grid-row:5;width:54px;height:36px;justify-self:center}
+  .reward-card>small{grid-row:5;align-self:center}
+  .npc-card .portrait{width:48px}
+  .npc-card h3{font-size:17px}
+  .expansion-options .button{padding:9px 8px}
+  .expansion-options .button strong{font-size:12px}
+  .expansion-options .button span,.expansion-options .button small{font-size:10px}
+  .title-content h2{font-size:58px}
+  .title-footer>span:last-child{max-width:100%;text-align:left}
+  .modal{padding:25px 14px 18px}
+  .kit-card{padding:14px 10px}
+  .kit-card h3{font-size:18px}
+  .kit-card:last-child .item-art{float:none;margin:0 auto 12px}
+  .kit-card:last-child{display:grid;grid-template-columns:72px minmax(0,1fr);gap:0 15px}
+  .kit-card:last-child .item-art{grid-column:1;grid-row:1/span 3;align-self:center}
+  .kit-card:last-child h3,.kit-card:last-child p,.kit-card:last-child .tag{grid-column:2}
+  .kit-card:last-child .tag{margin-top:8px}
+  .scene-heading h1{font-size:22px}
+  .scene-skip{font-size:10px;max-width:108px}
+  .scene-dialogue{padding:19px 17px}
+}
+
+@media(max-width:360px){
+  .app-header,.title-screen .app-header{padding-right:max(9px,env(safe-area-inset-right));padding-left:max(9px,env(safe-area-inset-left));gap:5px}
+  .brand h1{font-size:17px}
+  .brand small{display:none}
+  .header-actions>.button{padding-inline:6px;font-size:10px}
+  .character-status{padding-inline:8px;gap:8px}
+  .status-portrait{width:25px;height:25px}
+  .character-resources{gap:8px;padding-left:8px}
+  .section-heading h2{font-size:19px}
+  .bag-touch-selection small{font-size:9px}
+  .bag-piece .bag-piece-content .name{font-size:8px}
+  .bag-piece .single-content .name{font-size:7px}
+}
+
+@media(max-width:1100px) and (max-height:520px) and (orientation:landscape) and (pointer:coarse){
+  .app-header,.title-screen .app-header{padding-top:7px;padding-bottom:7px}
+  .shell{padding-top:9px;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+  .route{display:none}
+  .character-status{position:static;margin-bottom:10px;min-height:52px}
+  .status-vital-heading strong{display:block}
+  .game-layout,.bag-cloth,.item-details,.enemy-inventory-inspect{scroll-margin-top:14px}
+  .mobile-nav{padding-top:5px;padding-bottom:calc(5px + env(safe-area-inset-bottom))}
+  .mobile-nav button{min-height:44px}
+  .bag-panel{max-width:430px}
+  .game-layout>.right-column,.game-layout>.enemy-column{max-width:560px}
+  .arena{max-width:430px;margin-inline:auto;aspect-ratio:1.8}
+  .title-content{padding-top:16px;padding-bottom:25px}
+  .title-content h2{font-size:44px;line-height:1.2;margin-top:8px;margin-bottom:12px}
+  .title-copy{margin:12px 0 18px}
+  .scene-screen{gap:12px}
+  .scene-heading{padding-bottom:8px}
+  .scene-stage{grid-template-columns:minmax(130px,.7fr) minmax(0,1.3fr);gap:20px;max-width:700px}
+  .scene-portrait-shell{max-width:48vh}
+  .scene-figure.is-body .scene-portrait-shell{max-width:36vh}
+  .scene-figure figcaption{gap:4px;font-size:9px}
+  .scene-figure figcaption strong{font-size:17px}
+  .scene-figure figcaption span{padding-left:7px}
+  .scene-dialogue{padding:17px 20px}
+  .scene-dialogue-text{font-size:15px;line-height:1.8}
+  .scene-speaker-name{font-size:19px;margin-bottom:8px}
+  .scene-dialogue-footer{margin-top:13px;padding-top:11px}
+  .scene-footnote{display:none}
+}

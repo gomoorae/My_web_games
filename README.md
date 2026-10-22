@@ -4,6 +4,7 @@ gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 
 
 | 게임 | 경로 |
 |---|---|
+| 마지막 표행 · 무협 보따리 로그라이크 | [게임](games/last-delivery/) · [플레이 안내](games/last-delivery/README.md) |
 | 스카이 체이서 · 세로 슈팅 | [게임](games/sky-chaser/index.html) · [플레이 안내](games/sky-chaser/README.md) |
 | 별냠 · 별 수집 도약 게임 | [게임](games/star-munch/index.html) · [규칙과 소스 안내](games/star-munch/README.md) |
 | NEON TERRITORY · 10스테이지 땅따먹기 | [게임](games/neon_territory/index.html) · [규칙과 조작](games/neon_territory/README.md) |
@@ -13,6 +14,10 @@ gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 
 | 바이크 칼치기 | [게임](games/bike_game/index.html) |
 
 각 게임의 메인으로/게임 목록으로 링크로 돌아올 수 있습니다.
+
+## 마지막 표행
+
+[마지막 표행 플레이](https://gomoorae.github.io/My_web_games/games/last-delivery/) — 5개 시작 계열, 60종 아이템, 10전과 결말. 무기·심법·무공의 개수 제한 없이 배치하고 같은 보조품도 각각 합산합니다. 1.6은 휴대폰 하단 진행/내 보따리/상대 보따리 전환, 터치 선택·회전·배치, 작은 화면과 안전 영역을 지원합니다. 진행은 브라우저에 자동 저장됩니다.
 
 ## 스카이 체이서
 

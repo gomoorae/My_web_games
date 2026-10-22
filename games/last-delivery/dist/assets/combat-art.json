@@ -1,0 +1,21 @@
+{
+  "style": "Ink and gouache wuxia illustration, mature proportions, indigo and vermilion",
+  "heroes": {
+    "file": "heroes.png", "width": 1536, "height": 1024, "columns": 3, "rows": 2, "transparent": true,
+    "cells": ["idle", "sword", "saber", "spear", "dart", "fist"],
+    "facing": "right"
+  },
+  "foes": {
+    "file": "foes.png", "width": 1536, "height": 1024, "columns": 4, "rows": 2, "transparent": true,
+    "cells": ["bandit", "spear_guard", "poison_assassin", "twin_blades", "armored_soldier", "executor", "adept", "boss"],
+    "facing": "left"
+  },
+  "battlefields": {
+    "file": "battlefields.png", "width": 1536, "height": 1024, "columns": 2, "rows": 2, "transparent": false,
+    "cells": ["bamboo", "ferry", "relay", "gate"]
+  },
+  "techniques": {
+    "file": "techniques.png", "width": 1448, "height": 1086, "columns": 4, "rows": 3, "transparent": true,
+    "cells": ["silverarc", "redcrescent", "spearthrust", "dartfan", "emeraldpalm", "frostslash", "poisoncloud", "bloodslashes", "shieldring", "shockwave", "fireburst", "thunder"]
+  }
+}

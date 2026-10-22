@@ -1,0 +1,72 @@
+/* Effective equipment values, before/after refinement and current bag totals. */
+.loadout-performance{margin:13px 0;padding:12px;border:1px solid #b6bfaa;border-radius:4px;background:#f7f4e9}
+.performance-heading{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:9px;min-width:0}
+.performance-heading h3,.performance-heading h4{font:600 13px/1.5 system-ui,sans-serif;color:#365442;margin:0}
+.performance-heading>span{font:10px/1.5 system-ui,sans-serif;color:#718064;text-align:right}
+.performance-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.performance-card{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;padding:9px;border:1px solid #d0c6ab;border-radius:3px;background:#eee8d8}
+.performance-card>span{font:10px/1.45 system-ui,sans-serif;color:#756b55}
+.performance-card>strong{font:600 18px/1.35 system-ui,sans-serif;color:#74572a;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.performance-card.metric-armor,.performance-card.metric-shield{background:#e5ebe0;border-color:#becbb4}
+.performance-card.metric-armor>strong,.performance-card.metric-shield>strong{color:#3e654f}
+.loadout-performance .performance-note,.item-details .performance-note,.refinement-receipt .performance-note{font:10px/1.7 system-ui,sans-serif;color:#777766;margin:8px 0 0}
+.performance-more{margin-top:9px;border-top:1px solid #d2cfbb;padding-top:6px}
+.performance-more>summary{cursor:pointer;padding:6px 0;font:600 11px/1.5 system-ui,sans-serif;color:#49634d}
+.performance-more>summary:focus-visible{outline:2px solid #5e866b;outline-offset:2px}
+.performance-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px;margin:0}
+.performance-metrics>div{min-width:0;display:flex;flex-direction:column;gap:3px;padding:7px 0;border-bottom:1px solid #ddd5c2}
+.performance-metrics dt{font:10px/1.5 system-ui,sans-serif;color:#77705e;overflow-wrap:anywhere}
+.performance-metrics dd{margin:0;font:600 13px/1.5 system-ui,sans-serif;color:#435842;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.performance-arts{margin-top:12px}.performance-arts>h4{font:600 11px/1.6 system-ui,sans-serif;color:#426347;margin:0 0 6px}
+.performance-art-table{width:100%;table-layout:fixed;border-collapse:collapse;font:11px/1.6 system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.performance-art-table caption{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.performance-art-table th,.performance-art-table td{padding:7px 3px;border-bottom:1px solid #d5d3bd;text-align:right;vertical-align:top;overflow-wrap:anywhere}
+.performance-art-table th:first-child{width:48%;text-align:left;padding-left:0}.performance-art-table thead th{font-size:9px;font-weight:400;color:#77715d}.performance-art-table tbody th{font-size:10px;font-weight:600;color:#4c644b}.performance-art-table tbody td{font-weight:600;color:#3f654a}
+.performance-art-table th>small{display:block;font-size:9px;font-weight:400;line-height:1.6;color:#8a8069;margin-top:3px}
+.item-performance{margin:12px 0;padding-top:12px;border-top:1px solid #d2c7ae}
+.item-details .performance-context{margin:0 0 6px;color:#6b7660;font:10px/1.7 system-ui,sans-serif}
+.performance-heading>.performance-active{color:#317153}.performance-heading>.performance-idle{color:#9c6244}
+.refinement-total{margin-top:12px;padding-top:10px;border-top:1px dashed #b8c5aa}
+.refinement-total>h4,.refinement-result>h4{font:600 11px/1.6 system-ui,sans-serif;color:#426347;margin:0 0 7px}
+.performance-comparison{width:100%;border-collapse:collapse;table-layout:fixed;font:11px/1.5 system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.performance-comparison caption{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.performance-comparison th,.performance-comparison td{padding:6px 3px;text-align:right;vertical-align:middle;border-bottom:1px solid #d5d3bd;overflow-wrap:anywhere}
+.performance-comparison thead th{font-size:9px;font-weight:400;color:#7c7968}
+.performance-comparison th:first-child{width:34%;padding-left:0;text-align:left;font-weight:400;color:#656c56}
+.performance-comparison tbody th{font-size:10px;line-height:1.45}
+.performance-comparison td:last-child{padding-right:0}
+.performance-comparison small{font-size:8px;color:#8a8873;margin-left:2px}
+.performance-comparison tbody th small{display:block;margin-left:0}
+.performance-after{font-weight:700;color:#3e5d43}.performance-gain{font-weight:700;color:#287347}.performance-change{color:#8e6547}
+.refinement-preview{margin:12px 0;padding:10px;border:1px solid #b9c4a6;border-radius:4px;background:#ecf0df}
+.refinement-preview .performance-heading{margin-bottom:5px}.refinement-preview .performance-heading>span{color:#8b6a30;white-space:nowrap}
+.refinement-preview.refinement-max{font:12px/1.6 system-ui,sans-serif;color:#426b4b;background:#edf0e2}
+.loadout-performance .performance-warning,.performance-note .performance-warning{font-size:10px;line-height:1.65;color:#a04d35;margin-top:8px}
+.refinement-receipt{margin:0 0 18px;padding:13px 15px;border:1px solid #94ad8c;border-left:4px solid #65885d;border-radius:4px;background:#eef2e4;max-width:100%}
+.refinement-receipt .performance-heading{margin-bottom:8px}.refinement-receipt .performance-heading h3{font-size:14px}
+.refinement-dismiss{display:grid;place-items:center;width:30px;height:30px;flex:none;border:1px solid #b6c5a9;background:#f7f8ed;border-radius:3px;color:#59704e;font-size:21px;cursor:pointer}
+.refinement-dismiss:focus-visible{outline:2px solid #5e866b;outline-offset:2px}
+.refinement-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:0 24px}.refinement-result{max-width:460px;min-width:0;margin:9px 0 12px}.refinement-result>h4{font-size:12px}.refinement-result>h4 span{font-size:10px;font-weight:400;margin-left:5px;color:#69815d}
+.refinement-receipt .refinement-recovery{font:600 11px/1.6 system-ui,sans-serif;color:#397750;margin:7px 0}
+.item-details .tools{flex-wrap:wrap}.item-base-description{margin-top:10px;border-top:1px solid #d5cdbb;padding-top:8px}.item-base-description>summary{font-size:10px;color:#7e7868;cursor:pointer}
+@media(max-width:420px){.loadout-performance{padding:10px}.performance-card{padding:8px}.performance-card>strong{font-size:17px}.performance-comparison{font-size:10px}.performance-comparison th,.performance-comparison td{padding:6px 2px}.refinement-preview{padding:9px}.refinement-receipt{padding:11px}}
+
+/* Every weapon remains individually readable next to the combined rate. */
+.performance-weapons{margin:12px 0 3px;padding-top:10px;border-top:1px solid #d2cfbb}
+.performance-weapons>h4{font:600 11px/1.6 system-ui,sans-serif;color:#426347;margin:0 0 6px}
+.performance-weapon-table{width:100%;table-layout:fixed;border-collapse:collapse;font:10px/1.6 system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.performance-weapon-table caption{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.performance-weapon-table th,.performance-weapon-table td{padding:7px 2px;border-bottom:1px solid #d5d3bd;text-align:right;vertical-align:top;overflow-wrap:anywhere}
+.performance-weapon-table th:first-child{width:34%;text-align:left;padding-left:0}.performance-weapon-table thead th{font-size:9px;font-weight:400;color:#77715d}.performance-weapon-table tbody td{font-weight:600;color:#3f654a}
+.performance-weapon-table th>small{display:block;font-size:9px;font-weight:400;line-height:1.6;color:#8a8069;margin-top:3px}
+.performance-item-link{display:inline;padding:0;border:0;border-radius:0;background:none;font:600 10px/1.6 system-ui,sans-serif;color:#4c644b;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:#adb99e;text-underline-offset:3px;overflow-wrap:anywhere}
+.performance-item-link:focus-visible{outline:2px solid #5e866b;outline-offset:2px}.performance-item-link:hover{color:#2f7350}
+.performance-inner-list{font:10px/1.8 system-ui,sans-serif;color:#6a775d;margin:9px 0;overflow-wrap:anywhere}
+.performance-art-table .performance-art-weapons{color:#4f7658}
+
+.performance-inner-list{display:flex;flex-wrap:wrap;gap:5px 9px;align-items:baseline}.performance-inner-list .performance-item-link{padding:3px 6px;background:#e7ecdd;border:1px solid #c6d0b8;border-radius:3px;text-decoration:none}
+.performance-supports{margin-top:12px;padding:10px;border:1px solid #bccbb2;border-radius:3px;background:#eef2e5}
+.performance-supports>h4{margin:0 0 7px;font:600 11px/1.6 system-ui,sans-serif;color:#426347}
+.performance-supports>ul{list-style:none;padding:0;margin:0}.performance-supports li{display:flex;flex-direction:column;gap:3px;padding:6px 0;border-bottom:1px solid #d5decb;overflow-wrap:anywhere}
+.performance-supports li:last-child{border-bottom:0}.performance-supports li>strong{font:600 11px/1.6 system-ui,sans-serif;color:#46623f}.performance-supports li>span{font:10px/1.6 system-ui,sans-serif;color:#526b48;font-variant-numeric:tabular-nums}
+.item-details .performance-support-cap{color:#926439}
