@@ -1,12 +1,20 @@
 [
   {
+    "title": "월하무쌍",
+    "category": "SURVIVOR · 무협 액션",
+    "description": "몰려오는 적을 쓸어내는 무협 생존 액션. 여덟 무공·아홉 합성 비기·열 가지 심법을 조합하고, 합성·보스 등장·승리의 전용 컷신을 만나보세요. PC와 모바일에서 바로 플레이합니다.",
+    "thumbnail": "thumbs/moonfall-cover-v2.jpg",
+    "url": "games/moonfall/index.html",
+    "featured": true,
+    "detail": "KEYBOARD + TOUCH"
+  },
+  {
     "title": "별냠 · STAR MUNCH",
     "description": "별 하나 먹고 크게 폴짝! 흩어진 별을 골라 도약하고, 부스트로 별줄을 쓸어 담으며 더 높은 하늘에 도전하세요.",
     "thumbnail": "thumbs/star-munch.svg",
     "url": "games/star-munch/index.html",
     "category": "JUMP · 별 수집",
-    "detail": "KEYBOARD + TOUCH",
-    "featured": true
+    "detail": "KEYBOARD + TOUCH"
   },
   {
     "title": "마지막 표행",
@@ -31,13 +39,6 @@
     "url": "games/neon_territory/?v=0.5.0",
     "category": "TERRITORY · 땅따먹기",
     "detail": "KEYBOARD + TOUCH · 10 STAGES"
-  },
-  {
-    "title": "월하무쌍",
-    "category": "SURVIVOR · 무협 액션",
-    "description": "권법·각법부터 검기까지, 여덟 무공으로 나만의 조합을 만드세요. 세 전장, 아홉 합성 비기, 열 가지 심법, 6분의 생존. PC 키보드 또는 모바일 터치로 플레이합니다.",
-    "thumbnail": "thumbs/moonfall-cover-v2.jpg",
-    "url": "games/moonfall/index.html"
   },
   {
     "title": "매치3 퍼즐",
