@@ -30,7 +30,7 @@ function audioHarness({settings={},run=null,script='https://example.test/games/l
  const doc={hidden:false,baseURI:'https://example.test/games/last-delivery/index.html',currentScript:{src:script},activeElement:null,querySelector:node,querySelectorAll(){return [];},getElementById:id=>node('#'+id),createElement:()=>node('new-'+nodes.size),addEventListener(k,f){listeners[k]=f;}};
  const audio={configure(p){state={...state,...p,status:p.sound===false?'muted':state.status};calls.push(['configure',{...p}]);},unlock(){calls.push(['unlock']);state={...state,status:'running',unlocked:true};return Promise.resolve(true);},setScene(scene){state={...state,scene,trackTitle:scene};calls.push(['scene',scene]);},setPaused(value){calls.push(['paused',value]);},setHidden(value){calls.push(['hidden',value]);},play(...args){calls.push(['play',...args]);},getState(){return state;},dispose(){}};
  const context={...data,...engine,...grid,...placement,...adjacency,...inventory,...board,...expansion,...performanceData,...performanceUI,...assembly,...cutscene,
-  battleEffect(){},clearEffects(){},initBattleVisuals(){},updateInventoryActivity(){},
+  battleEffect(){},clearEffects(){},initBattleVisuals(){},updateInventoryActivity(){},prepareBattleEffects(){return null;},
   MUSIC_TRACKS:{journey:{title:'밤길'},battle:{title:'칼끝'},boss:{title:'성문'},ending:{title:'새벽'}},
   createGameAudio(o){options=o;return audio;},LAST_DELIVERY_EMBEDDED_AUDIO:embedded,
   document:doc,window:{location:{href:doc.baseURI},matchMedia:()=>({matches:false}),addEventListener(k,f){windowListeners[k]=f;}},

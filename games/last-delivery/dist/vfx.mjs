@@ -1,4 +1,39 @@
 // Battle choreography. Effects are visual only; the deterministic engine owns all damage.
+let fxAtlasImage=null,fxAtlasPending=null,fxAtlasAttempt=0;
+export function prepareBattleEffects(){
+ // The stylesheet owns the actual asset: published WebP and embedded data URLs
+ // must use the same decoded image as the first visible technique.
+ if(fxAtlasImage)return null;
+ if(fxAtlasPending)return fxAtlasPending;
+ if(typeof globalThis.Image!=='function'||typeof globalThis.getComputedStyle!=='function'||!document.body)return null;
+ const probe=document.createElement('div');probe.className='fx-technique';
+ probe.style.cssText='position:fixed;left:-10000px;top:-10000px;width:1px;height:1px;visibility:hidden;pointer-events:none;animation:none';
+ let url;
+ try{
+  document.body.appendChild(probe);
+  const background=globalThis.getComputedStyle(probe).backgroundImage;
+  const match=background.match(/^url\((?:"([^"]*)"|'([^']*)'|([^)]*))\)$/);
+  url=match?.[1]||match?.[2]||match?.[3]?.trim();
+  if(!url)throw Error('전투 효과 그림을 찾지 못했어.');
+ }catch(error){return Promise.reject(error);}finally{probe.remove();}
+ const image=new globalThis.Image(),attempt=++fxAtlasAttempt;let timeout;
+ fxAtlasPending=new Promise((resolve,reject)=>{
+  let decoding=false;
+  // This is independent of visual-effect timers: render/clearEffects must not
+  // cancel preparation or leave a failed network request waiting forever.
+  timeout=setTimeout(()=>reject(Error('전투 효과 그림 준비 시간이 초과됐어.')),15000);
+  image.onload=()=>{
+   if(decoding)return;decoding=true;
+   Promise.resolve().then(()=>typeof image.decode==='function'?image.decode():undefined).then(()=>{
+    if(!image.naturalWidth)throw Error('전투 효과 그림을 읽지 못했어.');
+    resolve();
+   }).catch(reject);
+  };
+  image.onerror=()=>reject(Error('전투 효과 그림을 불러오지 못했어.'));
+  image.src=url;if(image.complete&&image.naturalWidth)image.onload();
+ }).then(()=>{clearTimeout(timeout);image.onload=image.onerror=null;if(attempt===fxAtlasAttempt){fxAtlasImage=image;fxAtlasPending=null;}return true;},error=>{clearTimeout(timeout);image.onload=image.onerror=null;if(attempt===fxAtlasAttempt)fxAtlasPending=null;throw error;});
+ return fxAtlasPending;
+}
 const fxTimers=new Set(),fxAnimations=new Set();
 const fxItemTimers=new Map();
 const fxPoseIndex={sword:1,saber:2,spear:3,dart:4,fist:5,palm:5};
