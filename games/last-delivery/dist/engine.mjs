@@ -145,17 +145,17 @@ function fighterAttack(b,f,target,a,kind){
  const leech=(a.lifesteal||a.leech||0)+bonus.lifesteal;if(leech)healFighter(b,f,total*leech,'흡기',a,['lifesteal'],'lifesteal');
  const type=f.actor==='enemy'?'enemy':kind,keys=['damage','crit','critDamage','pierce',...(kind==='skill'?['artPower','cooldown']:['speed','poison','bleed','burn'])];
  actorEvent(b,f,type,a.name,total,a,keys,{effect:kind,fx:a.fx||(kind==='skill'?`art-${a.tag}`:`weapon-${a.tag}`),tag:a.tag&&!['any','all'].includes(a.tag)?a.tag:a.weaponTag||f.weapon.tag,target:a.damage?target.actor:f.actor,hits,crit,blocked});
- if(landed&&target.bonuses.thorns&&f.hp>0&&target.hp>0){const reflected=damageFighter(b,target,f,target.bonuses.thorns,'thorns',null,0,false).damage;actorEvent(b,target,'thorns','반탄강기',reflected,null,['thorns'],{effect:'thorns',fx:'thorns',target:f.actor});}
+ if(landed&&target.bonuses.thorns&&f.hp>0&&target.hp>0){const reflected=damageFighter(b,target,f,target.bonuses.thorns,'thorns',null,0,false);actorEvent(b,target,'thorns','반탄강기',reflected.damage,null,['thorns'],{effect:'thorns',fx:'thorns',target:f.actor,blocked:reflected.blocked});}
 }
 function useConsumables(b,f,target){
  for(const c of f.medicines){
   if(f.used.includes(c.uid))continue;const trigger=(c.trigger||'lowhp').toLowerCase();
   const activate=trigger==='start'?b.t<.2:trigger==='lowhp'?f.hp>0&&f.hp<=f.maxHp*(c.threshold??.45):trigger==='lowenergy'?f.energy<=(c.threshold??1)&&b.t>=2:trigger==='poisoned'?f.statuses.poison.amount>0:trigger==='time'?b.t>=(c.time||10):false;
-  if(!activate)continue;f.used.push(c.uid);let value=0;
+  if(!activate)continue;f.used.push(c.uid);let value=0,blocked=0;
   if(c.heal)value+=healFighter(b,f,c.heal,c.name,c,[],c.fx||'heal');if(c.shield)grantShield(b,f,c.shield,c.name,c);
   if(c.energy)f.energy=Math.min(f.maxEnergy,f.energy+c.energy);if(c.cleanse)for(const status of Object.values(f.statuses)){status.amount=0;status.until=0;status.sources=[];}
-  if(c.damage)value+=damageFighter(b,f,target,c.damage,'skill',c,c.pierce||0,false).damage;applyStatus(b,f,target,c,1,c);
-  actorEvent(b,f,'consume',c.name,value,c,[],{effect:'consume',fx:c.fx||(c.damage?'explosion':'elixir'),tag:c.tag,target:c.damage?target.actor:f.actor});
+  if(c.damage){const hit=damageFighter(b,f,target,c.damage,'skill',c,c.pierce||0,false);value+=hit.damage;blocked=hit.blocked;}applyStatus(b,f,target,c,1,c);
+  actorEvent(b,f,'consume',c.name,value,c,[],{effect:'consume',fx:c.fx||(c.damage?'explosion':'elixir'),tag:c.tag,target:c.damage?target.actor:f.actor,blocked});
   if(trigger==='lowhp'&&f.hp>f.maxHp*(c.threshold??.45))break;
  }
 }

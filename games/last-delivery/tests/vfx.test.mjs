@@ -119,7 +119,8 @@ test('shield blocks, status ticks and self healing never inherit the attack mirr
  }
  const h=effectHarness();h.effect({id:3,type:'heal',actor:'enemy',target:'enemy',value:10,fx:'regen'});
  assert.equal(h.find('.fx-incoming').length,0);assert.equal(h.find('.fx-received-directed').length,0);
- assert.equal(h.find('.fx-aura')[0].values.get('--effect-x'),'73%');
+ assert.equal(h.find('.fx-aura')[0].values.get('--effect-x'),'78.125%');
+ assert.ok(Math.abs(parseFloat(h.find('.fx-aura')[0].values.get('--effect-y'))-38.8)<1e-9);
 });
 
 test('enemy mirroring does not leak into player attacks, including simultaneous attacks',()=>{
@@ -139,4 +140,48 @@ test('reduced-motion attacks retain facing without approach animation and CSS ce
  assert.match(css,/@keyframes fx-received-directed\{[^\n]+18%\{opacity:1;transform:translate\(-50%,-50%\) rotate\(var\(--strike-angle\)\) scaleX\(var\(--strike-facing\)\)/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.fx-received-directed\{transform:translate\(-50%,-50%\) rotate\(var\(--strike-angle\)\) scaleX\(var\(--strike-facing\)\)!important\}\}/);
  assert.match(css,/\.fx-incoming:before\{[^}]*right:7px[^}]*linear-gradient\(90deg,transparent,var\(--fx-color/);
+});
+
+test('outgoing impact follows the enemy torso after its position changes',()=>{
+ const h=effectHarness();h.effect({id:2,type:'attack',actor:'hero',target:'enemy',tag:'saber',fx:'saber',value:17});
+ h.foe.rect.left+=30;h.foe.rect.top-=20;h.advance(100);
+ const impact=h.find('.fx-impact')[0];assert.equal(impact.values.get('--impact-x'),'81.875%');assert.equal(impact.values.get('--impact-y'),'34.8%');
+ for(const spark of h.find('.fx-spark')){assert.equal(spark.values.get('--spark-x'),impact.values.get('--impact-x'));assert.equal(spark.values.get('--spark-y'),impact.values.get('--impact-y'));}
+ h.clear();h.effect({id:3,type:'shield',actor:'enemy',target:'enemy',value:15});
+ assert.equal(h.find('.fx-ring')[0].values.get('--ring-x'),'81.875%');assert.equal(h.find('.fx-ring')[0].values.get('--ring-y'),'34.8%');
+ assert.equal(h.find('.fx-number')[0].values.get('--number-x'),'81.875%');
+});
+
+test('poison bottles and bombs keep their own appearance on both sides even when fully blocked',()=>{
+ for(const actor of ['hero','enemy'])for(const [fx,tile] of [['venom-rain',6],['thunder-cleave',10]])for(const blocked of [0,36]){
+  const h=effectHarness(),target=actor==='hero'?'enemy':'hero';
+  h.effect({id:1,t:0,type:'consume',actor,target,fx,tag:'any',value:blocked?0:8,blocked});h.advance(180);
+  const atlas=h.find('.fx-technique').map(node=>Number(node.values.get('--fx-row'))*4+Number(node.values.get('--fx-col')));
+  assert.ok(atlas.includes(tile),`${actor} ${fx} needs its actual consumable image`);
+  if(tile===6){assert.ok(!atlas.includes(10),'poison bottle is not fire');assert.equal(h.find('.fx-flame').length,0);}
+  if(actor==='enemy'){
+   assert.equal(h.find('.fx-received-directed').length,0,'bottle bursts are radial');
+   if(tile===6)assert.equal(h.find('.fx-incoming')[0].values.get('--fx-color'),'#b7df87');
+   if(blocked)assert.equal(h.find('.fx-hit-label')[0].textContent,'기혈 피해 없음 · 방어막 −36');
+  }
+  h.clear();
+ }
+});
+
+test('retaliation on the hero reports damage and absorbed shield without inventing a weapon flight',()=>{
+ const h=effectHarness();h.effect({id:7,t:2,type:'thorns',actor:'enemy',target:'hero',fx:'thorns',value:4,blocked:6});h.advance(0);
+ assert.equal(h.find('.fx-incoming').length,0);assert.equal(h.find('.fx-received-directed').length,0);
+ assert.equal(h.find('.fx-hit-label')[0].textContent,'반격 −4 · 방어막 −6');assert.equal(h.find('.fx-hero-shield').length,1);
+ h.clear();h.effect({id:8,t:3,type:'thorns',actor:'enemy',target:'hero',fx:'thorns',value:0,blocked:9});h.advance(0);
+ assert.equal(h.find('.fx-hit-label')[0].textContent,'기혈 피해 없음 · 방어막 −9');
+});
+
+test('late poison clouds, petals and stone debris remain until their fade is complete',()=>{
+ const cloud=effectHarness();cloud.effect({type:'skill',actor:'hero',target:'enemy',fx:'venom-rain',tag:'dart',value:3});
+ const poison=cloud.find('.fx-cloud')[0];cloud.advance(1519);assert.ok(cloud.arena.children.includes(poison),'220ms delay + 1300ms poison fade');cloud.advance(110);assert.ok(!cloud.arena.children.includes(poison));cloud.clear();
+ const petals=effectHarness();petals.effect({type:'skill',actor:'hero',target:'enemy',fx:'plum-guard',tag:'sword',value:8});
+ const lastPetal=petals.find('.fx-petal').at(-1);petals.advance(1350);assert.ok(petals.arena.children.includes(lastPetal),'last petal must complete its delayed fade');petals.advance(100);assert.ok(!petals.arena.children.includes(lastPetal));petals.clear();
+ const stone=effectHarness();stone.effect({type:'skill',actor:'hero',target:'enemy',fx:'stone-fist',tag:'fist',value:7});
+ const lastChip=stone.find('.fx-stone-chip').at(-1);stone.advance(1140);assert.ok(stone.arena.children.includes(lastChip));stone.advance(100);assert.ok(!stone.arena.children.includes(lastChip));stone.clear();
+ const aura=effectHarness();aura.effect({type:'heal',actor:'hero',target:'hero',fx:'regen',value:3});const glow=aura.find('.fx-aura')[0];assert.equal(glow.values.get('--aura-time'),'640ms');aura.advance(699);assert.ok(aura.arena.children.includes(glow));aura.advance(1);assert.ok(!aura.arena.children.includes(glow));
 });

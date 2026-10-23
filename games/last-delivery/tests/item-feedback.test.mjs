@@ -12,10 +12,11 @@ function inventoryFxHarness(){
   remove(){if(this.parent)this.parent.children=this.parent.children.filter(n=>n!==this);}
   querySelectorAll(s){return this.children.flatMap(n=>[...(n.className.split(' ').includes(s.slice(1))?[n]:[]),...n.querySelectorAll(s)]);}
   setAttribute(){}
-  getBoundingClientRect(){return {left:100,top:100,width:600,height:400};}
+  getBoundingClientRect(){return this.rect||{left:100,top:100,width:600,height:400};}
   animate(){return {finished:Promise.resolve(),cancel(){}};}
  }
  const arena=new Element(),hero=new Element(),enemy=new Element(),items=new Map(['hero:w','hero:w2','hero:a','hero:shield','hero:support','hero:unused','hero:medicine','enemy:w','enemy:w2','enemy:a','enemy:shield','enemy:medicine'].map(k=>[k,new Element(k)]));
+ hero.rect={left:160,top:200,width:120,height:200};enemy.rect={left:490,top:180,width:150,height:240};
  const document={createElement:()=>new Element(),querySelector:s=>s==='#arena'?arena:s.startsWith('#hero-fighter')?hero:s.startsWith('#enemy-fighter')?enemy:null,querySelectorAll:s=>s==='[data-live-item]'?[...items.values()]:arena.querySelectorAll(s)};
  const context={document,matchMedia:()=>({matches:true}),setTimeout(fn,ms){const id=++next;timers.set(id,{fn,at:now+ms});return id;},clearTimeout:id=>timers.delete(id)};
  vm.runInNewContext(readFileSync(new URL('../dist/vfx.mjs',import.meta.url),'utf8').replace(/^export /gm,'')+'\nglobalThis.api={battleEffect,updateInventoryActivity,clearEffects};',context);
@@ -38,7 +39,7 @@ test('shield absorption flashes its defender item while enemy recovery stays on 
  assert.equal(h.items.get('hero:shield').dataset.itemUse,'guard');assert.equal(h.items.get('hero:shield').querySelectorAll('.item-use-label')[0].textContent,'방어');
  h.effect(use({type:'heal',effect:'heal',actor:'enemy',target:'enemy',sourceUid:'medicine',sourceUids:['medicine'],value:12,fx:'heal'}));
  assert.equal(h.items.get('enemy:medicine').dataset.itemUse,'heal');assert.equal(h.items.get('hero:medicine').dataset.itemUse,undefined);
- const number=h.arena.querySelectorAll('.fx-number').at(-1);assert.equal(number.values.get('--number-x'),'73%');assert.equal(number.textContent,'+12');
+ const number=h.arena.querySelectorAll('.fx-number').at(-1);assert.equal(number.values.get('--number-x'),'77.5%');assert.equal(number.textContent,'+12');
 });
 
 test('readiness follows battle cooldown and energy, including pause and spent items',()=>{
