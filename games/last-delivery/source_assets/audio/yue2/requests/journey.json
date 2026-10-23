@@ -1,0 +1,11 @@
+{
+  "model": "yue2",
+  "taskType": "text2music",
+  "instrumental": true,
+  "lyrics": "[Instrumental]",
+  "duration": 80,
+  "steps": 32,
+  "thinking": true,
+  "seed": 231026101,
+  "prompt": "Instrumental soundtrack for a wuxia caravan adventure game, a solitary courier crossing misty mountains before dawn. Acoustic Chinese chamber ensemble: warm guqin and pipa plucked strings, breathy dizi flute, restrained erhu, very light wooden percussion. Gentle walking pulse at 84 BPM, spacious D minor pentatonic melody, contemplative but quietly hopeful. Begin with an established soft groove; introduce a memorable short flute motif, vary it with pipa answers, then return to the main theme. A coherent 80-second instrumental cue with steady understated energy suitable for inventory planning and exploration. Natural acoustic timbres, clear separation, warm intimate production, modest low end and room for game sound effects. No vocals, no singing, no chanting, no choir, no spoken words, no electronic dance beat, no dramatic cinematic impacts. Keep the final phrase in the same mood and tempo for a smooth game loop."
+}

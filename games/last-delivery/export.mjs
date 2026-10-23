@@ -16,5 +16,7 @@ let html=readFileSync(new URL('dist/index.html',root),'utf8').replace('<link rel
 html=html.replace('<link rel="stylesheet" href="inventory-board.css">','').replace(/<link rel="stylesheet" href="(?:performance|mobile|assembly|audio)\.css(?:\?[^"<>]*)?">/g,'').replace('</body>',`<script>${script}</script>\n</body>`);
 const license=readFileSync(new URL('dist/assets/NotoSerif-LICENSE.txt',root),'utf8').replaceAll('--','—');
 html+=`\n<!-- Bundled font license\n${license}\n-->`;
+const musicCredits=readFileSync(new URL('dist/assets/music/CREDITS.txt',root),'utf8').replaceAll('--','—');
+html+=`\n<!-- Music credits\n${musicCredits}\n-->`;
 writeFileSync(new URL('asset-map.json',out),JSON.stringify(assets,null,2));
 writeFileSync(new URL('Last-Delivery.html',out),html);console.log(`Standalone HTML: ${Buffer.byteLength(html)} bytes`);

@@ -1,0 +1,11 @@
+{
+  "model": "yue2",
+  "taskType": "text2music",
+  "instrumental": true,
+  "lyrics": "[Instrumental]",
+  "duration": 80,
+  "steps": 32,
+  "thinking": true,
+  "seed": 231026102,
+  "prompt": "Instrumental battle soundtrack for a traditional wuxia martial arts caravan game. Agile pipa ostinato, sharp guzheng plucks, short dizi flute phrases and rhythmic erhu, tight Chinese barrel drums and wooden clacks. Energetic 120 BPM in D minor pentatonic, nimble swordplay and tactical momentum rather than overwhelming grandeur. Start directly in the rhythmic theme, develop a contrasting call-and-response phrase halfway, then return to the driving main motif. A cohesive 80-second cue with controlled dynamics, detailed acoustic Chinese instruments, firm but restrained bass, leaving space for short weapon and skill sound effects. No vocals, no singing, no chanting, no choir, no spoken words, no distorted electric guitars, no EDM drops, no long ambient intro, no abrupt finale. Maintain the pulse and harmonic center through the ending so the music can loop smoothly."
+}

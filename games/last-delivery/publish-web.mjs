@@ -12,6 +12,7 @@ await cp(path.join(root,'dist'),path.join(destination,'dist'),{recursive:true,fi
 for(const name of ['build.mjs','export.mjs','restore-assets.mjs','publish-web.mjs','package.json','README.md','tests','scripts']){
   await cp(path.join(root,name),path.join(destination,name),{recursive:true});
 }
+await cp(path.join(root,'source_assets/audio/yue2/requests'),path.join(destination,'source_assets/audio/yue2/requests'),{recursive:true});
 const assets=path.join(root,'dist/assets');
 let sourceBytes=0,webBytes=0;
 for(const name of await readdir(assets)){

@@ -1,0 +1,11 @@
+{
+  "model": "yue2",
+  "taskType": "text2music",
+  "instrumental": true,
+  "lyrics": "[Instrumental]",
+  "duration": 64,
+  "steps": 32,
+  "thinking": true,
+  "seed": 231026104,
+  "prompt": "Instrumental ending theme for a wuxia caravan adventure, the courier finally reaching a quiet city gate at sunrise. Gentle guqin and pipa arpeggios, lyrical breathy dizi melody and warm expressive erhu, almost no percussion. Tender relief after a difficult journey, dignified and hopeful rather than triumphant fanfare. Slow flowing 76 BPM in G major pentatonic, organic acoustic Chinese chamber ensemble. A concise 64-second melody with an intimate opening, a slightly fuller central phrase and a calm return to the main motif. Warm natural room ambience, clear soft articulation, restrained dynamics suitable beneath ending text. No vocals, no singing, no humming, no chanting, no choir, no spoken words, no electronic beat, no orchestral brass. A gentle continuous closing phrase suitable for a seamless repeated ending screen."
+}

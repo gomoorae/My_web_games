@@ -1,7 +1,26 @@
-마지막 표행 — Original instrumental score
+마지막 표행 — YuE2 instrumental soundtrack · 1.8.1
 
 새벽을 향한 표행 / 칼끝을 스치는 바람 / 적운 아래 마지막 고비 / 청하성의 첫 빛
 
-Created specifically for Last Delivery using original scores and deterministic additive/noise synthesis. No sampled recordings or third-party music were used. These tracks are not YuE2 output or recordings of live instruments.
-Reproduction: scripts/compose-music.py (NumPy; ffmpeg or afconvert for AAC).
+Generated locally for Last Delivery with YuE2-3B and YuE2-Vae through the
+installed YuE2 MLX 8-bit runtime. All four requests specify instrumental music.
+No reference recording was supplied. The generated masters are preserved;
+game copies use silence trimming, a circular crossfade, level matching,
+and AAC-LC encoding. Loop boundaries are measured after AAC decoding.
+Automated audio checks do not certify subjective musical quality.
+
+Model attribution:
+YuE2-3B: https://huggingface.co/m-a-p/YuE2-3B
+YuE2-Vae: https://huggingface.co/m-a-p/YuE2-Vae
+MLX implementation: https://github.com/vanch007/mlx-Yue
+Installed implementation revision: 9253ed133343406947bde7b67d43c7a63fb39d99
+The installed model-weight notice identifies CC BY-NC 4.0 for the checkpoint
+weights: https://creativecommons.org/licenses/by-nc/4.0/
+This identifies the weight license; it does not assign that license to the
+game's code, artwork, or generated recordings.
+
+Generation: scripts/generate-yue2-bgm.mjs and source_assets/audio/yue2/requests/.
+Game audio preparation: scripts/prepare-yue2-bgm.py.
+Music measurements and source hashes: dist/assets/music/manifest.json.
 SFX: original real-time Web Audio synthesis in dist/audio.mjs.
+The previous 1.8.0 deterministic synthesis source remains in scripts/compose-music.py.

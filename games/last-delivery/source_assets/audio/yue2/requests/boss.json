@@ -1,0 +1,11 @@
+{
+  "model": "yue2",
+  "taskType": "text2music",
+  "instrumental": true,
+  "lyrics": "[Instrumental]",
+  "duration": 80,
+  "steps": 32,
+  "thinking": true,
+  "seed": 231026103,
+  "prompt": "Instrumental final duel music for a wuxia game: a lone courier facing a powerful rival beneath red storm clouds. Traditional Chinese ensemble with tense low erhu, rapid pipa and guzheng patterns, piercing but controlled dizi, deep measured Chinese war drums and occasional small gong accents. Urgent 132 BPM, D minor pentatonic with dark suspended harmony. A memorable martial motif and evolving counter-melodies, escalating tension with a short restrained middle passage before the main theme returns. Coherent 80-second gameplay cue, dynamic acoustic performance, dramatic but not deafening, clean transient detail and enough space for combat sound effects. No vocals, no chanting, no choir, no spoken words, no electronic dance drop, no constant cymbal wash, no explosive trailer hits. Begin with an active pulse and finish on the ongoing rhythmic motif without a hard final stop, suitable for a repeating boss battle."
+}
