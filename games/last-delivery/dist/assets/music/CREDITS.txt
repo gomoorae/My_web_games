@@ -1,0 +1,7 @@
+마지막 표행 — Original instrumental score
+
+새벽을 향한 표행 / 칼끝을 스치는 바람 / 적운 아래 마지막 고비 / 청하성의 첫 빛
+
+Created specifically for Last Delivery using original scores and deterministic additive/noise synthesis. No sampled recordings or third-party music were used. These tracks are not YuE2 output or recordings of live instruments.
+Reproduction: scripts/compose-music.py (NumPy; ffmpeg or afconvert for AAC).
+SFX: original real-time Web Audio synthesis in dist/audio.mjs.

@@ -8,8 +8,8 @@ const destination=path.resolve(process.argv[2]||path.join(root,'release/web'));
 if(destination===root||destination===path.join(root,'dist'))throw Error('Choose a separate output folder.');
 const sharp=(await import(process.env.LAST_DELIVERY_SHARP||'sharp')).default;
 await mkdir(destination,{recursive:true});
-await cp(path.join(root,'dist'),path.join(destination,'dist'),{recursive:true,filter:source=>!source.endsWith('.png')});
-for(const name of ['build.mjs','export.mjs','restore-assets.mjs','publish-web.mjs','package.json','README.md','tests']){
+await cp(path.join(root,'dist'),path.join(destination,'dist'),{recursive:true,filter:source=>!source.endsWith('.png')&&!source.endsWith('/local-audio.js')});
+for(const name of ['build.mjs','export.mjs','restore-assets.mjs','publish-web.mjs','package.json','README.md','tests','scripts']){
   await cp(path.join(root,name),path.join(destination,name),{recursive:true});
 }
 const assets=path.join(root,'dist/assets');

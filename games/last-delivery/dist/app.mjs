@@ -1,4 +1,6 @@
 import {ITEMS,ENEMIES,SCENES,ROUTE,KIND_LABEL,KITS} from './data.mjs';
+import {createGameAudio} from './audio.mjs';
+import {MUSIC_TRACKS} from './music-catalog.mjs';
 import {renderAssemblyGuide} from './assembly-ui.mjs';
 import {dimensions,cells,inBag,canPlace,moveItem,autoPlace,createRun,buildStats,createBattle,tickBattle,settleBattle,rewardChoices,selectReward,shopChoices,buy,rerollShop,leaveShop,rest,restRefinementTargets,advanceStory,sellItem,upgradeItem,upgradeCost,validateRun,migrateRun,enemyLoadout} from './engine.mjs';
 import {battleEffect,clearEffects,initBattleVisuals,updateInventoryActivity} from './vfx.mjs';
@@ -16,8 +18,11 @@ const app=document.querySelector('#app'),SAVE='last-delivery.run.v2',SETTINGS='l
 let run=null,screen='title',selected=null,rotation=false,modal=null,paused=false,speed=1,lastFrame=0,accumulator=0,lastSave=0,lastEvent=0,toastTimer,saveWarning=false,dragUid=null,catalogFilter='all',battleEndAt=0,placementKey=null;
 let dragAnchor=null,selectedEnemy=null,catalogView='items',assemblyFamily='sword';
 let mobilePanel='progress',mobilePhase=null,mobileScroll={};
-let preferences={sound:true};
+let preferences={sound:true,musicVolume:.55,sfxVolume:.8};
 try{preferences={...preferences,...JSON.parse(localStorage.getItem(SETTINGS)||'{}')};const raw=JSON.parse(localStorage.getItem(SAVE)||'null');const restored=raw?migrateRun(raw):null;if(restored&&validateRun(restored))run=restored;else if(raw)saveWarning=true;}catch{saveWarning=true;}
+// Old mute preferences stay intact; new volume controls receive safe defaults.
+preferences.sound=preferences.sound!==false;
+for(const [key,fallback]of [['musicVolume',.55],['sfxVolume',.8]])preferences[key]=typeof preferences[key]==='number'&&Number.isFinite(preferences[key])?Math.max(0,Math.min(1,preferences[key])):fallback;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>`<span class="coin">${n} 은전</span>`;
 const portrait=(n,cls='')=>`<div class="portrait ${cls}" style="--px:${n%3};--py:${Math.floor(n/3)}" role="img" aria-label="${['연우','소연','만복','도적','창수','독침객'][n]||'강호인'}"></div>`;
@@ -55,11 +60,47 @@ const equippedSummary=items=>{const names=equippedNames(items);return names.slic
 function toast(text){const el=document.querySelector('#toast');el.textContent=text;el.classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('visible'),3200);}
 function save(){if(!run)return;try{localStorage.setItem(SAVE,JSON.stringify(run));}catch{if(!saveWarning){saveWarning=true;toast('저장이 차단되어 있어. 창을 열어 둔 동안에는 계속 플레이할 수 있어.');}}}
 function saveSettings(){try{localStorage.setItem(SETTINGS,JSON.stringify(preferences));}catch{}}
-let audioCtx=null,musicTimer=null,noteIndex=0;
-function tone(f,seconds=.13,volume=.035,type='sine'){if(!preferences.sound||!audioCtx||audioCtx.state!=='running')return;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.setValueAtTime(f,audioCtx.currentTime);g.gain.setValueAtTime(.0001,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(volume,audioCtx.currentTime+.008);g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+seconds);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+seconds+.03);}
-function initAudio(){if(!preferences.sound)return;try{audioCtx??=new(window.AudioContext||window.webkitAudioContext)();audioCtx.resume();if(!musicTimer)musicTimer=setInterval(()=>{if(!preferences.sound||document.hidden||paused&&run?.phase==='combat')return;tone([196,261.63,293.66,349.23,392,349.23,293.66,261.63][noteIndex++%8],1.6,.009);},2400);}catch{}}
-function sfx(type,tag){if(type==='skill'){tone(tag==='saber'?147:392,.22,.035,'triangle');setTimeout(()=>tone(tag==='fist'?196:587,.26,.025),80);}else if(type==='heal')tone(523,.5,.025);else if(type==='enemy')tone(95,.12,.03,'triangle');else if(type==='attack')tone(tag==='dart'?680:250,.08,.018,'triangle');else if(type==='won')[329,392,523].forEach((f,n)=>setTimeout(()=>tone(f,.5,.025),n*120));else tone(360,.06,.02);}
-function header(){return `<header class="app-header"><button class="brand" data-action="home"><span class="seal">行</span><span><h1>마지막 표행</h1><small>THE LAST DELIVERY</small></span></button><div class="header-actions"><span class="chapter-pill">새벽까지, 열 번의 고비</span><button class="button small-btn" data-action="catalog">무림 도감</button><button class="icon-btn" data-action="sound" aria-label="${preferences.sound?'소리 끄기':'소리 켜기'}">${preferences.sound?'♪':'♩'}</button><button class="icon-btn" data-action="help" aria-label="플레이 방법">?</button></div></header>`;}
+const gameAudio=createGameAudio({tracks:MUSIC_TRACKS,baseURL:document.currentScript?.src||document.baseURI||window.location?.href,embedded:globalThis.LAST_DELIVERY_EMBEDDED_AUDIO,onState:refreshAudioStatus});
+gameAudio.configure(preferences);
+function initAudio(){if(preferences.sound)return gameAudio.unlock();return Promise.resolve(false);}
+function sfx(event,tag){gameAudio.play(event,tag);}
+function audioScene(){
+ if(screen!=='game'||!run)return 'journey';
+ if(run.phase==='complete'||run.phase==='story'&&run.scene==='ending')return 'ending';
+ if(run.phase==='defeat')return null;
+ if(run.phase==='combat')return run.battle?.status==='fighting'?(enemyNow().pattern==='boss'?'boss':'battle'):null;
+ return 'journey';
+}
+function syncAudio(){
+ gameAudio.setScene(audioScene());
+ gameAudio.setPaused(Boolean(screen==='game'&&run?.phase==='combat'&&(paused||modal)));
+ gameAudio.setHidden(Boolean(document.hidden));
+ refreshAudioStatus();
+}
+function audioStatusText(state=gameAudio.getState()){
+ if(!preferences.sound)return '전체 소리가 꺼져 있어. 소리 켜기를 누르면 다시 들을 수 있어.';
+ if(state.status==='unsupported')return '이 브라우저에서 소리를 재생할 수 없어.';
+ if(state.status==='error')return '배경음악을 불러오지 못했어. 효과음은 계속 사용할 수 있어. 다시 재생을 눌러 줘.';
+ if(state.status==='locked')return '소리를 재생하려면 다시 재생을 눌러 줘.';
+ if(state.status==='loading')return '배경음악을 불러오는 중…';
+ if(state.status==='hidden')return '다른 창을 보는 동안 소리가 멈춰 있어.';
+ if(state.status==='paused')return '전투를 이어가면 음악도 다시 재생돼.';
+ if(preferences.musicVolume===0&&preferences.sfxVolume===0)return '음악과 효과음 음량이 모두 0%야.';
+ return state.trackTitle&&preferences.musicVolume>0?'재생 중 · '+state.trackTitle:'소리가 켜져 있어.';
+}
+function refreshAudioStatus(state){
+ state=state||gameAudio.getState();
+ const status=document.querySelector('#audio-status');if(status)status.textContent=audioStatusText(state);
+ const track=document.querySelector('#audio-track');if(track)track.textContent=state.trackTitle||MUSIC_TRACKS[audioScene()]?.title||'잠시 쉬어 가는 중';
+ const muted=!preferences.sound,retry=['error','locked'].includes(state.status)&&!muted;
+ document.querySelectorAll('[data-action="sound"]').forEach(button=>{button.setAttribute('aria-label','소리 설정 · '+(muted?'전체 음소거':retry?'재생 확인 필요':'소리 켜짐'));button.dataset.audioState=muted?'muted':retry?'attention':'on';const label=button.querySelector('.sound-button-label');if(label)label.textContent=muted?'음소거':retry?'소리 !':'소리';const icon=button.querySelector('.sound-button-icon');if(icon)icon.textContent=muted?'♩':'♪';});
+ const toggle=document.querySelector('[data-action="audio-toggle"]');if(toggle){toggle.textContent=muted?'소리 켜기':'전체 음소거';toggle.setAttribute('aria-pressed',String(!muted));}
+ const restart=document.querySelector('[data-action="audio-retry"]');if(restart)restart.disabled=muted||state.status==='unsupported';
+ const sample=document.querySelector('[data-action="audio-preview"]');if(sample)sample.disabled=muted||state.status==='unsupported';
+}
+function audioSettings(){return `<h2>소리 설정</h2><p class="audio-intro">길 위의 음악과 무공의 소리를 따로 조절할 수 있어.</p><div class="audio-now"><span>배경음악</span><strong id="audio-track">${esc(gameAudio.getState().trackTitle||MUSIC_TRACKS[audioScene()]?.title||'잠시 쉬어 가는 중')}</strong></div><div class="audio-sliders"><label class="audio-slider" for="music-volume"><span>배경음악 <output id="music-volume-value" for="music-volume">${Math.round(preferences.musicVolume*100)}%</output></span><input id="music-volume" data-audio-volume="musicVolume" type="range" min="0" max="100" step="1" value="${Math.round(preferences.musicVolume*100)}"></label><label class="audio-slider" for="sfx-volume"><span>효과음 <output id="sfx-volume-value" for="sfx-volume">${Math.round(preferences.sfxVolume*100)}%</output></span><input id="sfx-volume" data-audio-volume="sfxVolume" type="range" min="0" max="100" step="1" value="${Math.round(preferences.sfxVolume*100)}"></label></div><p class="audio-status" id="audio-status" role="status" aria-live="polite">${esc(audioStatusText())}</p><div class="audio-actions"><button class="button primary" data-action="audio-toggle" aria-pressed="${preferences.sound}">${preferences.sound?'전체 음소거':'소리 켜기'}</button><button class="button" data-action="audio-preview" ${preferences.sound?'':'disabled'}>효과음 들어보기</button><button class="text-btn" data-action="audio-retry" ${preferences.sound?'':'disabled'}>다시 재생</button></div><p class="audio-note">전투 배속과 관계없이 음악은 원래 속도로 흘러가. 소리 설정은 이 브라우저에 저장돼.</p>`;}
+function soundButton(extra=''){return `<button class="icon-btn sound-button ${extra}" data-action="sound" aria-label="소리 설정 · ${preferences.sound?'소리 켜짐':'전체 음소거'}" data-audio-state="${preferences.sound?'on':'muted'}"><span class="sound-button-icon" aria-hidden="true">${preferences.sound?'♪':'♩'}</span><span class="sound-button-label">${preferences.sound?'소리':'음소거'}</span></button>`;}
+function header(){return `<header class="app-header"><button class="brand" data-action="home"><span class="seal">行</span><span><h1>마지막 표행</h1><small>THE LAST DELIVERY</small></span></button><div class="header-actions"><span class="chapter-pill">새벽까지, 열 번의 고비</span><button class="button small-btn" data-action="catalog">무림 도감</button>${soundButton()}<button class="icon-btn" data-action="help" aria-label="플레이 방법">?</button></div></header>`;}
 function gameListLink(){
  const location=window.location;
  if(!location||!/^https?:$/.test(location.protocol)||!location.pathname.includes('/games/last-delivery/'))return '';
@@ -108,8 +149,8 @@ function characterStatus(){
 }
 
 function migrationNotice(){return run.migrationNotice?`<aside class="migration-notice" role="status" aria-label="보따리 형태 변경 안내"><div><strong>보따리 형태가 새로 정리됐어</strong><p>${esc(run.migrationNotice)}</p></div><button class="button small-btn" data-action="dismiss-migration">확인했어</button></aside>`:'';}
-function game(){const views={prepare:uiPrepare,combat:uiCombat,reward:uiReward,shop:uiShop,rest:uiRest,complete:uiComplete,defeat:uiDefeat},showEnemy=['prepare','combat'].includes(run.phase);return `${header()}<main class="shell">${route()}${characterStatus()}${migrationNotice()}${renderRefinementReceipt(run.refinementReport)}${mobileCombatControls()}<div class="game-layout ${showEnemy?'has-rival':''}" data-mobile-panel="${mobilePanel}">${bag()}<section class="right-column" id="progress-panel" aria-label="표행 진행">${(views[run.phase]||uiPrepare)()}</section>${showEnemy?'<aside class="enemy-column" id="enemy-bag-panel">'+enemyBagPanel()+'</aside>':''}</div><footer class="footer"><span>마지막 표행 · 자동 저장${saveWarning?' 불가':''} · v1.7</span><span><b class="key">R</b> 90° 회전 · <b class="key">Esc</b> 선택 해제 / 전투 정지</span></footer></main>${mobileNavigation()}`;}
-function story(){return renderStory(run);}
+function game(){const views={prepare:uiPrepare,combat:uiCombat,reward:uiReward,shop:uiShop,rest:uiRest,complete:uiComplete,defeat:uiDefeat},showEnemy=['prepare','combat'].includes(run.phase);return `${header()}<main class="shell">${route()}${characterStatus()}${migrationNotice()}${renderRefinementReceipt(run.refinementReport)}${mobileCombatControls()}<div class="game-layout ${showEnemy?'has-rival':''}" data-mobile-panel="${mobilePanel}">${bag()}<section class="right-column" id="progress-panel" aria-label="표행 진행">${(views[run.phase]||uiPrepare)()}</section>${showEnemy?'<aside class="enemy-column" id="enemy-bag-panel">'+enemyBagPanel()+'</aside>':''}</div><footer class="footer"><span>마지막 표행 · 자동 저장${saveWarning?' 불가':''} · v1.8.0</span><span><b class="key">R</b> 90° 회전 · <b class="key">Esc</b> 선택 해제 / 전투 정지</span></footer></main>${mobileNavigation()}`;}
+function story(){return renderStory(run)+soundButton('scene-sound-button');}
 function catalog(){
  const tabs=`<nav class="catalog-tabs" aria-label="도감 보기"><button class="button ${catalogView==='items'?'dark':''}" data-catalog-view="items" aria-pressed="${catalogView==='items'}">아이템 도감</button><button class="button ${catalogView==='assemblies'?'dark':''}" data-catalog-view="assemblies" aria-pressed="${catalogView==='assemblies'}">조립 길잡이</button></nav>`;
  return `<h2>무림 도감</h2>${tabs}${catalogView==='assemblies'?renderAssemblyGuide(assemblyFamily):`<div class="catalog-filters">${[['all','전체'],...Object.entries(KIND_LABEL)].map(([k,n])=>`<button class="button small-btn ${catalogFilter===k?'dark':''}" data-filter="${k}">${n}</button>`).join('')}</div><div class="catalog-grid">${Object.values(ITEMS).filter(d=>catalogFilter==='all'||d.kind===catalogFilter).map(d=>`<article class="catalog-card">${renderFootprint({type:d.id,rot:0})}<div><h3>${d.name}</h3><small>${rarity(d)} · ${KIND_LABEL[d.kind]} · ${footprintText({type:d.id,rot:0})}</small><p>${d.desc}</p>${d.fitHint?`<p class="catalog-fit-hint">${esc(d.fitHint)}</p>`:''}</div></article>`).join('')}</div>`}`;
@@ -117,14 +158,15 @@ function catalog(){
 function modalHTML(){if(!modal)return'';let content='';if(modal==='kit')content=`<h2>어떤 길을 택할까</h2><p>다섯 무기, 다섯 시작. 길 위에서 얻는 물건으로 다른 계열에 도전해도 좋아.<br>시작 장비는 연결된 상태로 준비돼.</p><div class="kit-grid">${Object.entries(KITS).map(([k,d])=>`<button class="kit-card" data-kit="${k}">${art(d.weapon)}<h3>${d.name}</h3><p>${d.desc}</p><span class="tag">${ITEMS[d.art].name}</span></button>`).join('')}</div>`;
  if(modal==='help')content=`<h2>보따리 안에서 시작되는 무공</h2><ol class="help-list"><li>보따리는 <strong>6×6에서 시작</strong>해. 상점의 은전이나 휴식 한 번을 써서 가로·세로를 늘리고, 최대 8×8까지 넓힐 수 있어. 물건을 끌거나 선택 후 빈칸을 눌러 옮겨. 가까운 빈 공간에 자동으로 맞춰지고, 초록색 미리보기가 실제 놓일 자리야. 보따리 아래의 회전 버튼, 창고의 ↻ 버튼이나 R키로 90°씩 회전해. 휴대폰은 아래 진행·내 보따리·상대 보따리 버튼으로 화면을 바꿔. ㄴ·ㄷ·계단형의 빈 홈에는 다른 물건도 넣을 수 있어.</li><li><strong>무기·심법·무공은 개수 제한 없이</strong> 넣을 수 있어. 보따리 공간을 어떻게 나눌지가 중요해. 무기는 각자 공격하고, 심법은 함께 적용돼.</li><li>비급은 <strong>같은 계열 무기의 옆면에 붙이면</strong> 활성화돼. 맞닿은 면의 금색 ●은 무공, 청록색 ◆는 보조품 연결이야. 물건을 선택하면 연결 상대와 효과가 표시돼. 대각선은 연결되지 않아. 조건에 맞는 비급은 모두 활성화돼. 비급 하나가 여러 무기에 닿아도 재사용 시간과 발동은 하나야. 모든 무공이 내공을 공유하고, 준비된 무공은 차례로 사용할 기회를 얻어.</li><li>보조품은 맞닿은 모든 대상에 적용돼. <strong>같은 종류도 여러 개 놓으면 각각 합산</strong>해. 독낭 2개는 기본 공격 적중마다 중독 +2, 3개는 +3이야. 숫돌 등의 효과는 연결된 무공에도 이어져. 보조품 한 개에서 여러 경로로 이어진 효과는 대상마다 한 번 계산해. 심법과 전역 보조품도 보따리에 넣은 개수만큼 합산돼. 상점·보상에서 보유한 보조품을 다시 얻을 수 있어.</li><li>상대도 실제 보따리의 장비와 인접 연결로 싸워. 상대 물건을 누르면 구성과 효과를 볼 수 있어. 사용한 아이템은 금색(공격)·푸른색(방어)·초록색(회복)으로 빛나. 전투는 자동. 내공이 모이면 초식을 쓰고, 약품은 각자의 조건에서 자동 소비돼. <strong>창고의 물건은 발동하지 않아.</strong></li><li>승리하면 전리품 하나. 2·5·8전 뒤 상점, 3·6·9전 뒤 휴식. 10전의 적운당주를 쓰러뜨리면 결말에 도달해.</li><li>장비를 선택하면 은전으로 <strong>무기·비급을 최대 3단계 연마</strong>할 수 있어. 상점 외에서도 준비할 때 가능해.</li></ol><p>자동 저장은 이 브라우저에 남아. 전투 중 다시 열면 일시정지 상태로 이어져. 이전 3전 플레이판의 저장은 별도로 유지돼.</p><div class="row wrap"><button class="button" data-action="assembly-guide">조립 길잡이 보기</button><button class="button primary" data-action="close-modal">길을 나서자</button></div>`;
  if(modal==='restart')content=`<h2>새 표행을 시작할까?</h2><p>현재 표행의 진행과 보따리가 새로 시작돼.</p><div class="row" style="margin-top:24px"><button class="button primary" data-action="confirm-new">새로 시작</button><button class="button" data-action="close-modal">계속 플레이</button></div>`;
- if(modal==='catalog')content=catalog();return `<div class="modal-backdrop"><section class="modal ${modal==='catalog'?'catalog-modal':modal==='kit'?'kit-picker':''}" role="dialog" aria-modal="true" aria-label="${modal==='catalog'?'무림 도감':modal==='help'?'플레이 방법':'새 표행 준비'}"><button class="modal-close" data-action="close-modal" aria-label="닫기">×</button>${content}</section></div>`;}
-function render(){const phaseChanged=syncMobilePhase();placementKey=null;clearEffects();app.innerHTML=(screen==='title'?title():run.phase==='story'?story():game())+modalHTML();if(screen==='game'&&run?.phase==='combat'){initBattleVisuals(run);updateCombat();syncPause();}if(modal)queueMicrotask(()=>app.querySelector('.modal button')?.focus());else if(phaseChanged&&screen==='game'&&run.phase!=='story'&&mobileViewport())window.scrollTo?.({top:0,behavior:'instant'});}
+ if(modal==='audio')content=audioSettings();
+ if(modal==='catalog')content=catalog();return `<div class="modal-backdrop"><section class="modal ${modal==='catalog'?'catalog-modal':modal==='kit'?'kit-picker':modal==='audio'?'audio-modal':''}" role="dialog" aria-modal="true" aria-label="${modal==='catalog'?'무림 도감':modal==='help'?'플레이 방법':modal==='audio'?'소리 설정':'새 표행 준비'}"><button class="modal-close" data-action="close-modal" aria-label="닫기">×</button>${content}</section></div>`;}
+function render(){const phaseChanged=syncMobilePhase();placementKey=null;clearEffects();app.innerHTML=(screen==='title'?title():run.phase==='story'?story():game())+modalHTML();syncAudio();if(screen==='game'&&run?.phase==='combat'){initBattleVisuals(run);updateCombat();syncPause();}if(modal)queueMicrotask(()=>app.querySelector('.modal button')?.focus());else if(phaseChanged&&screen==='game'&&run.phase!=='story'&&mobileViewport())window.scrollTo?.({top:0,behavior:'instant'});}
 function rotateInventoryItem(uid){
  if(!editing())return;const i=run.items.find(item=>item.uid===uid);if(!i)return;
  const next=nextRotation(selected===uid?rotation:i.rot);selected=uid;rotation=next;
- if(inBag(i)){if(!moveItem(run,i.uid,i.x,i.y,next))toast('이 자리에서는 회전할 공간이 부족해. 다른 빈칸을 눌러 줘.');}
+ let moved=true;if(inBag(i)){if(!moveItem(run,i.uid,i.x,i.y,next)){moved=false;toast('이 자리에서는 회전할 공간이 부족해. 다른 빈칸을 눌러 줘.');}}
  else i.rot=next;
- save();sfx('place');render();
+ save();sfx(moved?'rotate':'error');render();
 }
 function syncInventorySelection(){
  const stats=buildStats(run),relations=inventoryConnections(run,stats),focused=relations.filter(r=>relationTouches(r,selected));
@@ -135,8 +177,8 @@ function syncInventorySelection(){
  const details=document.querySelector('.item-details'),i=run.items.find(item=>item.uid===selected);if(details&&i)details.innerHTML=itemDetails(i,stats);
 }
 
-function select(uid){const item=run.items.find(i=>i.uid===uid);selected=uid;rotation=item?.rot??false;render();if(mobileViewport()&&mobilePanel==='bag'&&item&&!inBag(item))document.querySelector('.bag-cloth')?.scrollIntoView?.({block:'start',behavior:'instant'});}
-function place(uid,x,y,dragging=false){if(!editing())return;const p=(dragging?findPlacement:findCellPlacement)(run,uid,x,y,rotation);if(p.valid&&moveItem(run,uid,p.x,p.y,p.rot)){save();sfx('place');render();}else toast(p.reason);}
+function select(uid){sfx('select');const item=run.items.find(i=>i.uid===uid);selected=uid;rotation=item?.rot??false;render();if(mobileViewport()&&mobilePanel==='bag'&&item&&!inBag(item))document.querySelector('.bag-cloth')?.scrollIntoView?.({block:'start',behavior:'instant'});}
+function place(uid,x,y,dragging=false){if(!editing())return;const p=(dragging?findPlacement:findCellPlacement)(run,uid,x,y,rotation);if(p.valid&&moveItem(run,uid,p.x,p.y,p.rot)){save();sfx('place');render();}else{sfx('error');toast(p.reason);}}
 function recordRefinement(before,source,hpGain=0){
  const entries=run.items.flatMap(i=>{const previous=before.find(j=>j.uid===i.uid);return previous&&i.level>previous.level?[{name:ITEMS[i.type].name,...compareItemLevels(run,i.uid,previous.level,i.level)}]:[];});
  run.refinementReport={source,entries,hpGain};
@@ -148,25 +190,25 @@ function refinementToast(report){
 
 function finishStory(){while(run.phase==='story')advanceStory(run);save();render();}
 function startFight(){const s=buildStats(run);if(s.errors.length){toast(s.errors[0]);return;}delete run.refinementReport;run.battle=createBattle(run);run.phase='combat';paused=false;speed=1;lastEvent=0;accumulator=0;lastFrame=performance.now();lastSave=0;selected=null;battleEndAt=0;save();render();}
-function syncPause(){const el=document.querySelector('#arena');if(!el)return;el.querySelector('.pause-overlay')?.remove();if(paused){clearEffects();const overlay=document.createElement('button');overlay.className='pause-overlay';overlay.dataset.action='pause';overlay.textContent='잠시 숨을 고르다 · 계속하기';el.append(overlay);}const btn=document.querySelector('#pause-btn');if(btn)btn.textContent=paused?'계속하기':'일시정지';const mobileBtn=document.querySelector('#mobile-pause-btn');if(mobileBtn)mobileBtn.textContent=paused?'계속하기':'일시정지';if(run?.battle)updateInventoryActivity(run.battle,paused);}
-function updateCombat(){const b=run.battle;if(!b)return;const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};set('hero-hp',`${Math.ceil(b.hp)} / ${b.maxHp}`);set('status-hp',`기혈 ${Math.ceil(b.hp)} / ${b.maxHp}`);set('status-shield',String(Math.round(b.shield)));document.querySelector('#status-hp-fill')?.style.setProperty('width',`${Math.max(0,b.hp/b.maxHp*100)}%`);document.querySelector('#status-hp')?.classList.toggle('low-hp',b.hp/b.maxHp<=.35);set('enemy-hp',`${Math.max(0,Math.ceil(b.enemyHp))} / ${b.enemyMaxHp}`);set('shield-label',`방어막 ${Math.round(b.shield)}`);set('battle-clock',`${b.t.toFixed(1)}초`);const arenaEl=document.querySelector('#arena');if(arenaEl)arenaEl.dataset.phase=String(b.enemyPhase);set('energy-label',`내공 ${Math.floor(b.energy)} / ${b.maxEnergy??8}`);set('poison-label',[b.enemyShield?`방어막 ${Math.ceil(b.enemyShield)}`:'',b.enemyPoison?`독 ${b.enemyPoison}`:'',b.enemyBleed?`출혈 ${b.enemyBleed}`:''].filter(Boolean).join(' · '));document.querySelector('#hero-bar')?.style.setProperty('width',`${Math.max(0,b.hp/b.maxHp*100)}%`);document.querySelector('#enemy-bar')?.style.setProperty('width',`${Math.max(0,b.enemyHp/b.enemyMaxHp*100)}%`);const enemyReady=(b.rival.weaponReady||[b.nextEnemy]).map((t,i)=>i===0?b.rival.nextAttack:t);set('enemy-intent',`상대 내공 ${Math.floor(b.enemyEnergy||0)}/${b.enemyMaxEnergy||8} · 다음 무기 공격 ${Math.max(0,Math.min(...enemyReady)-b.t).toFixed(1)}초`);const log=document.querySelector('#battle-log');if(log)log.innerHTML=b.events.filter(x=>!x.silent).slice(-6).map(x=>`<div class="log-entry ${x.type}"><time>${x.t.toFixed(1)}</time><span>${x.actor==='enemy'?'상대 · ':x.actor==='hero'?'연우 · ':''}${esc(x.text)}</span><span class="amount">${x.value>0?Math.round(x.value):''}</span></div>`).join('');for(const ev of b.events.filter(x=>x.id>lastEvent)){if(!paused){battleEffect(ev,run);if(!ev.silent)sfx(ev.type,ev.tag);}lastEvent=ev.id;}updateInventoryActivity(b,paused);}
+function syncPause(){syncAudio();const el=document.querySelector('#arena');if(!el)return;el.querySelector('.pause-overlay')?.remove();if(paused){clearEffects();const overlay=document.createElement('button');overlay.className='pause-overlay';overlay.dataset.action='pause';overlay.textContent='잠시 숨을 고르다 · 계속하기';el.append(overlay);}const btn=document.querySelector('#pause-btn');if(btn)btn.textContent=paused?'계속하기':'일시정지';const mobileBtn=document.querySelector('#mobile-pause-btn');if(mobileBtn)mobileBtn.textContent=paused?'계속하기':'일시정지';if(run?.battle)updateInventoryActivity(run.battle,paused);}
+function updateCombat(){const b=run.battle;if(!b)return;const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};set('hero-hp',`${Math.ceil(b.hp)} / ${b.maxHp}`);set('status-hp',`기혈 ${Math.ceil(b.hp)} / ${b.maxHp}`);set('status-shield',String(Math.round(b.shield)));document.querySelector('#status-hp-fill')?.style.setProperty('width',`${Math.max(0,b.hp/b.maxHp*100)}%`);document.querySelector('#status-hp')?.classList.toggle('low-hp',b.hp/b.maxHp<=.35);set('enemy-hp',`${Math.max(0,Math.ceil(b.enemyHp))} / ${b.enemyMaxHp}`);set('shield-label',`방어막 ${Math.round(b.shield)}`);set('battle-clock',`${b.t.toFixed(1)}초`);const arenaEl=document.querySelector('#arena');if(arenaEl)arenaEl.dataset.phase=String(b.enemyPhase);set('energy-label',`내공 ${Math.floor(b.energy)} / ${b.maxEnergy??8}`);set('poison-label',[b.enemyShield?`방어막 ${Math.ceil(b.enemyShield)}`:'',b.enemyPoison?`독 ${b.enemyPoison}`:'',b.enemyBleed?`출혈 ${b.enemyBleed}`:''].filter(Boolean).join(' · '));document.querySelector('#hero-bar')?.style.setProperty('width',`${Math.max(0,b.hp/b.maxHp*100)}%`);document.querySelector('#enemy-bar')?.style.setProperty('width',`${Math.max(0,b.enemyHp/b.enemyMaxHp*100)}%`);const enemyReady=(b.rival.weaponReady||[b.nextEnemy]).map((t,i)=>i===0?b.rival.nextAttack:t);set('enemy-intent',`상대 내공 ${Math.floor(b.enemyEnergy||0)}/${b.enemyMaxEnergy||8} · 다음 무기 공격 ${Math.max(0,Math.min(...enemyReady)-b.t).toFixed(1)}초`);const log=document.querySelector('#battle-log');if(log)log.innerHTML=b.events.filter(x=>!x.silent).slice(-6).map(x=>`<div class="log-entry ${x.type}"><time>${x.t.toFixed(1)}</time><span>${x.actor==='enemy'?'상대 · ':x.actor==='hero'?'연우 · ':''}${esc(x.text)}</span><span class="amount">${x.value>0?Math.round(x.value):''}</span></div>`).join('');for(const ev of b.events.filter(x=>x.id>lastEvent)){if(!paused){battleEffect(ev,run);if(!ev.silent&&!['won','lost'].includes(ev.type))sfx(ev);}lastEvent=ev.id;}updateInventoryActivity(b,paused);}
 app.addEventListener('click',e=>{
  const target=e.target.closest('button');
  if(!target&&selected&&editing()&&e.target.closest('.bag-cloth')){const p=dropPosition(e);if(p)place(selected,...p);return;}
  if(!target||target.disabled)return;initAudio();
  if(target.dataset.panel){setMobilePanel(target.dataset.panel);return;}
- if(target.dataset.enemyItem){selectedEnemy=target.dataset.enemyItem;renderEnemyBag();return;}
- if(target.dataset.expand){if(expandBag(run,target.dataset.expand,'shop')){save();render();toast(`보따리를 ${run.cols}×${run.rows}칸으로 넓혔어.`);}return;}
+ if(target.dataset.enemyItem){sfx('select');selectedEnemy=target.dataset.enemyItem;renderEnemyBag();return;}
+ if(target.dataset.expand){if(expandBag(run,target.dataset.expand,'shop')){save();render();sfx('upgrade');toast(`보따리를 ${run.cols}×${run.rows}칸으로 넓혔어.`);}return;}
  if(target.dataset.rotateItem){rotateInventoryItem(target.dataset.rotateItem);return;}
  if(target.dataset.item){select(target.dataset.item);return;}
- if(target.dataset.cell){if(!selected){toast('먼저 옮길 물건을 선택해 줘.');return;}const [x,y]=target.dataset.cell.split(',').map(Number);place(selected,x,y);return;}
+ if(target.dataset.cell){if(!selected){sfx('error');toast('먼저 옮길 물건을 선택해 줘.');return;}const [x,y]=target.dataset.cell.split(',').map(Number);place(selected,x,y);return;}
  if(target.dataset.kit){run=createRun(target.dataset.kit);screen='game';modal=null;selected=null;save();render();return;}
  if(target.dataset.filter){catalogFilter=target.dataset.filter;render();return;}
  if(target.dataset.catalogView){catalogView=target.dataset.catalogView;render();return;}
  if(target.dataset.assemblyFamily){assemblyFamily=target.dataset.assemblyFamily;render();return;}
- if(target.dataset.reward){if(selectReward(run,target.dataset.reward)){selected=run.items.at(-1)?.uid;rotation=false;save();render();toast('전리품은 창고에 넣었어. 다음 전투 전에 배치해 줘.');}return;}
- if(target.dataset.buy){if(buy(run,target.dataset.buy)){selected=run.items.at(-1)?.uid;rotation=false;save();render();sfx('place');toast(`${ITEMS[target.dataset.buy].name}을 창고에 넣었어.`);}return;}
- if(target.dataset.rest){const before=run.items.map(i=>({...i})),hpBefore=run.hp;if(rest(run,target.dataset.rest)){if(target.dataset.rest==='meditate')recordRefinement(before,'rest',run.hp-hpBefore);save();render();if(target.dataset.rest==='meditate')toast(refinementToast(run.refinementReport));}return;}
+ if(target.dataset.reward){if(selectReward(run,target.dataset.reward)){selected=run.items.at(-1)?.uid;rotation=false;save();render();sfx('reward');toast('전리품은 창고에 넣었어. 다음 전투 전에 배치해 줘.');}return;}
+ if(target.dataset.buy){if(buy(run,target.dataset.buy)){selected=run.items.at(-1)?.uid;rotation=false;save();render();sfx('buy');toast(`${ITEMS[target.dataset.buy].name}을 창고에 넣었어.`);}return;}
+ if(target.dataset.rest){const before=run.items.map(i=>({...i})),hpBefore=run.hp;if(rest(run,target.dataset.rest)){if(target.dataset.rest==='meditate')recordRefinement(before,'rest',run.hp-hpBefore);save();render();sfx(target.dataset.rest==='meditate'||target.dataset.rest.startsWith('expand-')?'upgrade':'heal');if(target.dataset.rest==='meditate')toast(refinementToast(run.refinementReport));}return;}
  const action=target.dataset.action;
  if(action==='new'){modal=run&&!run.cleared&&run.phase!=='defeat'?'restart':'kit';render();}
  if(action==='confirm-new'){modal='kit';render();}
@@ -176,23 +218,34 @@ app.addEventListener('click',e=>{
  if(action==='assembly-guide'){if(run?.phase==='combat')paused=true;catalogView='assemblies';assemblyFamily=run?.kit||'sword';modal='catalog';render();}
  if(action==='close-modal'){modal=null;render();}
  if(action==='dismiss-migration'){delete run.migrationNotice;save();render();}
- if(action==='sound'){preferences.sound=!preferences.sound;saveSettings();if(preferences.sound)initAudio();else audioCtx?.suspend();render();}
+ if(action==='sound'){if(screen==='game'&&run?.phase==='combat')paused=true;modal='audio';render();}
+ if(action==='audio-toggle'){preferences.sound=!preferences.sound;saveSettings();gameAudio.configure(preferences);if(preferences.sound)initAudio();refreshAudioStatus();}
+ if(action==='audio-retry')initAudio();
+ if(action==='audio-preview')initAudio().then(ready=>{if(ready&&modal==='audio')sfx('preview',run?.kit||'sword');});
  if(action==='clear-selection'){selected=null;rotation=false;render();}
  if(action==='item-detail'&&selected)document.querySelector('.item-details')?.scrollIntoView?.({block:'start',behavior:'instant'});
  if(action==='rotate'&&selected)rotateInventoryItem(selected);
- if(action==='stow'&&selected&&editing()){const i=run.items.find(i=>i.uid===selected);if(moveItem(run,selected,null,null))i.rot=rotation;save();render();}
- if(action==='autoplace'&&selected&&editing()){if(!autoPlace(run,selected))toast('맞는 빈자리가 없어. 물건을 옮겨 공간을 만들어 줘.');rotation=run.items.find(i=>i.uid===selected).rot;save();render();}
- if(action==='sell'&&selected&&editing()){if(sellItem(run,selected)){selected=null;save();render();}else toast('마지막 무기는 팔 수 없어.');}
- if(action==='upgrade'&&selected&&editing()){const before=run.items.map(i=>({...i}));if(upgradeItem(run,selected)){recordRefinement(before,'paid');save();render();sfx('skill');toast(refinementToast(run.refinementReport));}}
+ if(action==='stow'&&selected&&editing()){const i=run.items.find(i=>i.uid===selected);if(moveItem(run,selected,null,null)){i.rot=rotation;sfx('place');}save();render();}
+ if(action==='autoplace'&&selected&&editing()){if(!autoPlace(run,selected)){sfx('error');toast('맞는 빈자리가 없어. 물건을 옮겨 공간을 만들어 줘.');}else sfx('place');rotation=run.items.find(i=>i.uid===selected).rot;save();render();}
+ if(action==='sell'&&selected&&editing()){if(sellItem(run,selected)){selected=null;save();render();sfx('sell');}else{sfx('error');toast('마지막 무기는 팔 수 없어.');}}
+ if(action==='upgrade'&&selected&&editing()){const before=run.items.map(i=>({...i}));if(upgradeItem(run,selected)){recordRefinement(before,'paid');save();render();sfx('upgrade');toast(refinementToast(run.refinementReport));}}
  if(action==='dismiss-refinement'){delete run.refinementReport;save();render();}
  if(action==='fight'&&run.phase==='prepare')startFight();
  if(action==='pause'&&run.phase==='combat'){paused=!paused;lastFrame=performance.now();syncPause();}
  if(action==='speed'&&run.phase==='combat'){speed=speed===1?2:1;for(const id of ['#speed-btn','#mobile-speed-btn']){const button=document.querySelector(id);if(button)button.textContent=`${speed}배속`;}}
  if(action==='leave-shop'&&leaveShop(run)){save();render();}
- if(action==='reroll'&&rerollShop(run)){save();render();}
+ if(action==='reroll'&&rerollShop(run)){save();render();sfx('buy');}
  if(action==='next-story'&&run.phase==='story'){advanceStory(run);save();render();}
  if(action==='skip-story'&&run.phase==='story')finishStory();
 });
+app.addEventListener('input',e=>{
+ const key=e.target.dataset?.audioVolume;if(!['musicVolume','sfxVolume'].includes(key))return;
+ const value=Number(e.target.value);if(!Number.isFinite(value))return;
+ preferences[key]=Math.max(0,Math.min(1,value/100));gameAudio.configure(preferences);saveSettings();
+ const output=document.querySelector(key==='musicVolume'?'#music-volume-value':'#sfx-volume-value');if(output)output.textContent=Math.round(preferences[key]*100)+'%';
+ initAudio();refreshAudioStatus();
+});
+app.addEventListener('pointerdown',()=>{initAudio();});
 app.addEventListener('dragstart',e=>{
  const el=e.target.closest('[data-item]');if(!el||!editing()||modal){e.preventDefault();return;}
  clearPlacementPreview();dragUid=el.dataset.item;const item=run.items.find(i=>i.uid===dragUid);
@@ -232,11 +285,19 @@ function showPlacementPreview(uid,x,y){
 app.addEventListener('pointermove',e=>{if(dragUid||!editing()||!selected||modal)return;const p=e.target.closest('[data-item]')||!e.target.closest('.bag-cloth')?null:dropPosition(e);if(p)showPlacementPreview(selected,...p);else clearPlacementPreview();});
 app.addEventListener('pointerleave',()=>{if(!dragUid)clearPlacementPreview();});
 app.addEventListener('dragover',e=>{if(!dragUid||!editing())return;const p=dropPosition(e);if(p||e.target.closest('#reserve')){e.preventDefault();e.dataTransfer.dropEffect='move';if(p)showPlacementPreview(dragUid,...p);else clearPlacementPreview();}else clearPlacementPreview();});
-app.addEventListener('drop',e=>{if(!dragUid||!editing())return;e.preventDefault();const uid=dragUid,p=dropPosition(e);dragUid=null;dragAnchor=null;clearPlacementPreview();if(p)place(uid,...p,true);else if(e.target.closest('#reserve')){const i=run.items.find(i=>i.uid===uid);if(moveItem(run,uid,null,null))i.rot=rotation;save();render();}});
+app.addEventListener('drop',e=>{if(!dragUid||!editing())return;e.preventDefault();const uid=dragUid,p=dropPosition(e);dragUid=null;dragAnchor=null;clearPlacementPreview();if(p)place(uid,...p,true);else if(e.target.closest('#reserve')){const i=run.items.find(i=>i.uid===uid);if(moveItem(run,uid,null,null)){i.rot=rotation;sfx('place');}save();render();}});
 app.addEventListener('dragend',()=>{dragUid=null;dragAnchor=null;clearPlacementPreview();});
 
-document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(e.target.tagName))return;if(e.key==='Escape'){if(modal){modal=null;render();}else if(run?.phase==='combat'&&screen==='game'){paused=!paused;syncPause();}else{selected=null;render();}}if((e.key==='r'||e.key==='R')&&selected&&editing()&&!modal){e.preventDefault();app.querySelector('[data-action="rotate"]')?.click();}if((e.key==='Enter'||e.key===' ')&&run?.phase==='story'&&screen==='game'&&!modal&&e.target.tagName!=='BUTTON'){e.preventDefault();app.querySelector('[data-action="next-story"]')?.click();}if(e.key==='Tab'&&modal){const buttons=[...app.querySelectorAll('.modal button:not(:disabled)')];if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons.at(-1)?.focus();}else if(!e.shiftKey&&document.activeElement===buttons.at(-1)){e.preventDefault();buttons[0]?.focus();}}});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){if(run?.phase==='combat'){paused=true;save();syncPause();}audioCtx?.suspend();}else{lastFrame=performance.now();if(preferences.sound&&audioCtx)audioCtx.resume();}});
-window.addEventListener('pagehide',save);
-function frame(t){const elapsed=lastFrame?Math.min((t-lastFrame)/1000,.15):0;lastFrame=t;if(screen==='game'&&run?.phase==='combat'&&!paused&&!modal){accumulator+=elapsed*speed;let stepped=false;while(accumulator>=.05&&run.battle.status==='fighting'){tickBattle(run.battle,.05);accumulator-=.05;stepped=true;}if(stepped)updateCombat();if(t-lastSave>2000){save();lastSave=t;}if(run.battle.status!=='fighting'){if(!battleEndAt){battleEndAt=t;sfx(run.battle.status);}if(t-battleEndAt>=1100){settleBattle(run);battleEndAt=0;accumulator=0;save();render();}}}requestAnimationFrame(frame);}
+document.addEventListener('keydown',e=>{
+ if(e.key==='Tab'&&modal){const controls=[...app.querySelectorAll('.modal button:not(:disabled), .modal input:not(:disabled), .modal a[href]')];if(controls.length){if(e.shiftKey&&document.activeElement===controls[0]){e.preventDefault();controls.at(-1)?.focus();}else if(!e.shiftKey&&document.activeElement===controls.at(-1)){e.preventDefault();controls[0]?.focus();}}return;}
+ if(e.key==='Escape'){if(modal){modal=null;render();}else if(run?.phase==='combat'&&screen==='game'){paused=!paused;syncPause();}else{selected=null;render();}return;}
+ if(['INPUT','TEXTAREA'].includes(e.target.tagName))return;
+ if(['Enter',' ','r','R'].includes(e.key))initAudio();
+ if((e.key==='r'||e.key==='R')&&selected&&editing()&&!modal){e.preventDefault();app.querySelector('[data-action="rotate"]')?.click();}
+ if((e.key==='Enter'||e.key===' ')&&run?.phase==='story'&&screen==='game'&&!modal&&e.target.tagName!=='BUTTON'){e.preventDefault();app.querySelector('[data-action="next-story"]')?.click();}
+});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&screen==='game'&&run?.phase==='combat'){paused=true;save();syncPause();}lastFrame=performance.now();gameAudio.setHidden(Boolean(document.hidden));});
+window.addEventListener('pagehide',()=>{save();gameAudio.setHidden(true);});
+window.addEventListener('pageshow',()=>{lastFrame=performance.now();syncAudio();});
+function frame(t){const elapsed=lastFrame?Math.min((t-lastFrame)/1000,.15):0;lastFrame=t;if(screen==='game'&&run?.phase==='combat'&&!paused&&!modal){accumulator+=elapsed*speed;let stepped=false;while(accumulator>=.05&&run.battle.status==='fighting'){tickBattle(run.battle,.05);accumulator-=.05;stepped=true;}if(stepped)updateCombat();if(t-lastSave>2000){save();lastSave=t;}if(run.battle.status!=='fighting'){if(!battleEndAt){battleEndAt=t;syncAudio();sfx(run.battle.status);}if(t-battleEndAt>=1100){settleBattle(run);battleEndAt=0;accumulator=0;save();render();}}}requestAnimationFrame(frame);}
 render();requestAnimationFrame(frame);if(saveWarning)setTimeout(()=>toast('저장 데이터를 읽지 못했어. 새 표행으로 시작할 수 있어.'),500);

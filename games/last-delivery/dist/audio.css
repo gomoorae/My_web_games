@@ -1,0 +1,31 @@
+/* Sound controls belong to the same paper-and-ink interface as the bag. */
+.sound-button{width:auto;min-width:58px;padding:0 9px;border-radius:5px;display:inline-flex;gap:5px;font-size:14px;white-space:nowrap;flex:none}
+.sound-button-label{font-size:10px;letter-spacing:0}
+.sound-button[data-audio-state='muted']{color:#7b7061;background:#e5dfd1}
+.sound-button[data-audio-state='attention']{color:#923d2e;border-color:#ae7966}
+.audio-modal{max-width:460px;width:100%}
+.audio-intro{margin-top:10px!important;color:var(--muted);line-height:1.8}
+.audio-now{display:flex;flex-direction:column;gap:7px;margin-top:20px;padding:14px 16px;border:1px solid var(--line);background:#efe8d980}
+.audio-now>span{font-size:10px;color:var(--muted);letter-spacing:.1em}
+.audio-now>strong{font-family:InkSerif,serif;font-weight:500;font-size:18px}
+.audio-sliders{display:grid;gap:18px;margin:24px 0 16px}
+.audio-slider{display:block;font-size:13px}
+.audio-slider>span{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.audio-slider output{font-variant-numeric:tabular-nums;color:var(--jade);font-weight:600}
+.audio-slider input{display:block;width:100%;height:32px;margin:0;accent-color:#687c66;cursor:pointer}
+.audio-slider input:focus-visible{outline:3px solid #a68a4e;outline-offset:4px;border-radius:2px}
+.audio-status{min-height:44px;margin:0 0 15px!important;font-size:12px!important;line-height:1.8;color:#666951}
+.audio-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.audio-actions .button{flex:1 1 140px;padding-inline:12px}
+.audio-actions .text-btn{flex-basis:100%;text-align:center;min-height:40px}
+.audio-note{margin-top:12px!important;padding-top:14px;border-top:1px solid var(--line);font-size:11px!important;color:var(--muted);line-height:1.8}
+.scene-sound-button{position:fixed;bottom:max(18px,env(safe-area-inset-bottom));left:max(22px,env(safe-area-inset-left));z-index:61;background:#eee7d6ed;min-height:38px}
+.scene-screen:has(+.scene-sound-button) .scene-footnote{padding-left:95px}
+@media(max-width:780px){
+ .header-actions .sound-button{min-width:44px;width:44px;height:44px;padding:4px 0;gap:0;flex-direction:column;line-height:1.2}
+ .sound-button-label{font-size:9px}
+ .audio-slider input{height:44px}
+ .audio-status{min-height:46px}
+ .scene-sound-button{bottom:max(12px,env(safe-area-inset-bottom));left:max(12px,env(safe-area-inset-left));padding-inline:10px;min-height:44px}
+ .scene-screen:has(+.scene-sound-button) .scene-footnote{padding-left:74px}
+}
