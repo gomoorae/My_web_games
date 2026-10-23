@@ -21,7 +21,7 @@ class SourceMock extends AudioNodeMock{
  stop(at=this.context.currentTime){if(this.ended)return;this.stopAt=at;if(at<=this.context.currentTime)this.end();}
  end(){if(this.ended)return;this.ended=true;this.onended?.();}
 }
-function environment({failResume=false,fetchAudio,tracks={},baseURL='https://example.test/games/last-delivery/dist/game.js?v=1.8.0',documentRef,embedded,bufferShape={}}={}){
+function environment({failResume=false,fetchAudio,tracks={},baseURL='https://example.test/games/last-delivery/dist/game.js?v=1.8.0',documentRef,embedded,bufferShape={},random=()=>.9999}={}){
  const contexts=[],states=[],requests=[],decoded=[];
  class ContextMock{
   constructor(){this.currentTime=0;this.sampleRate=8000;this.state='suspended';this.nodes=[];this.destination={};this.failResume=failResume;contexts.push(this);}
@@ -38,7 +38,7 @@ function environment({failResume=false,fetchAudio,tracks={},baseURL='https://exa
   close(){this.state='closed';return Promise.resolve();}
   advance(seconds){this.currentTime+=seconds;for(const source of this.nodes.filter(n=>n instanceof SourceMock))if(source.stopAt<=this.currentTime||source.buffer?.kind==='music'&&!source.loop&&source.startAt+(source.buffer.duration-source.offset)/source.playbackRate.value<=this.currentTime)source.end();}
  }
- const audio=createGameAudio({tracks,baseURL,documentRef,embedded,AudioContextClass:ContextMock,onState:state=>states.push(state),fetchAudio:async url=>{requests.push(url);return fetchAudio?fetchAudio(url):{ok:true,arrayBuffer:async()=>new ArrayBuffer(4)};}});
+ const audio=createGameAudio({tracks,baseURL,documentRef,embedded,random,AudioContextClass:ContextMock,onState:state=>states.push(state),fetchAudio:async url=>{requests.push(url);return fetchAudio?fetchAudio(url):{ok:true,arrayBuffer:async()=>new ArrayBuffer(4)};}});
  return {audio,contexts,states,requests,decoded,get context(){return contexts[0];},music:()=>contexts.flatMap(c=>c.nodes).filter(n=>n.buffer?.kind==='music'&&n.started&&!n.ended)};
 }
 const flush=async()=>{for(let i=0;i<12;i++)await Promise.resolve();};
@@ -72,7 +72,7 @@ test('scene changes during a slow load neither select another song nor duplicate
  resolveJourney(new ArrayBuffer(1));await flush();assert.equal(h.music().length,1);assert.equal(h.audio.getState().trackKey,'journey');assert.equal(h.music()[0].offset,0);h.audio.dispose();
 });
 
-test('all four complete songs play in order and only natural endings advance or wrap the playlist',async()=>{
+test('all four complete songs follow the shuffled order and only natural endings advance or renew the playlist',async()=>{
  const h=environment({tracks:catalog});await h.audio.unlock();await flush();
  for(const [index,key]of ['journey','battle','boss','ending'].entries()){
   assert.equal(h.audio.getState().trackKey,key);assert.equal(h.audio.getState().trackIndex,index);assert.equal(h.audio.getState().trackCount,4);
@@ -82,6 +82,46 @@ test('all four complete songs play in order and only natural endings advance or 
   h.context.advance(1);await flush();assert.equal(source.ended,true);assert.equal(h.music().length,1);
  }
  assert.equal(h.audio.getState().trackKey,'journey');assert.equal(h.audio.getState().trackIndex,0);assert.equal(h.music()[0].offset,0);h.audio.dispose();
+});
+
+test('random playback deals every song once per round and prevents a repeat between rounds',async()=>{
+ const draws=[0,0,0,.9999,.9999,.9999,.5];let drawIndex=0;
+ const h=environment({tracks:catalog,random:()=>draws[drawIndex++]??.9999});await h.audio.unlock();await flush();
+ const played=[];
+ for(let i=0;i<8;i++){
+  played.push(h.audio.getState().trackKey);assert.equal(h.audio.getState().trackIndex,i%4);
+  assert.equal(h.music().length,1);assert.equal(h.music()[0].loop,false);assert.equal(h.music()[0].offset,0);
+  if(i<7){h.context.advance(180);await flush();}
+ }
+ assert.deepEqual(played.slice(0,4),['battle','boss','ending','journey']);
+ // The second raw shuffle starts with journey; swap it away from the boundary.
+ assert.deepEqual(played.slice(4),['boss','battle','journey','ending']);
+ for(let start=0;start<8;start+=4)assert.deepEqual([...new Set(played.slice(start,start+4))].sort(),Object.keys(catalog).sort());
+ assert.ok(played.every((key,index)=>index===0||key!==played[index-1]));
+ assert.equal(h.decoded.length,8,'only the eight played songs should be decoded');h.audio.dispose();
+});
+
+test('the next shuffled round is prefetched once and pause, mute, visibility and scenes preserve that choice',async()=>{
+ const draws=[0,0,0,.9999,.9999,.9999,.5];let drawIndex=0;
+ const h=environment({tracks:catalog,random:()=>draws[drawIndex++]??.9999});await h.audio.unlock();await flush();
+ for(let i=0;i<3;i++){h.context.advance(180);await flush();}
+ assert.equal(h.audio.getState().trackKey,'journey');assert.equal(drawIndex,7);assert.match(h.requests.at(-1),/boss\.m4a$/);assert.equal(h.decoded.length,4);
+ const requestsBefore=h.requests.length;h.context.advance(21);h.audio.setScene('ending');
+ h.audio.setPaused(true);h.audio.setPaused(false);await flush();
+ h.audio.setHidden(true);h.audio.setHidden(false);await flush();
+ h.audio.configure({sound:false});h.audio.configure({sound:true});await flush();
+ assert.equal(h.audio.getState().trackKey,'journey');assert.equal(h.music()[0].offset,21);assert.equal(drawIndex,7);assert.equal(h.requests.length,requestsBefore);assert.equal(h.decoded.length,4);
+ h.context.advance(159);await flush();assert.equal(h.audio.getState().trackKey,'boss');assert.equal(h.audio.getState().trackIndex,0);
+ assert.equal(h.requests.filter(url=>url.endsWith('/boss.m4a')).length,2,'the prefetched first song of the next round should not download again');
+ assert.equal(h.decoded.length,5);assert.equal(drawIndex,7);h.audio.dispose();
+});
+
+test('shuffle also supports a one-song catalog and never starts requests for an empty catalog',async()=>{
+ const single=environment({tracks:{journey:catalog.journey},random:()=>{throw Error('one song needs no shuffle draw');}});
+ await single.audio.unlock();await flush();assert.equal(single.requests.length,1);single.context.advance(180);await flush();
+ assert.equal(single.audio.getState().trackKey,'journey');assert.equal(single.audio.getState().trackIndex,0);assert.equal(single.music().length,1);assert.equal(single.music()[0].offset,0);single.audio.dispose();
+ const empty=environment({random:()=>{throw Error('no songs need no shuffle draw');}});await empty.audio.unlock();await flush();
+ assert.equal(empty.audio.getState().trackCount,0);assert.equal(empty.requests.length,0);empty.audio.dispose();
 });
 
 test('pause preserves the full song position and blocks queued combat sounds',async()=>{
@@ -179,7 +219,7 @@ test('separate volume settings are clamped and music can stop independently',asy
 test('embedded music skips remote URLs and dispose prevents late starts',async()=>{
  let resolve;const urls=[],contexts=[];
  const h=environment();await h.audio.unlock();const Context=h.context.constructor;h.audio.dispose();
- const audio=createGameAudio({tracks:catalog,embedded:{'assets/music/journey.m4a':'data:audio/mp4;base64,AAAA'},AudioContextClass:class extends Context{constructor(){super();contexts.push(this);}},fetchAudio:url=>{urls.push(url);return new Promise(done=>{resolve=done;});}});
+ const audio=createGameAudio({tracks:catalog,random:()=>.9999,embedded:{'assets/music/journey.m4a':'data:audio/mp4;base64,AAAA'},AudioContextClass:class extends Context{constructor(){super();contexts.push(this);}},fetchAudio:url=>{urls.push(url);return new Promise(done=>{resolve=done;});}});
  await audio.unlock();await flush();assert.deepEqual(urls,['data:audio/mp4;base64,AAAA']);audio.dispose();resolve(new ArrayBuffer(4));await flush();assert.equal(contexts[0].state,'closed');assert.equal(contexts[0].nodes.filter(n=>n.buffer?.kind==='music').length,0);
 });
 

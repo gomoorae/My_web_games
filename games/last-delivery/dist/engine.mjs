@@ -1,4 +1,4 @@
-import {ITEMS,ENEMIES,VERSION,KITS,SCENES} from './data.mjs';
+import {ITEMS,ENEMIES,VERSION,KITS,SCENES,STORY_VERSION,DELIVERY_CONTRACT} from './data.mjs';
 import {dimensions,inBag,cells,localCells,canPlace,adjacent,rotationIndex,nextRotation,orientations} from './grid.mjs';
 import {enemyLoadout} from './enemy-loadouts.mjs';
 import {expandBag} from './expansion.mjs';
@@ -14,7 +14,7 @@ function shuffle(list,rng){const a=[...list];for(let n=a.length-1;n>0;n--){const
 function kitData(kit){return KITS[kit]||KITS.sword;}
 export function createRun(kit='sword',seed=Date.now()){
  if(!KITS[kit])kit='sword';const k=kitData(kit);
- const run={version:VERSION,rulesVersion:3,footprintVersion:FOOTPRINT_VERSION,phase:'story',scene:'opening',sceneIndex:0,kit,seed:Number(seed)>>>0,stage:0,cols:6,rows:6,bagExpansions:[],hp:140,maxHp:140,gold:30,nextId:1,items:[],battles:[],battle:null,shopBought:[],shopRoll:0,restChoice:null,cleared:false};
+ const run={version:VERSION,rulesVersion:3,footprintVersion:FOOTPRINT_VERSION,storyVersion:STORY_VERSION,deliveryReceipt:null,phase:'story',scene:'opening',sceneIndex:0,kit,seed:Number(seed)>>>0,stage:0,cols:6,rows:6,bagExpansions:[],hp:140,maxHp:140,gold:DELIVERY_CONTRACT.advance,nextId:1,items:[],battles:[],battle:null,shopBought:[],shopRoll:0,restChoice:null,cleared:false};
  const w=addItem(run,k.weapon);moveItem(run,w.uid,2,1,false);
  for(const type of [k.art,k.support]){const i=addItem(run,type);let placed=false;for(const rot of orientations(i))for(let y=0;y<run.rows;y++)for(let x=0;x<run.cols;x++)if(!placed&&canPlace(run,i.uid,x,y,rot)&&adjacent({...i,x,y,rot},w)){moveItem(run,i.uid,x,y,rot);placed=true;}if(!placed)autoPlace(run,i.uid);}
  const med=addItem(run,'medicine');autoPlace(run,med.uid);run.shopOwned=run.items.map(i=>i.type);run.shopTag=kit;return run;
@@ -220,7 +220,31 @@ export function rewardChoices(run){
 
 function enterNextStage(run){run.battle=null;run.shopBought=[];run.shopRoll=0;run.shopOwned=run.items.map(i=>i.type);run.shopTag=currentTag(run);run.shopTags=currentTags(run);run.restChoice=null;const cleared=run.stage;if(cleared===3)setScene(run,'reveal');else if(cleared===6)setScene(run,'midpoint');else if(cleared===8)setScene(run,'proof');else if([2,5].includes(cleared))run.phase='shop';else if(cleared===9)run.phase='rest';else run.phase='prepare';}
 export function selectReward(run,type){if(run.phase!=='reward'||!rewardChoices(run).includes(type))return false;addItem(run,type);run.stage++;enterNextStage(run);return true;}
-export function advanceStory(run){if(run.phase!=='story'||!SCENES[run.scene])return false;const scene=SCENES[run.scene];if(run.sceneIndex<scene.length-1){run.sceneIndex++;return true;}const finished=run.scene;run.sceneIndex=0;if(finished==='ending')run.phase='complete';else if(['reveal','midpoint'].includes(finished))run.phase='rest';else if(finished==='proof')run.phase='shop';else run.phase='prepare';return true;}
+function settleDelivery(run){
+ // The route reward belongs to the signed delivery, so it is independent of
+ // combat loot and is paid only once, including when the ending is skipped.
+ if(run.deliveryReceipt||!run.cleared||run.stage!==ENEMIES.length-1)return false;
+ run.gold+=DELIVERY_CONTRACT.balance;
+ run.deliveryReceipt={version:STORY_VERSION,status:'settled',advance:DELIVERY_CONTRACT.advance,balance:DELIVERY_CONTRACT.balance,total:DELIVERY_CONTRACT.total,receiver:DELIVERY_CONTRACT.receiver,payer:DELIVERY_CONTRACT.payer};
+ return true;
+}
+export function availableStoryScenes(run){
+ if(!run)return [];
+ const unlocked=new Set(['opening']);
+ if(run.stage>=3)unlocked.add('reveal');
+ if(run.stage>=6)unlocked.add('midpoint');
+ if(run.stage>=8)unlocked.add('proof');
+ if(run.stage>=9&&(run.scene==='boss'||run.scene==='ending'||['prepare','combat','defeat','complete'].includes(run.phase)))unlocked.add('boss');
+ if(run.cleared&&(run.scene==='ending'||run.phase==='complete'))unlocked.add('ending');
+ // Current chapters can be reviewed in full, without mutating the live cursor.
+ if(run.phase==='story'&&SCENES[run.scene])unlocked.add(run.scene);
+ return Object.keys(SCENES).filter(key=>unlocked.has(key));
+}
+export function deliverySummary(run){
+ const receipt=run?.deliveryReceipt,settled=receipt?.status==='settled',legacy=receipt?.status==='legacy'||run?.phase==='complete'&&!settled;
+ return {...DELIVERY_CONTRACT,status:settled?'settled':legacy?'legacy':'pending',received:settled||legacy,paidBalance:settled?DELIVERY_CONTRACT.balance:legacy?null:0,paidTotal:settled?DELIVERY_CONTRACT.total:legacy?null:DELIVERY_CONTRACT.advance};
+}
+export function advanceStory(run){if(run.phase!=='story'||!SCENES[run.scene])return false;const scene=SCENES[run.scene];if(run.sceneIndex<scene.length-1){run.sceneIndex++;return true;}const finished=run.scene;run.sceneIndex=0;if(finished==='ending'){settleDelivery(run);run.phase='complete';}else if(['reveal','midpoint'].includes(finished))run.phase='rest';else if(finished==='proof')run.phase='shop';else run.phase='prepare';return true;}
 export function shopChoices(run){
  const rng=rngFor(run,0x5f3759df+Math.imul(run.shopRoll||0,0x45d9f3b)),owned=new Set(run.shopOwned||run.items.map(i=>i.type)),tags=run.shopTags||(run.shopTag?[run.shopTag]:currentTags(run)),available=availableItems(run),pool=shuffle(available.filter(t=>t!=='medicine'&&(!owned.has(t)||ITEMS[t].kind==='consumable')),rng),chosen=[];
  const fit=pool.find(t=>ITEMS[t].kind==='art'&&tags.includes(ITEMS[t].tag));if(fit)chosen.push(fit);
@@ -293,8 +317,15 @@ function validBattleEvents(b,run){
  }
  return true;
 }
+function validDeliveryReceipt(run){
+ if(run.storyVersion!==undefined&&run.storyVersion!==STORY_VERSION)return false;
+ const receipt=run.deliveryReceipt;if(receipt==null)return true;
+ if(run.storyVersion!==STORY_VERSION||receipt.version!==STORY_VERSION||run.phase!=='complete')return false;
+ if(receipt.status==='legacy')return receipt.balance===0&&receipt.total===null;
+ return receipt.status==='settled'&&run.cleared===true&&run.stage===ENEMIES.length-1&&receipt.advance===DELIVERY_CONTRACT.advance&&receipt.balance===DELIVERY_CONTRACT.balance&&receipt.total===DELIVERY_CONTRACT.total&&receipt.receiver===DELIVERY_CONTRACT.receiver&&receipt.payer===DELIVERY_CONTRACT.payer;
+}
 export function validateRun(r){try{
- if(!r||r.version!==VERSION||!Array.isArray(r.items)||r.items.length>160||!Number.isInteger(r.stage)||r.stage<0||r.stage>=ENEMIES.length||!validExpansionHistory(r)||!Number.isFinite(r.hp)||r.hp<0||r.hp>r.maxHp||!Number.isFinite(r.maxHp)||r.maxHp<140||r.maxHp>194||!Number.isFinite(r.gold)||r.gold<0||!Array.isArray(r.battles)||r.battles.length>10||!Array.isArray(r.shopBought)||!Number.isInteger(r.nextId)||r.nextId<1||!Number.isInteger(r.seed)||!KITS[r.kit])return false;
+ if(!r||r.version!==VERSION||!validDeliveryReceipt(r)||!Array.isArray(r.items)||r.items.length>160||!Number.isInteger(r.stage)||r.stage<0||r.stage>=ENEMIES.length||!validExpansionHistory(r)||!Number.isFinite(r.hp)||r.hp<0||r.hp>r.maxHp||!Number.isFinite(r.maxHp)||r.maxHp<140||r.maxHp>194||!Number.isFinite(r.gold)||r.gold<0||!Array.isArray(r.battles)||r.battles.length>10||!Array.isArray(r.shopBought)||!Number.isInteger(r.nextId)||r.nextId<1||!Number.isInteger(r.seed)||!KITS[r.kit])return false;
  if(!['story','prepare','combat','reward','shop','rest','complete','defeat'].includes(r.phase)||!r.items.some(i=>ITEMS[i?.type]?.kind==='weapon'))return false;
  const seen=new Set(),occupied=new Set();for(const i of r.items){if(!i||!ITEMS[i.type]||typeof i.uid!=='string'||!/^i[1-9][0-9]*$/.test(i.uid)||Number(i.uid.slice(1))>=r.nextId||seen.has(i.uid)||!(typeof i.rot==='boolean'||Number.isInteger(i.rot)&&i.rot>=0&&i.rot<4)||!Number.isInteger(i.level)||i.level<0||i.level>3)return false;seen.add(i.uid);if(i.x===null&&i.y===null)continue;if(!inBag(i))return false;const {w,h}=dimensions(i);if(i.x<0||i.y<0||i.x+w>r.cols||i.y+h>r.rows)return false;for(const c of cells(i)){const key=c.join(',');if(occupied.has(key))return false;occupied.add(key);}}
  if(r.phase==='story'&&(!SCENES[r.scene]||!Number.isInteger(r.sceneIndex)||r.sceneIndex<0||r.sceneIndex>=SCENES[r.scene].length))return false;
@@ -331,6 +362,15 @@ function repairFootprints(run,placements){
 }
 export function migrateRun(raw){try{
  if(!raw||raw.version!==VERSION||raw.rulesVersion!==undefined&&(!Number.isInteger(raw.rulesVersion)||raw.rulesVersion<1||raw.rulesVersion>3)||raw.footprintVersion!==undefined&&(!Number.isInteger(raw.footprintVersion)||raw.footprintVersion<1||raw.footprintVersion>FOOTPRINT_VERSION))return null;
+ // Old completed runs have no auditable payment record. Preserve their gold
+ // and mark the receipt as legacy; never invent a retrospective payout.
+ if(raw.storyVersion===undefined){
+  if(raw.deliveryReceipt!=null||raw.phase==='story'&&(!SCENES[raw.scene]||!Number.isInteger(raw.sceneIndex)||raw.sceneIndex<0||raw.sceneIndex>=SCENES[raw.scene].length))return null;
+  raw=JSON.parse(JSON.stringify(raw));raw.storyVersion=STORY_VERSION;
+  raw.deliveryReceipt=raw.phase==='complete'?{version:STORY_VERSION,status:'legacy',balance:0,total:null}:null;
+  // A page number from the shorter script cannot identify the same beat.
+  if(raw.phase==='story')raw.sceneIndex=0;
+ }
  if(raw.rulesVersion===3&&raw.footprintVersion===FOOTPRINT_VERSION){
   if(!validateRun(raw))return null;
   if(raw.phase!=='combat'||raw.battle.itemBonusVersion===1&&raw.battle.rival.itemBonusVersion===1&&raw.battle.equipmentVersion===2&&raw.battle.rival.equipmentVersion===2)return raw;

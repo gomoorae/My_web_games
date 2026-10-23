@@ -190,8 +190,6 @@
   .catalog-card h3{font-size:19px}
   .catalog-card small{font-size:11px}
   .catalog-card p{font-size:12px}
-  .scene-screen{padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
-  .scene-skip{font-size:11px;min-height:44px}
 }
 
 @media(max-width:420px){
@@ -229,9 +227,6 @@
   .kit-card:last-child .item-art{grid-column:1;grid-row:1/span 3;align-self:center}
   .kit-card:last-child h3,.kit-card:last-child p,.kit-card:last-child .tag{grid-column:2}
   .kit-card:last-child .tag{margin-top:8px}
-  .scene-heading h1{font-size:22px}
-  .scene-skip{font-size:10px;max-width:108px}
-  .scene-dialogue{padding:19px 17px}
 }
 
 @media(max-width:360px){
@@ -263,17 +258,4 @@
   .title-content{padding-top:16px;padding-bottom:25px}
   .title-content h2{font-size:44px;line-height:1.2;margin-top:8px;margin-bottom:12px}
   .title-copy{margin:12px 0 18px}
-  .scene-screen{gap:12px}
-  .scene-heading{padding-bottom:8px}
-  .scene-stage{grid-template-columns:minmax(130px,.7fr) minmax(0,1.3fr);gap:20px;max-width:700px}
-  .scene-portrait-shell{max-width:48vh}
-  .scene-figure.is-body .scene-portrait-shell{max-width:36vh}
-  .scene-figure figcaption{gap:4px;font-size:9px}
-  .scene-figure figcaption strong{font-size:17px}
-  .scene-figure figcaption span{padding-left:7px}
-  .scene-dialogue{padding:17px 20px}
-  .scene-dialogue-text{font-size:15px;line-height:1.8}
-  .scene-speaker-name{font-size:19px;margin-bottom:8px}
-  .scene-dialogue-footer{margin-top:13px;padding-top:11px}
-  .scene-footnote{display:none}
 }

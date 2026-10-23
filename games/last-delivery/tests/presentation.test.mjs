@@ -4,7 +4,7 @@ import {ITEMS,SCENES} from '../dist/data.mjs';
 import {createRun,addItem,moveItem,buildStats} from '../dist/engine.mjs';
 import {sharedEdge,inventoryConnections,describePlacementConnections} from '../dist/adjacency.mjs';
 import {renderInventoryConnections,renderConnectionReadout} from '../dist/inventory-ui.mjs';
-import {renderStory} from '../dist/cutscene.mjs';
+import {renderStory,renderStoryRecord} from '../dist/cutscene.mjs';
 
 test('shared contacts follow rotated rectangles and never connect diagonal corners',()=>{
  const a={type:'sword',x:1,y:1,rot:true},b={type:'stone',x:1,y:2,rot:false};
@@ -37,17 +37,33 @@ test('moving a weapon previews indirect support deactivation without mutating th
  const bad=describePlacementConnections(r,weapon.uid,0,2,false);assert.equal(bad.valid,false);assert.equal(JSON.stringify(r),before);
 });
 
-test('every story page renders exactly one isolated speaker with valid atlas coordinates',()=>{
- let pages=0;
+test('every story page uses a dedicated scene painting with readable dialogue and manual navigation',()=>{
+ const arts=new Set();let pages=0;
  for(const [scene,lines] of Object.entries(SCENES))for(let sceneIndex=0;sceneIndex<lines.length;sceneIndex++){
-  const p=lines[sceneIndex],html=renderStory({scene,sceneIndex}),columns=p.body!=null?4:3,n=p.body??p.portrait;
+  const p=lines[sceneIndex],html=renderStory({scene,sceneIndex});
   assert.equal((html.match(/role="img"/g)||[]).length,1);
-  assert.ok(html.includes(`--scene-x:${n%columns*100/(columns-1)}%;--scene-y:${Math.floor(n/columns)*100}%`));
-  assert.match(html,/<\/figure>\s*<article class="scene-dialogue"/);
-  assert.doesNotMatch(html,/class="story-portrait|class="story-body|class="dialogue-box/);
-  assert.match(html,/data-action="next-story"/);assert.match(html,/data-action="skip-story"/);pages++;
+  assert.ok(html.includes(`story-art-${p.art}`));arts.add(p.art);
+  assert.match(html,/<\/figure>\s*<article class="scene-dialogue/);
+  assert.doesNotMatch(html,/scene-portrait-atlas|scene-body-atlas|style="--scene-x/);
+  for(const action of ['next-story','previous-story','skip-story','story-record'])assert.ok(html.includes(`data-action="${action}"`));
+  assert.ok(html.includes(p.location));assert.ok(html.includes(p.time));assert.ok(html.includes(p.beat));
+  assert.equal(html.includes('scene-dialogue is-narration'),p.who==='이야기');
+  if(sceneIndex===0)assert.match(html,/data-action="previous-story" disabled/);
+  if(sceneIndex===lines.length-1)assert.match(html,/계속하기/);
+  pages++;
  }
- assert.equal(pages,34);
+ assert.ok(pages>=48);assert.ok(arts.size>=14);
+});
+
+test('replay navigation cannot call gameplay actions, and records expose only supplied chapters',()=>{
+ const html=renderStory({scene:'ending',sceneIndex:SCENES.ending.length-1},{replay:true});
+ assert.match(html,/data-action="next-replay"/);assert.match(html,/data-action="previous-replay"/);assert.match(html,/data-action="close-replay"/);
+ assert.doesNotMatch(html,/data-action="(?:next-story|skip-story|previous-story)"/);
+ const record=renderStoryRecord(['opening','reveal']);
+ assert.match(record,/data-replay-scene="opening"/);assert.match(record,/data-replay-scene="reveal"/);
+ assert.doesNotMatch(record,/data-replay-scene="(?:midpoint|proof|boss|ending)"/);
+ assert.doesNotMatch(record,/\[object Object\]/);
+ assert.match(renderStoryRecord([]),/새 표행을 시작하면/);
 });
 
 function twoArtContacts(supportType='inkstone'){

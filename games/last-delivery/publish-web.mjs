@@ -15,6 +15,8 @@ for(const name of ['build.mjs','export.mjs','restore-assets.mjs','publish-web.mj
 await cp(path.join(root,'source_assets/audio/yue2/requests'),path.join(destination,'source_assets/audio/yue2/requests'),{recursive:true});
 await cp(path.join(root,'source_assets/audio/yue2-playlist/requests'),path.join(destination,'source_assets/audio/yue2-playlist/requests'),{recursive:true});
 await cp(path.join(root,'source_assets/audio/yue2-playlist/titles.json'),path.join(destination,'source_assets/audio/yue2-playlist/titles.json'));
+await mkdir(path.join(destination,'source_assets/story-v1.10.0'),{recursive:true});
+await cp(path.join(root,'source_assets/story-v1.10.0/prompts.json'),path.join(destination,'source_assets/story-v1.10.0/prompts.json'));
 const assets=path.join(root,'dist/assets');
 let sourceBytes=0,webBytes=0;
 for(const name of await readdir(assets)){

@@ -88,8 +88,8 @@ test('five starting kits clear ten natural battles through the UI using multiple
  for(const kit of Object.keys(KITS)){
   const h=harness(new Map(),seeds[kit]);assert.match(h.app.innerHTML,/새로운 표행/);start(h,kit);const seen=campaign(h,true),r=h.state();
   assert.equal(r.phase,'complete',`${kit} ended at battle ${r.stage+1}`);assert.equal(r.cleared,true);assert.equal(r.battles.length,10);assert.ok(seen.maxWeapons>=2,kit+' never used multiple weapons');assert.ok(seen.maxInners>=2,kit+' never used multiple inner skills');assert.ok(r.battles.every(b=>b.status==='won'));
-  assert.deepEqual(seen.scenes,Object.keys(SCENES));assert.deepEqual(seen.shops,[2,5,8]);assert.deepEqual(seen.rests,[3,6,9]);assert.match(h.app.innerHTML,/약재와 장부를 전달했다/);
-  const reload=harness(h.storage);assert.match(reload.app.innerHTML,/지난 표행 보기/);reload.click({action:'continue'});assert.match(reload.app.innerHTML,/마침내, 새벽/);
+  assert.deepEqual(seen.scenes,Object.keys(SCENES));assert.deepEqual(seen.shops,[2,5,8]);assert.deepEqual(seen.rests,[3,6,9]);assert.match(h.app.innerHTML,/표물 인도 · 대금 정산 완료/);assert.equal(r.deliveryReceipt?.status,'settled');assert.equal(r.deliveryReceipt?.total,200);
+  const reload=harness(h.storage);assert.match(reload.app.innerHTML,/지난 표행 보기/);reload.click({action:'continue'});assert.match(reload.app.innerHTML,/돌아갈 이름이 생겼다/);assert.match(reload.app.innerHTML,/170 은전 · 지급 완료/);
  }
 });
 test('battle reload, help, and hidden tab pause simulation without losing saved state',()=>{

@@ -16,11 +16,19 @@ function ldLoadLocalMusic(documentRef,url){
  }).catch(error=>{loads.delete(url);throw error;});
  loads.set(url,request);return request;
 }
-export function createGameAudio({tracks={},baseURL,embedded={},onState=()=>{},AudioContextClass,fetchAudio,documentRef=globalThis.document}={}){
+export function createGameAudio({tracks={},baseURL,embedded={},onState=()=>{},AudioContextClass,fetchAudio,documentRef=globalThis.document,random=Math.random}={}){
  const clamp=(value,fallback)=>Number.isFinite(Number(value))?Math.max(0,Math.min(1,Number(value))):fallback;
  let settings={sound:true,musicVolume:.55,sfxVolume:.75},context=null,musicBus=null,effectsBus=null,master=null,reverb=null;
  let scene='journey',paused=false,hidden=false,disposed=false,unlocked=false,unsupported=false,resuming=null,suspending=null;
- const playlist=[...new Set(['journey','battle','boss','ending',...Object.keys(tracks)])].filter(key=>tracks[key]);
+ const trackKeys=[...new Set(['journey','battle','boss','ending',...Object.keys(tracks)])].filter(key=>tracks[key]);
+ function shuffledPlaylist(previousKey){
+  const order=[...trackKeys];
+  for(let i=order.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}
+  // Play every song once per round, without repeating a song at the boundary.
+  if(order.length>1&&order[0]===previousKey){const j=1+Math.floor(random()*(order.length-1));[order[0],order[j]]=[order[j],order[0]];}
+  return order;
+ }
+ let playlist=shuffledPlaylist(),nextPlaylist=null;
  let trackIndex=0,position=0,currentMusic=null,pendingMusic=null,nextMusic=null,musicError='',unlockError='',serial=0,lastState='',noiseBuffer=null,cacheClock=0;
  const buffers=new Map(),voices=new Set(),cooldowns=new Map(),retiring=new Set();
  const trackKey=()=>playlist[trackIndex]||null;
@@ -116,7 +124,8 @@ export function createGameAudio({tracks={},baseURL,embedded={},onState=()=>{},Au
  }
  function prepareNext(){
   if(disposed||playlist.length<2)return;
-  const key=playlist[(trackIndex+1)%playlist.length];if(nextMusic?.key===key)return;
+  if(trackIndex===playlist.length-1&&!nextPlaylist)nextPlaylist=shuffledPlaylist(trackKey());
+  const key=playlist[trackIndex+1]||nextPlaylist[0];if(nextMusic?.key===key)return;
   // Keep only the next compressed file: decoding every three-minute track would
   // retain hundreds of megabytes on mobile. A failed prefetch is retried on use.
   nextMusic={key,promise:fetchTrack(key).catch(()=>null)};
@@ -147,7 +156,11 @@ export function createGameAudio({tracks={},baseURL,embedded={},onState=()=>{},Au
     source.onended=null;source.disconnect();gain.disconnect();retiring.delete(entry);
     if(currentMusic===entry){
      currentMusic=null;
-     if(!entry.stopped&&!disposed){position=0;trackIndex=(trackIndex+1)%playlist.length;syncMusic();emit();}
+     if(!entry.stopped&&!disposed){
+      position=0;trackIndex++;
+      if(trackIndex===playlist.length){playlist=nextPlaylist||shuffledPlaylist(entry.key);nextPlaylist=null;trackIndex=0;}
+      syncMusic();emit();
+     }
     }
     pruneBuffers();
    };

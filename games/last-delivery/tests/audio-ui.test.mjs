@@ -88,7 +88,7 @@ test('ending screens and a new game preserve the current song and show playlist 
  const run=engine.createRun('sword',5);run.phase='story';run.scene='ending';run.sceneIndex=0;
  const h=audioHarness({run});h.setState({trackKey:'battle',trackTitle:'칼끝',trackIndex:1});h.click({action:'continue'});
  assert.equal(h.calls.some(c=>c[0]==='scene'),false);assert.match(h.app.innerHTML,/scene-sound-button/);
- h.click({action:'sound'});assert.match(h.app.innerHTML,/aria-label="소리 설정"/);assert.match(h.app.innerHTML,/순서대로 재생/);assert.match(h.app.innerHTML,/id="audio-track">칼끝/);
+ h.click({action:'sound'});assert.match(h.app.innerHTML,/aria-label="소리 설정"/);assert.match(h.app.innerHTML,/무작위 순서로 재생/);assert.match(h.app.innerHTML,/id="audio-track">칼끝/);
  h.click({action:'close-modal'});h.click({action:'home'});h.click({action:'new'});h.click({action:'confirm-new'});h.click({kit:'sword'});
  assert.equal(h.calls.some(c=>c[0]==='scene'),false);assert.equal(h.audio.getState().trackKey,'battle');
  h.click({action:'sound'});assert.match(h.app.innerHTML,/id="audio-track">칼끝/);
@@ -125,4 +125,49 @@ test('escape works on a range input and modal tab order includes sliders',()=>{
  h.listeners.keydown({key:'Tab',target:{tagName:'INPUT'},preventDefault(){prevented=true;}});
  assert.equal(prevented,true);assert.equal(h.doc.activeElement,first);
  h.listeners.keydown({key:'Escape',target:{tagName:'INPUT'}});assert.doesNotMatch(h.app.innerHTML,/class="modal-backdrop"/);
+});
+
+
+test('story records and replay leave combat state, inventory, and playing music intact',()=>{
+ const run=engine.createRun('sword',19);run.phase='prepare';run.stage=6;
+ const h=audioHarness({run});h.click({action:'continue'});h.click({action:'fight'});h.frame();
+ h.context.save();const before=JSON.stringify(h.run());h.calls.length=0;
+ h.click({action:'story-record'});assert.match(h.app.innerHTML,/data-replay-scene="midpoint"/);assert.doesNotMatch(h.app.innerHTML,/data-replay-scene="ending"/);
+ h.click({replayScene:'ending'});assert.doesNotMatch(h.app.innerHTML,/class="scene-screen/);
+ h.click({replayScene:'opening'});assert.match(h.app.innerHTML,/class="scene-screen is-replay"/);
+ h.click({action:'next-replay'});h.click({action:'previous-replay'});h.frame(1000);
+ assert.equal(h.calls.some(c=>c[0]==='scene'),false);assert.equal(h.calls.some(c=>c[0]==='paused'&&c[1]),false);
+ h.context.save();assert.equal(JSON.stringify(h.run()),before);
+ h.click({action:'close-replay'});assert.match(h.app.innerHTML,/aria-label="이야기 기록"/);
+ h.click({action:'close-modal'});h.context.save();assert.equal(JSON.stringify(h.run()),before);
+});
+
+test('ending replay cannot award money; only finishing the live ending settles its receipt',()=>{
+ const run=engine.createRun('sword',21);run.phase='story';run.scene='ending';run.sceneIndex=3;run.stage=9;run.cleared=true;
+ const h=audioHarness({run});h.click({action:'continue'});const before=JSON.stringify(h.run()),gold=h.run().gold;
+ h.click({action:'story-record'});h.click({replayScene:'ending'});
+ for(let i=0;i<data.SCENES.ending.length;i++)h.click({action:'next-replay'});
+ h.context.save();assert.equal(JSON.stringify(h.run()),before);assert.match(h.app.innerHTML,/aria-label="이야기 기록"/);
+ h.click({action:'close-modal'});h.click({action:'previous-story'});assert.equal(h.run().sceneIndex,2);assert.equal(h.run().gold,gold);
+ h.click({action:'skip-story'});assert.equal(h.run().phase,'complete');assert.equal(h.run().gold,gold+170);
+ assert.equal(h.run().deliveryReceipt.status,'settled');assert.match(h.app.innerHTML,/총 표행 대금/);assert.match(h.app.innerHTML,/200 은전/);assert.match(h.app.innerHTML,/170 은전 · 지급 완료/);
+ h.click({action:'story-record'});h.click({replayScene:'ending'});
+ for(let i=0;i<data.SCENES.ending.length;i++)h.click({action:'next-replay'});
+ h.context.save();assert.equal(h.run().gold,gold+170);
+});
+
+test('legacy completion reports missing settlement history instead of claiming a payment',()=>{
+ const run=engine.createRun('sword',22);run.phase='complete';run.stage=9;run.cleared=true;delete run.deliveryReceipt;delete run.storyVersion;
+ const h=audioHarness({run});h.click({action:'continue'});
+ assert.match(h.app.innerHTML,/대금 정산 기록이 남아 있지 않아/);assert.doesNotMatch(h.app.innerHTML,/지급 완료/);assert.equal(h.run().gold,run.gold);
+});
+
+test('replay works from the title and Escape returns to records without advancing the run',()=>{
+ const run=engine.createRun('sword',23),h=audioHarness({run}),before=JSON.stringify(h.run());
+ h.click({action:'story-record'});h.click({replayScene:'opening'});assert.match(h.app.innerHTML,/class="scene-screen is-replay"/);
+ h.app.querySelector=selector=>({focus(){},click(){const action=selector.match(/data-action="([^"]+)"/)?.[1];if(action)h.click({action});}});
+ h.listeners.keydown({key:'ArrowRight',target:{tagName:'BODY'},preventDefault(){}});assert.match(h.app.innerHTML,/data-story-page="opening-debt"/);
+ h.listeners.keydown({key:'ArrowLeft',target:{tagName:'BODY'},preventDefault(){}});assert.match(h.app.innerHTML,/data-story-page="opening-need"/);
+ h.listeners.keydown({key:'Escape',target:{tagName:'BODY'},preventDefault(){}});assert.match(h.app.innerHTML,/aria-label="이야기 기록"/);
+ h.context.save();assert.equal(JSON.stringify(h.run()),before);
 });
