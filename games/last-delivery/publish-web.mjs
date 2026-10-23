@@ -10,9 +10,11 @@ const sharp=(await import(process.env.LAST_DELIVERY_SHARP||'sharp')).default;
 await mkdir(destination,{recursive:true});
 await cp(path.join(root,'dist'),path.join(destination,'dist'),{recursive:true,filter:source=>!source.endsWith('.png')&&!source.endsWith('/local-audio.js')});
 for(const name of ['build.mjs','export.mjs','restore-assets.mjs','publish-web.mjs','package.json','README.md','tests','scripts']){
-  await cp(path.join(root,name),path.join(destination,name),{recursive:true});
+  await cp(path.join(root,name),path.join(destination,name),{recursive:true,filter:source=>!source.split(path.sep).includes('__pycache__')&&!source.endsWith('.pyc')});
 }
 await cp(path.join(root,'source_assets/audio/yue2/requests'),path.join(destination,'source_assets/audio/yue2/requests'),{recursive:true});
+await cp(path.join(root,'source_assets/audio/yue2-playlist/requests'),path.join(destination,'source_assets/audio/yue2-playlist/requests'),{recursive:true});
+await cp(path.join(root,'source_assets/audio/yue2-playlist/titles.json'),path.join(destination,'source_assets/audio/yue2-playlist/titles.json'));
 const assets=path.join(root,'dist/assets');
 let sourceBytes=0,webBytes=0;
 for(const name of await readdir(assets)){

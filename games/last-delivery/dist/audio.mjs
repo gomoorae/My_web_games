@@ -1,4 +1,4 @@
-// Original, layered game effects and a scene-aware music player. No autoplay is
+// Original, layered game effects and a continuous playlist. No autoplay is
 // attempted until unlock() is called from a user gesture.
 const ldLocalMusicLoads=new WeakMap();
 function ldLoadLocalMusic(documentRef,url){
@@ -19,16 +19,18 @@ function ldLoadLocalMusic(documentRef,url){
 export function createGameAudio({tracks={},baseURL,embedded={},onState=()=>{},AudioContextClass,fetchAudio,documentRef=globalThis.document}={}){
  const clamp=(value,fallback)=>Number.isFinite(Number(value))?Math.max(0,Math.min(1,Number(value))):fallback;
  let settings={sound:true,musicVolume:.55,sfxVolume:.75},context=null,musicBus=null,effectsBus=null,master=null,reverb=null;
- let scene='journey',paused=false,hidden=false,disposed=false,unlocked=false,unsupported=false,resuming=null;
- let currentMusic=null,pendingMusic=null,musicError='',unlockError='',serial=0,lastState='',noiseBuffer=null,cacheClock=0;
- const buffers=new Map(),positions=new Map(),voices=new Set(),cooldowns=new Map(),retiring=new Set();
+ let scene='journey',paused=false,hidden=false,disposed=false,unlocked=false,unsupported=false,resuming=null,suspending=null;
+ const playlist=[...new Set(['journey','battle','boss','ending',...Object.keys(tracks)])].filter(key=>tracks[key]);
+ let trackIndex=0,position=0,currentMusic=null,pendingMusic=null,nextMusic=null,musicError='',unlockError='',serial=0,lastState='',noiseBuffer=null,cacheClock=0;
+ const buffers=new Map(),voices=new Set(),cooldowns=new Map(),retiring=new Set();
+ const trackKey=()=>playlist[trackIndex]||null;
  const clock=()=>context?.currentTime||0;
- const canPlay=()=>!disposed&&settings.sound&&!hidden&&context?.state==='running';
- const musicAllowed=()=>canPlay()&&!paused&&settings.musicVolume>0&&Boolean(scene&&tracks[scene]);
+ const canPlay=()=>!disposed&&settings.sound&&!hidden&&!suspending&&context?.state==='running';
+ const musicAllowed=()=>canPlay()&&!paused&&settings.musicVolume>0&&Boolean(trackKey());
  function getState(){
   const status=disposed?'unsupported':!settings.sound?'muted':unsupported?'unsupported':hidden?'hidden':unlockError?'locked':musicError?'error':!unlocked||context?.state!=='running'?'locked':paused?'paused':pendingMusic?'loading':'running';
   const messages={muted:'소리가 꺼져 있어.',unsupported:'이 브라우저에서 소리를 재생할 수 없어.',hidden:'다른 화면을 보는 동안 소리를 쉬고 있어.',paused:'잠시 멈춤',locked:'소리 켜기를 눌러 재생을 시작해.',loading:'음악을 불러오는 중…',running:'소리 재생 중'};
-  return {status,scene,trackTitle:tracks[scene]?.title||'',message:unlockError||musicError||messages[status]||'',...settings,unlocked};
+  return {status,scene,trackKey:trackKey(),trackTitle:tracks[trackKey()]?.title||'',trackIndex,trackCount:playlist.length,message:unlockError||musicError||messages[status]||'',...settings,unlocked};
  }
  function emit(){const state=getState(),key=JSON.stringify(state);if(key!==lastState){lastState=key;try{onState(state);}catch{}}}
  function ramp(param,value,duration=.06){const now=clock();param.cancelScheduledValues(now);param.setValueAtTime(param.value,now);param.linearRampToValueAtTime(value,now+duration);}
@@ -60,8 +62,16 @@ export function createGameAudio({tracks={},baseURL,embedded={},onState=()=>{},Au
   if(resuming)return resuming;
   try{if(!context&&!createContext()){emit();return false;}}catch{unlockError='소리를 시작하지 못했어. 소리 켜기를 다시 눌러 줘.';emit();return false;}
   // Keep the resume call inside the original click/keydown stack on Safari.
-  let resumed;try{resumed=context.state==='running'?Promise.resolve():context.resume();}catch(error){resumed=Promise.reject(error);}
-  resuming=Promise.resolve(resumed).then(()=>{
+  let resumed;try{resumed=context.state==='running'&&!suspending?Promise.resolve():context.resume();}catch(error){resumed=Promise.reject(error);}
+  resuming=Promise.resolve(resumed).then(async()=>{
+   // A quick unmute/tab return can arrive before suspend() updates state. Keep
+   // the gesture-time resume above, then reconcile after the pending suspension.
+   while(!disposed&&settings.sound&&!hidden){
+    if(suspending){await suspending;continue;}
+    if(context.state==='running')break;
+    await context.resume();
+    if(!suspending&&context.state!=='running')break;
+   }
    if(disposed)return false;
    if(!settings.sound||hidden){suspend();emit();return false;}
    unlocked=context.state==='running';unlockError=unlocked?'':'소리 재생이 멈춰 있어. 소리 켜기를 다시 눌러 줘.';
@@ -70,20 +80,19 @@ export function createGameAudio({tracks={},baseURL,embedded={},onState=()=>{},Au
   return resuming;
  }
  function musicOffset(entry){
-  const elapsed=Math.max(0,clock()-entry.startedAt)+entry.offset,end=entry.end,start=entry.start;
-  return elapsed<end?elapsed:start+(elapsed-start)%(end-start);
+  return Math.min(entry.duration,Math.max(0,clock()-entry.startedAt)+entry.offset);
  }
  function stopMusic(fade=.25){
-  if(!currentMusic)return;const entry=currentMusic;currentMusic=null;positions.set(entry.key,musicOffset(entry));retiring.add(entry);
+  if(!currentMusic)return;const entry=currentMusic;currentMusic=null;position=musicOffset(entry);entry.stopped=true;retiring.add(entry);
   ramp(entry.gain.gain,0,fade);try{entry.source.stop(clock()+fade);}catch{};
  }
  function clearRetiring(){for(const entry of retiring){try{entry.source.stop();}catch{}entry.source.disconnect();entry.gain.disconnect();}retiring.clear();pruneBuffers();}
  function pruneBuffers(){
-  const protectedKeys=new Set([currentMusic?.key,pendingMusic?.key,...[...retiring].map(entry=>entry.key)]);
+  const protectedKeys=new Set([trackKey(),currentMusic?.key,pendingMusic?.key,...[...retiring].map(entry=>entry.key)]);
   const bytes=entry=>entry.buffer?(entry.buffer.length||entry.buffer.duration*(entry.buffer.sampleRate||context.sampleRate))*(entry.buffer.numberOfChannels||2)*4:0;
   let size=[...buffers.values()].reduce((sum,entry)=>sum+bytes(entry),0);
   for(const [key,entry] of [...buffers].sort((a,b)=>a[1].used-b[1].used)){
-   if(buffers.size<=2&&size<=64*1024*1024)break;
+   if(buffers.size<=1&&size<=64*1024*1024)break;
    if(protectedKeys.has(key))continue;size-=bytes(entry);buffers.delete(key);
   }
  }
@@ -100,39 +109,66 @@ export function createGameAudio({tracks={},baseURL,embedded={},onState=()=>{},Au
   }
   return url.href;
  }
+ async function fetchTrack(key){
+  const fetcher=fetchAudio||globalThis.fetch;if(!fetcher)throw Error('fetch unavailable');
+  const response=await fetcher(await sourceURL(key));if(response?.ok===false)throw Error('music load failed');
+  return typeof response?.arrayBuffer==='function'?response.arrayBuffer():response;
+ }
+ function prepareNext(){
+  if(disposed||playlist.length<2)return;
+  const key=playlist[(trackIndex+1)%playlist.length];if(nextMusic?.key===key)return;
+  // Keep only the next compressed file: decoding every three-minute track would
+  // retain hundreds of megabytes on mobile. A failed prefetch is retried on use.
+  nextMusic={key,promise:fetchTrack(key).catch(()=>null)};
+ }
  function loadTrack(key){
   if(buffers.has(key)){const entry=buffers.get(key);entry.used=++cacheClock;return entry.promise;}
   const entry={used:++cacheClock,buffer:null,promise:null};
   entry.promise=Promise.resolve().then(async()=>{
-   const fetcher=fetchAudio||globalThis.fetch;if(!fetcher)throw Error('fetch unavailable');
-   const response=await fetcher(await sourceURL(key));if(response?.ok===false)throw Error('music load failed');
-   const bytes=typeof response?.arrayBuffer==='function'?await response.arrayBuffer():response;
+   const prefetched=nextMusic?.key===key?nextMusic:null;if(prefetched)nextMusic=null;
+   const bytes=(prefetched?await prefetched.promise:null)||await fetchTrack(key);
+   if(disposed)throw Error('audio disposed');
    const buffer=await context.decodeAudioData(bytes);entry.buffer=buffer;pruneBuffers();return buffer;
   }).catch(error=>{if(buffers.get(key)===entry)buffers.delete(key);throw error;});
   buffers.set(key,entry);pruneBuffers();return entry.promise;
  }
  function syncMusic(){
   if(!musicAllowed()){if(currentMusic)stopMusic(hidden||paused?0:.18);return;}
-  if(currentMusic?.key===scene||pendingMusic?.key===scene)return;
-  if(currentMusic)stopMusic(.55);
-  const key=scene,token=++serial;pendingMusic={key,token};musicError='';emit();
+  const key=trackKey();if(currentMusic?.key===key||pendingMusic?.key===key)return;
+  const token=++serial;pendingMusic={key,token};musicError='';emit();
   loadTrack(key).then(buffer=>{
-   if(disposed||token!==serial||scene!==key||!musicAllowed())return;
-   pendingMusic=null;const track=tracks[key],duration=buffer.duration;
-   const start=Math.max(0,Math.min(Number(track.loopStart)||0,duration-.01));
-   const end=Math.max(start+.01,Math.min(Number(track.loopEnd)||duration,duration));
-   const source=context.createBufferSource(),gain=context.createGain();source.buffer=buffer;source.loop=true;source.loopStart=start;source.loopEnd=end;source.playbackRate.value=1;
+   if(disposed||token!==serial||trackKey()!==key||!musicAllowed())return;
+   pendingMusic=null;const duration=buffer.duration;
+   const source=context.createBufferSource(),gain=context.createGain();source.buffer=buffer;source.loop=false;source.playbackRate.value=1;
    source.connect(gain);gain.connect(musicBus);gain.gain.value=0;ramp(gain.gain,1,.65);
-   const initial=Number.isFinite(track.introStart)?Math.max(0,Math.min(track.introStart,end-.01)):start;
-   const stored=positions.get(key)??initial,offset=stored<end?stored:start;
-   const entry={key,source,gain,start,end,offset,startedAt:clock()};currentMusic=entry;
-   source.onended=()=>{source.disconnect();gain.disconnect();retiring.delete(entry);if(currentMusic===entry)currentMusic=null;pruneBuffers();};
-   source.start(clock(),offset);emit();
+   const offset=Math.max(0,Math.min(position,duration));
+   const entry={key,source,gain,duration,offset,startedAt:clock(),stopped:false};currentMusic=entry;
+   source.onended=()=>{
+    source.onended=null;source.disconnect();gain.disconnect();retiring.delete(entry);
+    if(currentMusic===entry){
+     currentMusic=null;
+     if(!entry.stopped&&!disposed){position=0;trackIndex=(trackIndex+1)%playlist.length;syncMusic();emit();}
+    }
+    pruneBuffers();
+   };
+   source.start(clock(),offset);prepareNext();emit();
   }).catch(()=>{if(token!==serial||disposed)return;pendingMusic=null;musicError='음악을 불러오지 못했어. 효과음은 계속 사용할 수 있어. 소리 켜기로 다시 시도해 줘.';emit();});
  }
  function stopEffects(){for(const voice of [...voices])finishVoice(voice);cooldowns.clear();}
  function stopAll(){serial++;pendingMusic=null;stopEffects();stopMusic(0);clearRetiring();}
- function suspend(){if(context&&context.state==='running')try{Promise.resolve(context.suspend()).catch(()=>{});}catch{}}
+ function suspend(){
+  if(!context||context.state!=='running'||suspending)return;
+  try{
+   const operation=Promise.resolve(context.suspend()).catch(()=>{}).finally(()=>{
+    if(suspending===operation)suspending=null;
+    const restore=()=>{if(!disposed&&settings.sound&&!hidden&&context.state!=='running')void unlock();};
+    // A concurrent unlock may have finished while muted; restore only after its
+    // bookkeeping clears, and always respect the latest visibility/mute intent.
+    if(resuming)void resuming.then(restore);else restore();
+   });
+   suspending=operation;
+  }catch{}
+ }
  function configure(next={}){
   const wasSound=settings.sound;settings={sound:typeof next.sound==='boolean'?next.sound:settings.sound,musicVolume:clamp(next.musicVolume??settings.musicVolume,settings.musicVolume),sfxVolume:clamp(next.sfxVolume??settings.sfxVolume,settings.sfxVolume)};
   if(musicBus){ramp(musicBus.gain,settings.musicVolume);ramp(effectsBus.gain,settings.sfxVolume);}
@@ -143,7 +179,8 @@ export function createGameAudio({tracks={},baseURL,embedded={},onState=()=>{},Au
   }
   emit();
  }
- function setScene(key){key=key&&tracks[key]?key:null;if(key===scene)return;scene=key;serial++;pendingMusic=null;musicError='';if(currentMusic?.key!==key)stopMusic(.55);syncMusic();emit();}
+ // Retained for callers that report game state; scenes never select music.
+ function setScene(key){key=key&&tracks[key]?key:null;if(key===scene)return;scene=key;emit();}
  function setPaused(value){value=Boolean(value);if(paused===value)return;paused=value;if(paused)stopAll();else syncMusic();emit();}
  function setHidden(value){value=Boolean(value);if(hidden===value)return;hidden=value;if(hidden){stopAll();suspend();}else if(unlocked&&settings.sound)void unlock();emit();}
  function finishVoice(voice){if(voice.done)return;voice.done=true;for(const source of voice.sources){try{source.stop();}catch{}source.disconnect();}for(const node of voice.nodes)node.disconnect();voices.delete(voice);}
@@ -236,6 +273,6 @@ export function createGameAudio({tracks={},baseURL,embedded={},onState=()=>{},Au
   // One multi-hit engine event is one designed sound, not N stacked impacts.
   if(!voice.sources.size)finishVoice(voice);return true;
  }
- function dispose(){if(disposed)return;stopAll();disposed=true;unlocked=false;if(context){context.onstatechange=null;try{Promise.resolve(context.close()).catch(()=>{});}catch{}}buffers.clear();emit();}
+ function dispose(){if(disposed)return;stopAll();disposed=true;unlocked=false;nextMusic=null;if(context){context.onstatechange=null;try{Promise.resolve(context.close()).catch(()=>{});}catch{}}buffers.clear();emit();}
  return {unlock,configure,setScene,setPaused,setHidden,play,getState,dispose};
 }

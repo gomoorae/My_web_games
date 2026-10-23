@@ -2,73 +2,78 @@
   {
     "id": "journey",
     "processorRevision": 1,
-    "preparedAt": "2026-10-23T11:00:03.828123+00:00",
-    "source": "YuE2 generated instrumental, edited into a circular gameplay loop",
-    "masterSha256": "a1b941cdd13b707e078fd725648ab037d50cbf21ba8d9a81b4f7f9a69cc4c89b",
-    "generationRecordSha256": "1fd9b2b2e5faaedb3e1fc685c8fba27525ee45cb0b3377ede2dbf42e03627d74",
-    "requestHash": "44045a2955127562b6c493892c141623e02c1932b30bdfd714857efa1ec7825d",
+    "preparedAt": "2026-10-23T11:33:56.192973+00:00",
+    "source": "YuE2 generated complete instrumental for sequential playback",
+    "masterSha256": "73796dc726570a4bc8b86bc28f898c06a0a516d70f1adc409cdee78f8b664020",
+    "generationRecordSha256": "ffeb829573de5f1f648c5068c6f10ea16ea92aca1a1b5d140ba81a236aac5822",
+    "requestHash": "8cc22a925c4e5b03f253f97cca5d4705bd9bec58e8cb074d9b3d22d8a72ef38b",
     "request": {
       "model": "yue2",
       "taskType": "text2music",
       "instrumental": true,
       "lyrics": "[Instrumental]",
-      "duration": 80,
+      "duration": 180,
       "steps": 32,
       "thinking": true,
-      "seed": 231026101,
-      "prompt": "Instrumental soundtrack for a wuxia caravan adventure game, a solitary courier crossing misty mountains before dawn. Acoustic Chinese chamber ensemble: warm guqin and pipa plucked strings, breathy dizi flute, restrained erhu, very light wooden percussion. Gentle walking pulse at 84 BPM, spacious D minor pentatonic melody, contemplative but quietly hopeful. Begin with an established soft groove; introduce a memorable short flute motif, vary it with pipa answers, then return to the main theme. A coherent 80-second instrumental cue with steady understated energy suitable for inventory planning and exploration. Natural acoustic timbres, clear separation, warm intimate production, modest low end and room for game sound effects. No vocals, no singing, no chanting, no choir, no spoken words, no electronic dance beat, no dramatic cinematic impacts. Keep the final phrase in the same mood and tempo for a smooth game loop."
+      "seed": 231026201,
+      "prompt": "A complete original instrumental composition lasting about three minutes, intended for a continuous wuxia adventure game listening playlist. Acoustic Chinese chamber ensemble with expressive dizi bamboo flute, pipa and guqin plucked strings, warm restrained erhu, soft wooden percussion and occasional low hand drum. Consistent intimate natural acoustic production, moderate dynamic range, modest bass, clear instruments with space for game sound effects. Develop long musical phrases with variation and a contrasting middle section; do not restart the opening repeatedly. Shape a full composition with a short musical introduction, two developed sections, a melodic return, then a gentle resolving coda beginning around 165 seconds with the final sustained notes and room decay by 180 seconds. This is a complete song with a beginning and an ending, not a short looping gameplay cue. Purely instrumental throughout: no singing, no vocals, no humming, no chanting, no choir, no spoken language, no dramatic trailer impacts, no EDM drops or electronic dance beat. Quietly hopeful dawn on a mountain road, steady walking pulse near 88 BPM, D major pentatonic with moments of wistful color. A memorable lyrical dizi theme is answered by pipa, flowing guqin arpeggios underneath. The second section introduces a warm erhu counter-melody and soft hand drum, then the flute theme returns with delicate ornamentation. Maintain calm forward motion throughout and finish with a settled, gentle cadence."
     },
     "sourceFormat": {
       "channels": 2,
       "sampleWidthBytes": 3,
       "sampleRate": 48000,
-      "frames": 3935936,
-      "duration": 81.99866666666667
+      "frames": 8735936,
+      "duration": 181.99866666666668
     },
     "sourceLevels": {
-      "peak": 0.8738580942153931,
-      "rms": 0.13217382844812067,
-      "rmsDbfs": -17.57709060741429
+      "peak": 1,
+      "peakDbfs": 0,
+      "rms": 0.12961759802073491,
+      "rmsDbfs": -17.74672061676953
     },
     "edit": {
-      "sourceStartFrame": 14880,
-      "sourceEndFrameExclusive": 3935936,
-      "sourceStartSeconds": 0.31,
-      "sourceEndSeconds": 81.99866666666667,
-      "trimmedHeadSeconds": 0.31,
-      "trimmedTailSeconds": 0.0,
+      "sourceStartFrame": 13440,
+      "sourceEndFrameExclusive": 8735936,
+      "sourceStartSeconds": 0.28,
+      "sourceEndSeconds": 181.99866666666668,
+      "trimmedHeadSeconds": 0.28,
+      "trimmedTailSeconds": 0,
       "silenceTrim": {
-        "method": "10 ms stereo RMS; max(-60 dBFS, p90 RMS minus 42 dB)",
-        "thresholdAmplitude": 0.001637792668744481,
-        "retainedMarginSeconds": 0.05,
-        "maximumTrimPerSideSeconds": 3.0
+        "method": "10 ms stereo RMS; max(-65 dBFS, p90 RMS minus 45 dB)",
+        "thresholdAmplitude": 0.001216107331595203,
+        "retainedMarginSeconds": 0.1,
+        "maximumTrimPerSideSeconds": 2.5
       },
       "removedDcPerChannel": [
-        9.246589887661988e-05,
-        0.00012011124969451034
+        0.00001629168347880758,
+        0.00003959782252283612
       ],
-      "crossfadeFrames": 72000,
-      "crossfadeSeconds": 1.5,
-      "crossfadeMethod": "sin-squared complementary amplitude windows; tail overlaps head",
-      "outputOrder": "selected[crossfade:-crossfade], then tail-to-head blend",
-      "durationReductionSeconds": 1.81,
-      "outputFrames": 3849056,
-      "outputDuration": 80.18866666666666
+      "fadeInFrames": 1680,
+      "fadeInSeconds": 0.035,
+      "fadeOutFrames": 120000,
+      "fadeOutSeconds": 2.5,
+      "fadeMethod": "sin-squared entrance and cos-squared exit amplitude windows",
+      "outputOrder": "original chronological order; every selected sample retained once",
+      "outputFrames": 8722496,
+      "outputDuration": 181.71866666666668,
+      "durationReductionSeconds": 0.28
     },
     "normalization": {
       "targetRms": 0.12,
       "samplePeakLimit": 0.72,
-      "linearGain": 0.8238452297643238,
-      "gainDb": -1.683087372189148,
+      "decodedPeakLimit": 0.95,
+      "linearGain": 0.7691469579555624,
+      "gainDb": -2.279813465829022,
       "outputLevels": {
-        "peak": 0.719970703125,
-        "rms": 0.10916347338709848,
-        "rmsDbfs": -19.238453086123496
+        "peak": 0.7200000286102295,
+        "peakDbfs": -2.8533497262283936,
+        "rms": 0.09949089358415356,
+        "rmsDbfs": -20.04433336943549
       },
       "encodeAttempts": [
         {
-          "linearGain": 0.8238452297643238,
-          "decodedPeak": 0.713165283203125
+          "linearGain": 0.7691469579555624,
+          "decodedPeak": 0.7413722276687622
         }
       ]
     },
@@ -76,46 +81,39 @@
       "codec": "AAC-LC",
       "container": "M4A",
       "bitrate": 160000,
-      "circularGuardSeconds": 1,
-      "aacBytes": 1631395,
+      "encoder": "afconvert",
+      "aacBytes": 3521889,
       "aacBitrate": 160000,
-      "sourceFrames": 3849056,
-      "encodedInputFrames": 3945056,
-      "decodedFrames": 3945056,
-      "decodedDuration": 82.18866666666666,
-      "loopStart": 0.9912291666666667,
-      "loopEnd": 81.17989583333333,
-      "decodedLoopPeak": 0.713165283203125,
-      "decodedLoopRms": 0.10909943982738263,
-      "decodedLoopSeamDelta": 0.00018310546875,
-      "decodedLoopFirst100msRms": 0.03801529345793355,
-      "decodedLoopLast100msRms": 0.0438803292882945,
-      "decodedFileFirst100msRms": 0.08292433232227536,
-      "decodedFileLast100msRms": 0.04475259993530609,
-      "loopOffsetFromGuardFrames": -421,
-      "decodedSourceCorrelation": 0.9997817449254099
+      "sourceFrames": 8722496,
+      "encodedInputFrames": 8722496,
+      "decodedFrames": 8722496,
+      "decodedDuration": 181.71866666666668,
+      "decodedDurationDifferenceSeconds": 0,
+      "decodedPeak": 0.7413722276687622,
+      "decodedPeakDbfs": -2.599273739641838,
+      "decodedRms": 0.0993763883304339,
+      "decodedRmsDbfs": -20.05433582028737,
+      "decodedFirst100msRms": 0.00046146588599098505,
+      "decodedLast100msRms": 0.00011249467727748858
     },
     "artifacts": {
       "journey.wav": {
-        "sha256": "563f90d7c28fce86d9bb44d654260eaf8e6c5fbc427e5e4995d750a554bca9f8",
-        "bytes": 15396268
+        "sha256": "d098d17a93f1504b04ae9c65d1f5a2acea65f74c6634976a84f6360f4c606f2b",
+        "bytes": 52335020
       },
       "journey.m4a": {
-        "sha256": "704b5bffe77aa08bbe5a7af619055a14e100e0f550f8e02a2482d50534831d39",
-        "bytes": 1631395
+        "sha256": "77a7942c540a5ce850a9657f53c587db202538cb927eb909d77178083346fa9b",
+        "bytes": 3521889
       }
     },
     "review": {
       "automatedTechnicalChecks": "passed",
       "listeningVerified": false,
-      "musicalLoopVerified": false,
-      "note": "Automatic trim/crossfade candidate. Audition timbre, vocals, musical transition and SFX balance before acceptance."
+      "note": "Technical checks only. Listen to the full arrangement, ending, timbre and SFX balance before judging musical quality."
     },
-    "title": "새벽을 향한 표행",
-    "file": "journey-yue2-704b5bffe7.m4a",
-    "duration": 80.18866666666666,
-    "loopStart": 0.9912291666666667,
-    "loopEnd": 81.17989583333333,
+    "title": "먼 길의 새벽",
+    "file": "journey-full-77a7942c54.m4a",
+    "duration": 181.71866666666668,
     "generationWarnings": [
       {
         "message": "목표 길이 근처까지 생성했지만 자연 종료 전에 길이 제한에 도달했어. 마지막 구절이 잘렸을 수 있으니 끝부분을 확인해줘."
@@ -125,73 +123,78 @@
   {
     "id": "battle",
     "processorRevision": 1,
-    "preparedAt": "2026-10-23T11:00:04.521810+00:00",
-    "source": "YuE2 generated instrumental, edited into a circular gameplay loop",
-    "masterSha256": "2efea045f065ac1abe764cb8ac12616834bbf8f498670655390bd48e3c5bf10c",
-    "generationRecordSha256": "a991594eb7ba74ec9a9c62b67ee6e046f0a37b4c9f19c1cd611051024952eb8b",
-    "requestHash": "c4efed2db229128044ab074a00c5c1cc7d022a8a5ad6d501e2ce1d2e5f474b1c",
+    "preparedAt": "2026-10-23T11:37:38.726509+00:00",
+    "source": "YuE2 generated complete instrumental for sequential playback",
+    "masterSha256": "fac8cc5867b912ab7621715726d10feb53d2d1bf2f1b7b0940b557bd10eec466",
+    "generationRecordSha256": "aa4309780af0f4577a8228eb6eeb9db3bfc1ee45623af40054599d9ffef8b345",
+    "requestHash": "33475a1b3393274c86ba25db08148e6875acb9c45bcc04b9689ffc9d06868aae",
     "request": {
       "model": "yue2",
       "taskType": "text2music",
       "instrumental": true,
       "lyrics": "[Instrumental]",
-      "duration": 80,
+      "duration": 180,
       "steps": 32,
       "thinking": true,
-      "seed": 231026102,
-      "prompt": "Instrumental battle soundtrack for a traditional wuxia martial arts caravan game. Agile pipa ostinato, sharp guzheng plucks, short dizi flute phrases and rhythmic erhu, tight Chinese barrel drums and wooden clacks. Energetic 120 BPM in D minor pentatonic, nimble swordplay and tactical momentum rather than overwhelming grandeur. Start directly in the rhythmic theme, develop a contrasting call-and-response phrase halfway, then return to the driving main motif. A cohesive 80-second cue with controlled dynamics, detailed acoustic Chinese instruments, firm but restrained bass, leaving space for short weapon and skill sound effects. No vocals, no singing, no chanting, no choir, no spoken words, no distorted electric guitars, no EDM drops, no long ambient intro, no abrupt finale. Maintain the pulse and harmonic center through the ending so the music can loop smoothly."
+      "seed": 231026202,
+      "prompt": "A complete original instrumental composition lasting about three minutes, intended for a continuous wuxia adventure game listening playlist. Acoustic Chinese chamber ensemble with expressive dizi bamboo flute, pipa and guqin plucked strings, warm restrained erhu, soft wooden percussion and occasional low hand drum. Consistent intimate natural acoustic production, moderate dynamic range, modest bass, clear instruments with space for game sound effects. Develop long musical phrases with variation and a contrasting middle section; do not restart the opening repeatedly. Shape a full composition with a short musical introduction, two developed sections, a melodic return, then a gentle resolving coda beginning around 165 seconds with the final sustained notes and room decay by 180 seconds. This is a complete song with a beginning and an ending, not a short looping gameplay cue. Purely instrumental throughout: no singing, no vocals, no humming, no chanting, no choir, no spoken language, no dramatic trailer impacts, no EDM drops or electronic dance beat. A refreshing breeze through green mountain passes, flowing pulse near 92 BPM, G major pentatonic. Nimble pipa introduces a spacious original melody, then dizi carries a longer answer. A middle passage alternates guqin and low erhu over a light wooden pulse before a warm ensemble reprise. Graceful and adventurous with stable medium-low energy; never aggressive or bombastic. End with a clear calm melodic resolution."
     },
     "sourceFormat": {
       "channels": 2,
       "sampleWidthBytes": 3,
       "sampleRate": 48000,
-      "frames": 3935936,
-      "duration": 81.99866666666667
+      "frames": 8553536,
+      "duration": 178.19866666666667
     },
     "sourceLevels": {
-      "peak": 0.8469820022583008,
-      "rms": 0.10206067722411678,
-      "rmsDbfs": -19.82283108462187
+      "peak": 1,
+      "peakDbfs": 0,
+      "rms": 0.13631128617121832,
+      "rmsDbfs": -17.309363687567632
     },
     "edit": {
-      "sourceStartFrame": 12960,
-      "sourceEndFrameExclusive": 3935936,
-      "sourceStartSeconds": 0.27,
-      "sourceEndSeconds": 81.99866666666667,
-      "trimmedHeadSeconds": 0.27,
-      "trimmedTailSeconds": 0.0,
+      "sourceStartFrame": 12000,
+      "sourceEndFrameExclusive": 8492640,
+      "sourceStartSeconds": 0.25,
+      "sourceEndSeconds": 176.93,
+      "trimmedHeadSeconds": 0.25,
+      "trimmedTailSeconds": 1.2686666666666666,
       "silenceTrim": {
-        "method": "10 ms stereo RMS; max(-60 dBFS, p90 RMS minus 42 dB)",
-        "thresholdAmplitude": 0.0012503938991080888,
-        "retainedMarginSeconds": 0.05,
-        "maximumTrimPerSideSeconds": 3.0
+        "method": "10 ms stereo RMS; max(-65 dBFS, p90 RMS minus 45 dB)",
+        "thresholdAmplitude": 0.0011504062182768413,
+        "retainedMarginSeconds": 0.1,
+        "maximumTrimPerSideSeconds": 2.5
       },
       "removedDcPerChannel": [
-        0.00011608162481499539,
-        0.00013984395256482434
+        -0.00015157198899028957,
+        -0.00010830364134869713
       ],
-      "crossfadeFrames": 72000,
-      "crossfadeSeconds": 1.5,
-      "crossfadeMethod": "sin-squared complementary amplitude windows; tail overlaps head",
-      "outputOrder": "selected[crossfade:-crossfade], then tail-to-head blend",
-      "durationReductionSeconds": 1.77,
-      "outputFrames": 3850976,
-      "outputDuration": 80.22866666666667
+      "fadeInFrames": 1680,
+      "fadeInSeconds": 0.035,
+      "fadeOutFrames": 120000,
+      "fadeOutSeconds": 2.5,
+      "fadeMethod": "sin-squared entrance and cos-squared exit amplitude windows",
+      "outputOrder": "original chronological order; every selected sample retained once",
+      "outputFrames": 8480640,
+      "outputDuration": 176.68,
+      "durationReductionSeconds": 1.5186666666666666
     },
     "normalization": {
       "targetRms": 0.12,
       "samplePeakLimit": 0.72,
-      "linearGain": 0.8540876521344594,
-      "gainDb": -1.369951136924341,
+      "decodedPeakLimit": 0.95,
+      "linearGain": 0.7198909705114346,
+      "gainDb": -2.8546654738963193,
       "outputLevels": {
-        "peak": 0.719970703125,
-        "rms": 0.08721152128212703,
-        "rmsDbfs": -21.188522755768474
+        "peak": 0.7200000286102295,
+        "peakDbfs": -2.8533497262283936,
+        "rms": 0.09675320319696806,
+        "rmsDbfs": -20.286692958689663
       },
       "encodeAttempts": [
         {
-          "linearGain": 0.8540876521344594,
-          "decodedPeak": 0.697601318359375
+          "linearGain": 0.7198909705114346,
+          "decodedPeak": 0.7711255550384521
         }
       ]
     },
@@ -199,122 +202,116 @@
       "codec": "AAC-LC",
       "container": "M4A",
       "bitrate": 160000,
-      "circularGuardSeconds": 1,
-      "aacBytes": 1631996,
+      "encoder": "afconvert",
+      "aacBytes": 3401013,
       "aacBitrate": 160000,
-      "sourceFrames": 3850976,
-      "encodedInputFrames": 3946976,
-      "decodedFrames": 3946976,
-      "decodedDuration": 82.22866666666667,
-      "loopStart": 1.0074166666666666,
-      "loopEnd": 81.23608333333334,
-      "decodedLoopPeak": 0.697601318359375,
-      "decodedLoopRms": 0.08712910451214631,
-      "decodedLoopSeamDelta": 9.1552734375e-05,
-      "decodedLoopFirst100msRms": 0.040637814773257966,
-      "decodedLoopLast100msRms": 0.039351818230047596,
-      "decodedFileFirst100msRms": 0.04166212438721036,
-      "decodedFileLast100msRms": 0.03294100476164042,
-      "loopOffsetFromGuardFrames": 356,
-      "decodedSourceCorrelation": 0.999472840553108
+      "sourceFrames": 8480640,
+      "encodedInputFrames": 8480640,
+      "decodedFrames": 8480640,
+      "decodedDuration": 176.68,
+      "decodedDurationDifferenceSeconds": 0,
+      "decodedPeak": 0.7711255550384521,
+      "decodedPeakDbfs": -2.2574980830532967,
+      "decodedRms": 0.09663004156310509,
+      "decodedRmsDbfs": -20.29775667318409,
+      "decodedFirst100msRms": 0.00007507462994899417,
+      "decodedLast100msRms": 4.893460553523179e-7
     },
     "artifacts": {
       "battle.wav": {
-        "sha256": "ac99847caeb5e32961bf8c0fc1a00a63526b504a07509ad14052e5190dec62b5",
-        "bytes": 15403948
+        "sha256": "46c3cdce0493f63e1a08a721ab6c892098eab161fb751f499d84e9491adb3291",
+        "bytes": 50883884
       },
       "battle.m4a": {
-        "sha256": "a96a290e8cce162bb74baff300222c9a76c4b4a1dbbd8e96aa3341d595b2f534",
-        "bytes": 1631996
+        "sha256": "1f9c6f5bbda11fd52a5a07aa069ebb8a8c4aba84c1f8d5e46cbee572763ef1d3",
+        "bytes": 3401013
       }
     },
     "review": {
       "automatedTechnicalChecks": "passed",
       "listeningVerified": false,
-      "musicalLoopVerified": false,
-      "note": "Automatic trim/crossfade candidate. Audition timbre, vocals, musical transition and SFX balance before acceptance."
+      "note": "Technical checks only. Listen to the full arrangement, ending, timbre and SFX balance before judging musical quality."
     },
-    "title": "칼끝을 스치는 바람",
-    "file": "battle-yue2-a96a290e8c.m4a",
-    "duration": 80.22866666666667,
-    "loopStart": 1.0074166666666666,
-    "loopEnd": 81.23608333333334,
-    "generationWarnings": [
-      {
-        "message": "목표 길이 근처까지 생성했지만 자연 종료 전에 길이 제한에 도달했어. 마지막 구절이 잘렸을 수 있으니 끝부분을 확인해줘."
-      }
-    ]
+    "title": "청산에 이는 바람",
+    "file": "battle-full-1f9c6f5bbd.m4a",
+    "duration": 176.68,
+    "generationWarnings": []
   },
   {
     "id": "boss",
     "processorRevision": 1,
-    "preparedAt": "2026-10-23T11:01:37.447146+00:00",
-    "source": "YuE2 generated instrumental, edited into a circular gameplay loop",
-    "masterSha256": "feb1ed118f32aa38e1d60e33a692bddd8e2e976f482742238d0f17cbcdecd20e",
-    "generationRecordSha256": "f865ac81860afb5bf1301421aba7ce6af5378f6130487c87cff04a413ac6734f",
-    "requestHash": "d4eacaf3bc2ad6b78b6c21f9e799e660611412cbffc2fa7a9e5fc1174ca5c2fe",
+    "preparedAt": "2026-10-23T11:42:08.287605+00:00",
+    "source": "YuE2 generated complete instrumental for sequential playback",
+    "masterSha256": "ae429ebc812e5dbfb236fdeb0cf6d6fdee59db211ff7d2a943dba518062cc454",
+    "generationRecordSha256": "10a07951bd3009745982f13b65d8f2c5af6f8ae6039c1002a14a1332ef4d435e",
+    "requestHash": "4b4a994f95a8a8a16b9eaff30fc96d305d3c4cbebddb10f651725238ee78cfb8",
     "request": {
       "model": "yue2",
       "taskType": "text2music",
       "instrumental": true,
       "lyrics": "[Instrumental]",
-      "duration": 80,
+      "duration": 180,
       "steps": 32,
       "thinking": true,
-      "seed": 231026103,
-      "prompt": "Instrumental final duel music for a wuxia game: a lone courier facing a powerful rival beneath red storm clouds. Traditional Chinese ensemble with tense low erhu, rapid pipa and guzheng patterns, piercing but controlled dizi, deep measured Chinese war drums and occasional small gong accents. Urgent 132 BPM, D minor pentatonic with dark suspended harmony. A memorable martial motif and evolving counter-melodies, escalating tension with a short restrained middle passage before the main theme returns. Coherent 80-second gameplay cue, dynamic acoustic performance, dramatic but not deafening, clean transient detail and enough space for combat sound effects. No vocals, no chanting, no choir, no spoken words, no electronic dance drop, no constant cymbal wash, no explosive trailer hits. Begin with an active pulse and finish on the ongoing rhythmic motif without a hard final stop, suitable for a repeating boss battle."
+      "seed": 231026203,
+      "prompt": "A complete original instrumental composition lasting about three minutes, intended for a continuous wuxia adventure game listening playlist. Acoustic Chinese chamber ensemble with expressive dizi bamboo flute, pipa and guqin plucked strings, warm restrained erhu, soft wooden percussion and occasional low hand drum. Consistent intimate natural acoustic production, moderate dynamic range, modest bass, clear instruments with space for game sound effects. Develop long musical phrases with variation and a contrasting middle section; do not restart the opening repeatedly. Shape a full composition with a short musical introduction, two developed sections, a melodic return, then a gentle resolving coda beginning around 165 seconds with the final sustained notes and room decay by 180 seconds. This is a complete song with a beginning and an ending, not a short looping gameplay cue. Purely instrumental throughout: no singing, no vocals, no humming, no chanting, no choir, no spoken language, no dramatic trailer impacts, no EDM drops or electronic dance beat. A long thoughtful journey through the martial world, measured pulse near 90 BPM, D minor pentatonic softened by open harmonies. Warm erhu and guqin share an original lyrical motif, with dizi answering between phrases. Light pipa and hand drum provide a restrained steady rhythm. Develop a brighter middle variation, then return to the melody with an expressive sustained conclusion. Determined and reflective rather than tense, dark or cinematic; finish naturally and gently."
     },
     "sourceFormat": {
       "channels": 2,
       "sampleWidthBytes": 3,
       "sampleRate": 48000,
-      "frames": 3935936,
-      "duration": 81.99866666666667
+      "frames": 8735936,
+      "duration": 181.99866666666668
     },
     "sourceLevels": {
-      "peak": 0.9243541955947876,
-      "rms": 0.16136912391286165,
-      "rmsDbfs": -15.84359117629911
+      "peak": 0.7120106220245361,
+      "peakDbfs": -2.9502705471439765,
+      "rms": 0.12269253323966509,
+      "rmsDbfs": -18.223637330868662
     },
     "edit": {
-      "sourceStartFrame": 5280,
-      "sourceEndFrameExclusive": 3935936,
-      "sourceStartSeconds": 0.11,
-      "sourceEndSeconds": 81.99866666666667,
-      "trimmedHeadSeconds": 0.11,
-      "trimmedTailSeconds": 0.0,
+      "sourceStartFrame": 14400,
+      "sourceEndFrameExclusive": 8735936,
+      "sourceStartSeconds": 0.3,
+      "sourceEndSeconds": 181.99866666666668,
+      "trimmedHeadSeconds": 0.3,
+      "trimmedTailSeconds": 0,
       "silenceTrim": {
-        "method": "10 ms stereo RMS; max(-60 dBFS, p90 RMS minus 42 dB)",
-        "thresholdAmplitude": 0.0018399946899927504,
-        "retainedMarginSeconds": 0.05,
-        "maximumTrimPerSideSeconds": 3.0
+        "method": "10 ms stereo RMS; max(-65 dBFS, p90 RMS minus 45 dB)",
+        "thresholdAmplitude": 0.0010168057370175808,
+        "retainedMarginSeconds": 0.1,
+        "maximumTrimPerSideSeconds": 2.5
       },
       "removedDcPerChannel": [
-        5.2726312568138354e-05,
-        6.819984237220696e-05
+        -0.000006945766679160667,
+        0.00001205300110829073
       ],
-      "crossfadeFrames": 72000,
-      "crossfadeSeconds": 1.5,
-      "crossfadeMethod": "sin-squared complementary amplitude windows; tail overlaps head",
-      "outputOrder": "selected[crossfade:-crossfade], then tail-to-head blend",
-      "durationReductionSeconds": 1.61,
-      "outputFrames": 3858656,
-      "outputDuration": 80.38866666666667
+      "fadeInFrames": 1680,
+      "fadeInSeconds": 0.035,
+      "fadeOutFrames": 120000,
+      "fadeOutSeconds": 2.5,
+      "fadeMethod": "sin-squared entrance and cos-squared exit amplitude windows",
+      "outputOrder": "original chronological order; every selected sample retained once",
+      "outputFrames": 8721536,
+      "outputDuration": 181.69866666666667,
+      "durationReductionSeconds": 0.3
     },
     "normalization": {
       "targetRms": 0.12,
       "samplePeakLimit": 0.72,
-      "linearGain": 0.7438485046303523,
-      "gainDb": -2.570310114418997,
+      "decodedPeakLimit": 0.95,
+      "linearGain": 0.9772967112587734,
+      "gainDb": -0.19947125378821834,
       "outputLevels": {
-        "peak": 0.6875,
-        "rms": 0.11999633701930514,
-        "rmsDbfs": -18.416640218478044
+        "peak": 0.6958388090133667,
+        "peakDbfs": -3.1498270601925564,
+        "rms": 0.12000000001026269,
+        "rmsDbfs": -18.416375078304664
       },
       "encodeAttempts": [
         {
-          "linearGain": 0.7438485046303523,
-          "decodedPeak": 0.68426513671875
+          "linearGain": 0.9772967112587734,
+          "decodedPeak": 0.6988611221313477
         }
       ]
     },
@@ -322,46 +319,39 @@
       "codec": "AAC-LC",
       "container": "M4A",
       "bitrate": 160000,
-      "circularGuardSeconds": 1,
-      "aacBytes": 1633215,
+      "encoder": "afconvert",
+      "aacBytes": 3610433,
       "aacBitrate": 160000,
-      "sourceFrames": 3858656,
-      "encodedInputFrames": 3954656,
-      "decodedFrames": 3954656,
-      "decodedDuration": 82.38866666666667,
-      "loopStart": 0.9991666666666666,
-      "loopEnd": 81.38783333333333,
-      "decodedLoopPeak": 0.68426513671875,
-      "decodedLoopRms": 0.1198451790638543,
-      "decodedLoopSeamDelta": 0.000640869140625,
-      "decodedLoopFirst100msRms": 0.093511985058057,
-      "decodedLoopLast100msRms": 0.0855157968632616,
-      "decodedFileFirst100msRms": 0.12214650864749117,
-      "decodedFileLast100msRms": 0.0972713721542212,
-      "loopOffsetFromGuardFrames": -40,
-      "decodedSourceCorrelation": 0.9991841526462928
+      "sourceFrames": 8721536,
+      "encodedInputFrames": 8721536,
+      "decodedFrames": 8721536,
+      "decodedDuration": 181.69866666666667,
+      "decodedDurationDifferenceSeconds": 0,
+      "decodedPeak": 0.6988611221313477,
+      "decodedPeakDbfs": -3.1121823759136573,
+      "decodedRms": 0.11991165834822565,
+      "decodedRmsDbfs": -18.422771815894055,
+      "decodedFirst100msRms": 0.0003109317784132072,
+      "decodedLast100msRms": 0.00003132361869587026
     },
     "artifacts": {
       "boss.wav": {
-        "sha256": "f977fdfaa9b7e2963249bae62f53f0305470790d4b2380f417e964c433dfa7c7",
-        "bytes": 15434668
+        "sha256": "e876ad8088f20d6bb42a9dc74de6bccbdc5f0359ed429f4fde69537ea16a7831",
+        "bytes": 52329260
       },
       "boss.m4a": {
-        "sha256": "89655e8d4a49cba68113d34c058cd1bf197e44fe889b2270ca54fadcf0a12392",
-        "bytes": 1633215
+        "sha256": "b7336d3041e3bfa74731b9daeb8d07aa9564913b8c5f2d08a0fb6f0840690349",
+        "bytes": 3610433
       }
     },
     "review": {
       "automatedTechnicalChecks": "passed",
       "listeningVerified": false,
-      "musicalLoopVerified": false,
-      "note": "Automatic trim/crossfade candidate. Audition timbre, vocals, musical transition and SFX balance before acceptance."
+      "note": "Technical checks only. Listen to the full arrangement, ending, timbre and SFX balance before judging musical quality."
     },
-    "title": "적운 아래 마지막 고비",
-    "file": "boss-yue2-89655e8d4a.m4a",
-    "duration": 80.38866666666667,
-    "loopStart": 0.9991666666666666,
-    "loopEnd": 81.38783333333333,
+    "title": "강호를 걷는 발걸음",
+    "file": "boss-full-b7336d3041.m4a",
+    "duration": 181.69866666666667,
     "generationWarnings": [
       {
         "message": "목표 길이 근처까지 생성했지만 자연 종료 전에 길이 제한에 도달했어. 마지막 구절이 잘렸을 수 있으니 끝부분을 확인해줘."
@@ -371,73 +361,78 @@
   {
     "id": "ending",
     "processorRevision": 1,
-    "preparedAt": "2026-10-23T11:02:32.338975+00:00",
-    "source": "YuE2 generated instrumental, edited into a circular gameplay loop",
-    "masterSha256": "bc6c697082e9b57347f710df8e4acdb13abacdb99b8ad4e3e62d6177defc7c1d",
-    "generationRecordSha256": "813733b73c5c72cd73fba5d1a775d4fd766ca6170d55711082ccdeddd8e7ca08",
-    "requestHash": "58bae1305d4a47cdb313daaad0ef13d7985141716460e7b58518a501620b1264",
+    "preparedAt": "2026-10-23T11:46:42.742945+00:00",
+    "source": "YuE2 generated complete instrumental for sequential playback",
+    "masterSha256": "2aa246fe9891f98e711f884a142be97194ebed41574afc15f5a0330705eb2a41",
+    "generationRecordSha256": "2638f0b617112c96bf78506cea02fe7b2dd982965421efab56c62d2030e6ecf9",
+    "requestHash": "bfc0165f457bec4291c8915ce80e47d76cf32fd6400a062789359caedef429af",
     "request": {
       "model": "yue2",
       "taskType": "text2music",
       "instrumental": true,
       "lyrics": "[Instrumental]",
-      "duration": 64,
+      "duration": 180,
       "steps": 32,
       "thinking": true,
-      "seed": 231026104,
-      "prompt": "Instrumental ending theme for a wuxia caravan adventure, the courier finally reaching a quiet city gate at sunrise. Gentle guqin and pipa arpeggios, lyrical breathy dizi melody and warm expressive erhu, almost no percussion. Tender relief after a difficult journey, dignified and hopeful rather than triumphant fanfare. Slow flowing 76 BPM in G major pentatonic, organic acoustic Chinese chamber ensemble. A concise 64-second melody with an intimate opening, a slightly fuller central phrase and a calm return to the main motif. Warm natural room ambience, clear soft articulation, restrained dynamics suitable beneath ending text. No vocals, no singing, no humming, no chanting, no choir, no spoken words, no electronic beat, no orchestral brass. A gentle continuous closing phrase suitable for a seamless repeated ending screen."
+      "seed": 231026204,
+      "prompt": "A complete original instrumental composition lasting about three minutes, intended for a continuous wuxia adventure game listening playlist. Acoustic Chinese chamber ensemble with expressive dizi bamboo flute, pipa and guqin plucked strings, warm restrained erhu, soft wooden percussion and occasional low hand drum. Consistent intimate natural acoustic production, moderate dynamic range, modest bass, clear instruments with space for game sound effects. Develop long musical phrases with variation and a contrasting middle section; do not restart the opening repeatedly. Shape a full composition with a short musical introduction, two developed sections, a melodic return, then a gentle resolving coda beginning around 165 seconds with the final sustained notes and room decay by 180 seconds. This is a complete song with a beginning and an ending, not a short looping gameplay cue. Purely instrumental throughout: no singing, no vocals, no humming, no chanting, no choir, no spoken language, no dramatic trailer impacts, no EDM drops or electronic dance beat. Warm evening light at a roadside inn after travelling, gently flowing pulse near 86 BPM, C major pentatonic. Intimate guqin and pipa begin a complete original melody; breathy dizi gradually joins and soft erhu adds depth. A lightly rhythmic central passage opens the harmony, then the main tune returns in a clear comfortable register. Keep enough motion for continued gameplay rather than a slow ambient lullaby. Conclude with a tender resolved cadence and natural instrument decay."
     },
     "sourceFormat": {
       "channels": 2,
       "sampleWidthBytes": 3,
       "sampleRate": 48000,
-      "frames": 3164096,
-      "duration": 65.91866666666667
+      "frames": 8735936,
+      "duration": 181.99866666666668
     },
     "sourceLevels": {
-      "peak": 0.8835203647613525,
-      "rms": 0.1513528201711676,
-      "rmsDbfs": -16.400189647651267
+      "peak": 0.9224215745925903,
+      "peakDbfs": -0.7014109569181497,
+      "rms": 0.16622184032440376,
+      "rmsDbfs": -15.586238274190263
     },
     "edit": {
-      "sourceStartFrame": 31680,
-      "sourceEndFrameExclusive": 3164096,
-      "sourceStartSeconds": 0.66,
-      "sourceEndSeconds": 65.91866666666667,
-      "trimmedHeadSeconds": 0.66,
-      "trimmedTailSeconds": 0.0,
+      "sourceStartFrame": 0,
+      "sourceEndFrameExclusive": 8735936,
+      "sourceStartSeconds": 0,
+      "sourceEndSeconds": 181.99866666666668,
+      "trimmedHeadSeconds": 0,
+      "trimmedTailSeconds": 0,
       "silenceTrim": {
-        "method": "10 ms stereo RMS; max(-60 dBFS, p90 RMS minus 42 dB)",
-        "thresholdAmplitude": 0.001895973123114037,
-        "retainedMarginSeconds": 0.05,
-        "maximumTrimPerSideSeconds": 3.0
+        "method": "10 ms stereo RMS; max(-65 dBFS, p90 RMS minus 45 dB)",
+        "thresholdAmplitude": 0.0013590954732763348,
+        "retainedMarginSeconds": 0.1,
+        "maximumTrimPerSideSeconds": 2.5
       },
       "removedDcPerChannel": [
-        -1.0092668835074927e-05,
-        3.2011715729665174e-05
+        -0.000051315890973211245,
+        -0.00003487340579917656
       ],
-      "crossfadeFrames": 72000,
-      "crossfadeSeconds": 1.5,
-      "crossfadeMethod": "sin-squared complementary amplitude windows; tail overlaps head",
-      "outputOrder": "selected[crossfade:-crossfade], then tail-to-head blend",
-      "durationReductionSeconds": 2.16,
-      "outputFrames": 3060416,
-      "outputDuration": 63.75866666666667
+      "fadeInFrames": 1680,
+      "fadeInSeconds": 0.035,
+      "fadeOutFrames": 120000,
+      "fadeOutSeconds": 2.5,
+      "fadeMethod": "sin-squared entrance and cos-squared exit amplitude windows",
+      "outputOrder": "original chronological order; every selected sample retained once",
+      "outputFrames": 8735936,
+      "outputDuration": 181.99866666666668,
+      "durationReductionSeconds": 0
     },
     "normalization": {
       "targetRms": 0.12,
       "samplePeakLimit": 0.72,
-      "linearGain": 0.7925000659395148,
-      "gainDb": -2.020013859499707,
+      "decodedPeakLimit": 0.95,
+      "linearGain": 0.7246952634398705,
+      "gainDb": -2.796891543846933,
       "outputLevels": {
-        "peak": 0.7001953125,
-        "rms": 0.11999634731867555,
-        "rmsDbfs": -18.41663947296203
+        "peak": 0.6685117483139038,
+        "peakDbfs": -3.497819122323647,
+        "rms": 0.11999999999874451,
+        "rmsDbfs": -18.41637507913838
       },
       "encodeAttempts": [
         {
-          "linearGain": 0.7925000659395148,
-          "decodedPeak": 0.701416015625
+          "linearGain": 0.7246952634398705,
+          "decodedPeak": 0.6615844368934631
         }
       ]
     },
@@ -445,46 +440,39 @@
       "codec": "AAC-LC",
       "container": "M4A",
       "bitrate": 160000,
-      "circularGuardSeconds": 1,
-      "aacBytes": 1308005,
+      "encoder": "afconvert",
+      "aacBytes": 3635450,
       "aacBitrate": 160000,
-      "sourceFrames": 3060416,
-      "encodedInputFrames": 3156416,
-      "decodedFrames": 3156416,
-      "decodedDuration": 65.75866666666667,
-      "loopStart": 0.9996875,
-      "loopEnd": 64.75835416666666,
-      "decodedLoopPeak": 0.701416015625,
-      "decodedLoopRms": 0.11989570390807225,
-      "decodedLoopSeamDelta": 0.002532958984375,
-      "decodedLoopFirst100msRms": 0.0899222719839022,
-      "decodedLoopLast100msRms": 0.09656987720013964,
-      "decodedFileFirst100msRms": 0.12957222108122116,
-      "decodedFileLast100msRms": 0.09234695972964271,
-      "loopOffsetFromGuardFrames": -15,
-      "decodedSourceCorrelation": 0.9996582282839266
+      "sourceFrames": 8735936,
+      "encodedInputFrames": 8735936,
+      "decodedFrames": 8735936,
+      "decodedDuration": 181.99866666666668,
+      "decodedDurationDifferenceSeconds": 0,
+      "decodedPeak": 0.6615844368934631,
+      "decodedPeakDbfs": -3.5882943934992095,
+      "decodedRms": 0.11990301114139333,
+      "decodedRmsDbfs": -18.42339820530064,
+      "decodedFirst100msRms": 0.0031411410772378655,
+      "decodedLast100msRms": 0.0001724987194035389
     },
     "artifacts": {
       "ending.wav": {
-        "sha256": "739b70af9300f25a5037b3917ba98219b0179806c0de268a6313c5d27ede6d87",
-        "bytes": 12241708
+        "sha256": "a923ec57cf48295b050db8e7679b8f28cb6d242615f4fed6b42ea8a2ef46d0b2",
+        "bytes": 52415660
       },
       "ending.m4a": {
-        "sha256": "f213977f070da1b9af3a20261aae6077041127281dc57534759abcfe16b2a0d6",
-        "bytes": 1308005
+        "sha256": "6243a83092211bc1b15f99dd6a89f64d995f9d296d3b29246efd9c7f175ad84c",
+        "bytes": 3635450
       }
     },
     "review": {
       "automatedTechnicalChecks": "passed",
       "listeningVerified": false,
-      "musicalLoopVerified": false,
-      "note": "Automatic trim/crossfade candidate. Audition timbre, vocals, musical transition and SFX balance before acceptance."
+      "note": "Technical checks only. Listen to the full arrangement, ending, timbre and SFX balance before judging musical quality."
     },
-    "title": "청하성의 첫 빛",
-    "file": "ending-yue2-f213977f07.m4a",
-    "duration": 63.75866666666667,
-    "loopStart": 0.9996875,
-    "loopEnd": 64.75835416666666,
+    "title": "저녁빛 머무는 객잔",
+    "file": "ending-full-6243a83092.m4a",
+    "duration": 181.99866666666668,
     "generationWarnings": [
       {
         "message": "목표 길이 근처까지 생성했지만 자연 종료 전에 길이 제한에 도달했어. 마지막 구절이 잘렸을 수 있으니 끝부분을 확인해줘."

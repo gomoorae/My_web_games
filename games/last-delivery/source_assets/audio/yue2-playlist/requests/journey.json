@@ -1,0 +1,11 @@
+{
+  "model": "yue2",
+  "taskType": "text2music",
+  "instrumental": true,
+  "lyrics": "[Instrumental]",
+  "duration": 180,
+  "steps": 32,
+  "thinking": true,
+  "seed": 231026201,
+  "prompt": "A complete original instrumental composition lasting about three minutes, intended for a continuous wuxia adventure game listening playlist. Acoustic Chinese chamber ensemble with expressive dizi bamboo flute, pipa and guqin plucked strings, warm restrained erhu, soft wooden percussion and occasional low hand drum. Consistent intimate natural acoustic production, moderate dynamic range, modest bass, clear instruments with space for game sound effects. Develop long musical phrases with variation and a contrasting middle section; do not restart the opening repeatedly. Shape a full composition with a short musical introduction, two developed sections, a melodic return, then a gentle resolving coda beginning around 165 seconds with the final sustained notes and room decay by 180 seconds. This is a complete song with a beginning and an ending, not a short looping gameplay cue. Purely instrumental throughout: no singing, no vocals, no humming, no chanting, no choir, no spoken language, no dramatic trailer impacts, no EDM drops or electronic dance beat. Quietly hopeful dawn on a mountain road, steady walking pulse near 88 BPM, D major pentatonic with moments of wistful color. A memorable lyrical dizi theme is answered by pipa, flowing guqin arpeggios underneath. The second section introduces a warm erhu counter-melody and soft hand drum, then the flute theme returns with delicate ornamentation. Maintain calm forward motion throughout and finish with a settled, gentle cadence."
+}

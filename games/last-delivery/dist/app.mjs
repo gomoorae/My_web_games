@@ -15,7 +15,7 @@ import {compareItemLevels} from './performance.mjs';
 import {renderLoadoutPerformance,renderItemPerformance,renderRefinementPreview,renderRefinementReceipt,formatPerformanceValue} from './performance-ui.mjs';
 
 const app=document.querySelector('#app'),SAVE='last-delivery.run.v2',SETTINGS='last-delivery.settings.v1';
-let run=null,screen='title',selected=null,rotation=false,modal=null,paused=false,speed=1,lastFrame=0,accumulator=0,lastSave=0,lastEvent=0,toastTimer,saveWarning=false,dragUid=null,catalogFilter='all',battleEndAt=0,placementKey=null;
+let run=null,screen='title',selected=null,rotation=false,modal=null,paused=false,musicPaused=false,speed=1,lastFrame=0,accumulator=0,lastSave=0,lastEvent=0,toastTimer,saveWarning=false,dragUid=null,catalogFilter='all',battleEndAt=0,placementKey=null;
 let dragAnchor=null,selectedEnemy=null,catalogView='items',assemblyFamily='sword';
 let mobilePanel='progress',mobilePhase=null,mobileScroll={};
 let preferences={sound:true,musicVolume:.55,sfxVolume:.8};
@@ -64,16 +64,9 @@ const gameAudio=createGameAudio({tracks:MUSIC_TRACKS,baseURL:document.currentScr
 gameAudio.configure(preferences);
 function initAudio(){if(preferences.sound)return gameAudio.unlock();return Promise.resolve(false);}
 function sfx(event,tag){gameAudio.play(event,tag);}
-function audioScene(){
- if(screen!=='game'||!run)return 'journey';
- if(run.phase==='complete'||run.phase==='story'&&run.scene==='ending')return 'ending';
- if(run.phase==='defeat')return null;
- if(run.phase==='combat')return run.battle?.status==='fighting'?(enemyNow().pattern==='boss'?'boss':'battle'):null;
- return 'journey';
-}
 function syncAudio(){
- gameAudio.setScene(audioScene());
- gameAudio.setPaused(Boolean(screen==='game'&&run?.phase==='combat'&&(paused||modal)));
+ // Dialogs pause the battle; only an explicit pause also pauses the playlist.
+ gameAudio.setPaused(Boolean(screen==='game'&&run?.phase==='combat'&&musicPaused));
  gameAudio.setHidden(Boolean(document.hidden));
  refreshAudioStatus();
 }
@@ -91,14 +84,14 @@ function audioStatusText(state=gameAudio.getState()){
 function refreshAudioStatus(state){
  state=state||gameAudio.getState();
  const status=document.querySelector('#audio-status');if(status)status.textContent=audioStatusText(state);
- const track=document.querySelector('#audio-track');if(track)track.textContent=state.trackTitle||MUSIC_TRACKS[audioScene()]?.title||'잠시 쉬어 가는 중';
+ const track=document.querySelector('#audio-track');if(track)track.textContent=state.trackTitle||MUSIC_TRACKS.journey?.title||'잠시 쉬어 가는 중';
  const muted=!preferences.sound,retry=['error','locked'].includes(state.status)&&!muted;
  document.querySelectorAll('[data-action="sound"]').forEach(button=>{button.setAttribute('aria-label','소리 설정 · '+(muted?'전체 음소거':retry?'재생 확인 필요':'소리 켜짐'));button.dataset.audioState=muted?'muted':retry?'attention':'on';const label=button.querySelector('.sound-button-label');if(label)label.textContent=muted?'음소거':retry?'소리 !':'소리';const icon=button.querySelector('.sound-button-icon');if(icon)icon.textContent=muted?'♩':'♪';});
  const toggle=document.querySelector('[data-action="audio-toggle"]');if(toggle){toggle.textContent=muted?'소리 켜기':'전체 음소거';toggle.setAttribute('aria-pressed',String(!muted));}
  const restart=document.querySelector('[data-action="audio-retry"]');if(restart)restart.disabled=muted||state.status==='unsupported';
  const sample=document.querySelector('[data-action="audio-preview"]');if(sample)sample.disabled=muted||state.status==='unsupported';
 }
-function audioSettings(){return `<h2>소리 설정</h2><p class="audio-intro">길 위의 음악과 무공의 소리를 따로 조절할 수 있어.</p><div class="audio-now"><span>배경음악</span><strong id="audio-track">${esc(gameAudio.getState().trackTitle||MUSIC_TRACKS[audioScene()]?.title||'잠시 쉬어 가는 중')}</strong></div><div class="audio-sliders"><label class="audio-slider" for="music-volume"><span>배경음악 <output id="music-volume-value" for="music-volume">${Math.round(preferences.musicVolume*100)}%</output></span><input id="music-volume" data-audio-volume="musicVolume" type="range" min="0" max="100" step="1" value="${Math.round(preferences.musicVolume*100)}"></label><label class="audio-slider" for="sfx-volume"><span>효과음 <output id="sfx-volume-value" for="sfx-volume">${Math.round(preferences.sfxVolume*100)}%</output></span><input id="sfx-volume" data-audio-volume="sfxVolume" type="range" min="0" max="100" step="1" value="${Math.round(preferences.sfxVolume*100)}"></label></div><p class="audio-status" id="audio-status" role="status" aria-live="polite">${esc(audioStatusText())}</p><div class="audio-actions"><button class="button primary" data-action="audio-toggle" aria-pressed="${preferences.sound}">${preferences.sound?'전체 음소거':'소리 켜기'}</button><button class="button" data-action="audio-preview" ${preferences.sound?'':'disabled'}>효과음 들어보기</button><button class="text-btn" data-action="audio-retry" ${preferences.sound?'':'disabled'}>다시 재생</button></div><p class="audio-note">전투 배속과 관계없이 음악은 원래 속도로 흘러가. 소리 설정은 이 브라우저에 저장돼.</p>`;}
+function audioSettings(){return `<h2>소리 설정</h2><p class="audio-intro">네 곡의 배경음악을 순서대로 재생해. 음악과 효과음은 따로 조절할 수 있어.</p><div class="audio-now"><span>배경음악</span><strong id="audio-track">${esc(gameAudio.getState().trackTitle||MUSIC_TRACKS.journey?.title||'잠시 쉬어 가는 중')}</strong></div><div class="audio-sliders"><label class="audio-slider" for="music-volume"><span>배경음악 <output id="music-volume-value" for="music-volume">${Math.round(preferences.musicVolume*100)}%</output></span><input id="music-volume" data-audio-volume="musicVolume" type="range" min="0" max="100" step="1" value="${Math.round(preferences.musicVolume*100)}"></label><label class="audio-slider" for="sfx-volume"><span>효과음 <output id="sfx-volume-value" for="sfx-volume">${Math.round(preferences.sfxVolume*100)}%</output></span><input id="sfx-volume" data-audio-volume="sfxVolume" type="range" min="0" max="100" step="1" value="${Math.round(preferences.sfxVolume*100)}"></label></div><p class="audio-status" id="audio-status" role="status" aria-live="polite">${esc(audioStatusText())}</p><div class="audio-actions"><button class="button primary" data-action="audio-toggle" aria-pressed="${preferences.sound}">${preferences.sound?'전체 음소거':'소리 켜기'}</button><button class="button" data-action="audio-preview" ${preferences.sound?'':'disabled'}>효과음 들어보기</button><button class="text-btn" data-action="audio-retry" ${preferences.sound?'':'disabled'}>다시 재생</button></div><p class="audio-note">장면이 바뀌어도 한 곡을 끝까지 듣고 다음 곡으로 이어져. 전투 배속과 관계없이 원래 속도로 흘러가. 소리 설정은 이 브라우저에 저장돼.</p>`;}
 function soundButton(extra=''){return `<button class="icon-btn sound-button ${extra}" data-action="sound" aria-label="소리 설정 · ${preferences.sound?'소리 켜짐':'전체 음소거'}" data-audio-state="${preferences.sound?'on':'muted'}"><span class="sound-button-icon" aria-hidden="true">${preferences.sound?'♪':'♩'}</span><span class="sound-button-label">${preferences.sound?'소리':'음소거'}</span></button>`;}
 function header(){return `<header class="app-header"><button class="brand" data-action="home"><span class="seal">行</span><span><h1>마지막 표행</h1><small>THE LAST DELIVERY</small></span></button><div class="header-actions"><span class="chapter-pill">새벽까지, 열 번의 고비</span><button class="button small-btn" data-action="catalog">무림 도감</button>${soundButton()}<button class="icon-btn" data-action="help" aria-label="플레이 방법">?</button></div></header>`;}
 function gameListLink(){
@@ -149,7 +142,7 @@ function characterStatus(){
 }
 
 function migrationNotice(){return run.migrationNotice?`<aside class="migration-notice" role="status" aria-label="보따리 형태 변경 안내"><div><strong>보따리 형태가 새로 정리됐어</strong><p>${esc(run.migrationNotice)}</p></div><button class="button small-btn" data-action="dismiss-migration">확인했어</button></aside>`:'';}
-function game(){const views={prepare:uiPrepare,combat:uiCombat,reward:uiReward,shop:uiShop,rest:uiRest,complete:uiComplete,defeat:uiDefeat},showEnemy=['prepare','combat'].includes(run.phase);return `${header()}<main class="shell">${route()}${characterStatus()}${migrationNotice()}${renderRefinementReceipt(run.refinementReport)}${mobileCombatControls()}<div class="game-layout ${showEnemy?'has-rival':''}" data-mobile-panel="${mobilePanel}">${bag()}<section class="right-column" id="progress-panel" aria-label="표행 진행">${(views[run.phase]||uiPrepare)()}</section>${showEnemy?'<aside class="enemy-column" id="enemy-bag-panel">'+enemyBagPanel()+'</aside>':''}</div><footer class="footer"><span>마지막 표행 · 자동 저장${saveWarning?' 불가':''} · v1.8.1</span><span><b class="key">R</b> 90° 회전 · <b class="key">Esc</b> 선택 해제 / 전투 정지</span></footer></main>${mobileNavigation()}`;}
+function game(){const views={prepare:uiPrepare,combat:uiCombat,reward:uiReward,shop:uiShop,rest:uiRest,complete:uiComplete,defeat:uiDefeat},showEnemy=['prepare','combat'].includes(run.phase);return `${header()}<main class="shell">${route()}${characterStatus()}${migrationNotice()}${renderRefinementReceipt(run.refinementReport)}${mobileCombatControls()}<div class="game-layout ${showEnemy?'has-rival':''}" data-mobile-panel="${mobilePanel}">${bag()}<section class="right-column" id="progress-panel" aria-label="표행 진행">${(views[run.phase]||uiPrepare)()}</section>${showEnemy?'<aside class="enemy-column" id="enemy-bag-panel">'+enemyBagPanel()+'</aside>':''}</div><footer class="footer"><span>마지막 표행 · 자동 저장${saveWarning?' 불가':''} · v1.9.0</span><span><b class="key">R</b> 90° 회전 · <b class="key">Esc</b> 선택 해제 / 전투 정지</span></footer></main>${mobileNavigation()}`;}
 function story(){return renderStory(run)+soundButton('scene-sound-button');}
 function catalog(){
  const tabs=`<nav class="catalog-tabs" aria-label="도감 보기"><button class="button ${catalogView==='items'?'dark':''}" data-catalog-view="items" aria-pressed="${catalogView==='items'}">아이템 도감</button><button class="button ${catalogView==='assemblies'?'dark':''}" data-catalog-view="assemblies" aria-pressed="${catalogView==='assemblies'}">조립 길잡이</button></nav>`;
@@ -189,7 +182,7 @@ function refinementToast(report){
 }
 
 function finishStory(){while(run.phase==='story')advanceStory(run);save();render();}
-function startFight(){const s=buildStats(run);if(s.errors.length){toast(s.errors[0]);return;}delete run.refinementReport;run.battle=createBattle(run);run.phase='combat';paused=false;speed=1;lastEvent=0;accumulator=0;lastFrame=performance.now();lastSave=0;selected=null;battleEndAt=0;save();render();}
+function startFight(){const s=buildStats(run);if(s.errors.length){toast(s.errors[0]);return;}delete run.refinementReport;run.battle=createBattle(run);run.phase='combat';paused=false;musicPaused=false;speed=1;lastEvent=0;accumulator=0;lastFrame=performance.now();lastSave=0;selected=null;battleEndAt=0;save();render();}
 function syncPause(){syncAudio();const el=document.querySelector('#arena');if(!el)return;el.querySelector('.pause-overlay')?.remove();if(paused){clearEffects();const overlay=document.createElement('button');overlay.className='pause-overlay';overlay.dataset.action='pause';overlay.textContent='잠시 숨을 고르다 · 계속하기';el.append(overlay);}const btn=document.querySelector('#pause-btn');if(btn)btn.textContent=paused?'계속하기':'일시정지';const mobileBtn=document.querySelector('#mobile-pause-btn');if(mobileBtn)mobileBtn.textContent=paused?'계속하기':'일시정지';if(run?.battle)updateInventoryActivity(run.battle,paused);}
 function updateCombat(){const b=run.battle;if(!b)return;const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};set('hero-hp',`${Math.ceil(b.hp)} / ${b.maxHp}`);set('status-hp',`기혈 ${Math.ceil(b.hp)} / ${b.maxHp}`);set('status-shield',String(Math.round(b.shield)));document.querySelector('#status-hp-fill')?.style.setProperty('width',`${Math.max(0,b.hp/b.maxHp*100)}%`);document.querySelector('#status-hp')?.classList.toggle('low-hp',b.hp/b.maxHp<=.35);set('enemy-hp',`${Math.max(0,Math.ceil(b.enemyHp))} / ${b.enemyMaxHp}`);set('shield-label',`방어막 ${Math.round(b.shield)}`);set('battle-clock',`${b.t.toFixed(1)}초`);const arenaEl=document.querySelector('#arena');if(arenaEl)arenaEl.dataset.phase=String(b.enemyPhase);set('energy-label',`내공 ${Math.floor(b.energy)} / ${b.maxEnergy??8}`);set('poison-label',[b.enemyShield?`방어막 ${Math.ceil(b.enemyShield)}`:'',b.enemyPoison?`독 ${b.enemyPoison}`:'',b.enemyBleed?`출혈 ${b.enemyBleed}`:''].filter(Boolean).join(' · '));document.querySelector('#hero-bar')?.style.setProperty('width',`${Math.max(0,b.hp/b.maxHp*100)}%`);document.querySelector('#enemy-bar')?.style.setProperty('width',`${Math.max(0,b.enemyHp/b.enemyMaxHp*100)}%`);const enemyReady=(b.rival.weaponReady||[b.nextEnemy]).map((t,i)=>i===0?b.rival.nextAttack:t);set('enemy-intent',`상대 내공 ${Math.floor(b.enemyEnergy||0)}/${b.enemyMaxEnergy||8} · 다음 무기 공격 ${Math.max(0,Math.min(...enemyReady)-b.t).toFixed(1)}초`);const log=document.querySelector('#battle-log');if(log)log.innerHTML=b.events.filter(x=>!x.silent).slice(-6).map(x=>`<div class="log-entry ${x.type}"><time>${x.t.toFixed(1)}</time><span>${x.actor==='enemy'?'상대 · ':x.actor==='hero'?'연우 · ':''}${esc(x.text)}</span><span class="amount">${x.value>0?Math.round(x.value):''}</span></div>`).join('');for(const ev of b.events.filter(x=>x.id>lastEvent)){if(!paused){battleEffect(ev,run);if(!ev.silent&&!['won','lost'].includes(ev.type))sfx(ev);}lastEvent=ev.id;}updateInventoryActivity(b,paused);}
 app.addEventListener('click',e=>{
@@ -213,7 +206,7 @@ app.addEventListener('click',e=>{
  if(action==='new'){modal=run&&!run.cleared&&run.phase!=='defeat'?'restart':'kit';render();}
  if(action==='confirm-new'){modal='kit';render();}
  if(action==='continue'){screen='game';if(run.phase==='combat'){paused=true;lastEvent=run.battle.eventId;lastFrame=performance.now();}save();render();}
- if(action==='home'){if(run?.phase==='combat'){paused=true;save();}screen='title';modal=null;render();}
+ if(action==='home'){if(run?.phase==='combat'){paused=true;save();}musicPaused=false;screen='title';modal=null;render();}
  if(action==='help'||action==='catalog'){if(run?.phase==='combat')paused=true;if(action==='catalog')catalogView='items';modal=action;render();}
  if(action==='assembly-guide'){if(run?.phase==='combat')paused=true;catalogView='assemblies';assemblyFamily=run?.kit||'sword';modal='catalog';render();}
  if(action==='close-modal'){modal=null;render();}
@@ -231,7 +224,7 @@ app.addEventListener('click',e=>{
  if(action==='upgrade'&&selected&&editing()){const before=run.items.map(i=>({...i}));if(upgradeItem(run,selected)){recordRefinement(before,'paid');save();render();sfx('upgrade');toast(refinementToast(run.refinementReport));}}
  if(action==='dismiss-refinement'){delete run.refinementReport;save();render();}
  if(action==='fight'&&run.phase==='prepare')startFight();
- if(action==='pause'&&run.phase==='combat'){paused=!paused;lastFrame=performance.now();syncPause();}
+ if(action==='pause'&&run.phase==='combat'){paused=!paused;musicPaused=paused;lastFrame=performance.now();syncPause();}
  if(action==='speed'&&run.phase==='combat'){speed=speed===1?2:1;for(const id of ['#speed-btn','#mobile-speed-btn']){const button=document.querySelector(id);if(button)button.textContent=`${speed}배속`;}}
  if(action==='leave-shop'&&leaveShop(run)){save();render();}
  if(action==='reroll'&&rerollShop(run)){save();render();sfx('buy');}
@@ -290,7 +283,7 @@ app.addEventListener('dragend',()=>{dragUid=null;dragAnchor=null;clearPlacementP
 
 document.addEventListener('keydown',e=>{
  if(e.key==='Tab'&&modal){const controls=[...app.querySelectorAll('.modal button:not(:disabled), .modal input:not(:disabled), .modal a[href]')];if(controls.length){if(e.shiftKey&&document.activeElement===controls[0]){e.preventDefault();controls.at(-1)?.focus();}else if(!e.shiftKey&&document.activeElement===controls.at(-1)){e.preventDefault();controls[0]?.focus();}}return;}
- if(e.key==='Escape'){if(modal){modal=null;render();}else if(run?.phase==='combat'&&screen==='game'){paused=!paused;syncPause();}else{selected=null;render();}return;}
+ if(e.key==='Escape'){if(modal){modal=null;render();}else if(run?.phase==='combat'&&screen==='game'){paused=!paused;musicPaused=paused;syncPause();}else{selected=null;render();}return;}
  if(['INPUT','TEXTAREA'].includes(e.target.tagName))return;
  if(['Enter',' ','r','R'].includes(e.key))initAudio();
  if((e.key==='r'||e.key==='R')&&selected&&editing()&&!modal){e.preventDefault();app.querySelector('[data-action="rotate"]')?.click();}

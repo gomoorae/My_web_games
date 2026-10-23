@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto';
 import { homedir } from 'node:os';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const output = path.join(root, 'source_assets/audio/yue2');
+const output = path.resolve(process.env.LAST_DELIVERY_MUSIC_DIR || path.join(root, 'source_assets/audio/yue2-playlist'));
 const cli = process.env.MUSIC_CLI || path.join(homedir(), 'AI/projects/music/bin/music');
 const tracks = ['journey', 'battle', 'boss', 'ending'];
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -107,7 +107,7 @@ async function main() {
     }, null, 2) + '\n');
     console.log(`[${key}] YuE2 원본 저장 완료: ${wav}`);
   }
-  console.log('YuE2 BGM 4곡의 원본 생성 완료. 다음 단계는 청음, 반복 구간 편집, AAC 변환, 게임 반영이야.');
+  console.log('YuE2 BGM 4곡의 원본 생성 완료. 다음 단계는 전체곡 음량 정리, AAC 변환, 순차 재생목록 반영이야.');
 }
 
 main().catch((error) => {

@@ -16,11 +16,11 @@ import * as assembly from '../dist/assembly-ui.mjs';
 import * as cutscene from '../dist/cutscene.mjs';
 
 // Exercise the real controller with a recording audio device. These tests check
-// user gestures, saved settings, scene selection, and event delivery, not sound quality.
+// user gestures, saved settings, playlist continuity, and event delivery, not sound quality.
 function audioHarness({settings={},run=null,script='https://example.test/games/last-delivery/dist/game.js?v=test',embedded}={}){
  const storage=new Map([['last-delivery.settings.v1',JSON.stringify(settings)]]);
  if(run)storage.set('last-delivery.run.v2',JSON.stringify(run));
- const listeners={},windowListeners={},nodes=new Map(),calls=[];let raf=null,now=0,writes=0,options,state={status:'locked',unlocked:false,scene:null,sound:true};
+ const listeners={},windowListeners={},nodes=new Map(),calls=[];let raf=null,now=0,writes=0,options,state={status:'locked',unlocked:false,scene:null,trackKey:'journey',trackTitle:'밤길',trackIndex:0,trackCount:4,sound:true};
  const node=selector=>{
   if(nodes.has(selector))return nodes.get(selector);
   const value={dataset:{},disabled:false,textContent:'',style:{setProperty(){}},classList:{add(){},remove(){},toggle(){}},children:[],_html:'',addEventListener(k,f){this[k]=f;},setAttribute(k,v){this[k]=v;},querySelector(){return null;},querySelectorAll(){return [];},append(child){this.children.push(child);},remove(){},focus(){doc.activeElement=this;},scrollIntoView(){}};
@@ -65,25 +65,39 @@ test('audio assets resolve against the executing script and standalone data is f
  assert.equal(h.options.embedded,embedded);
 });
 
-test('combat music changes by encounter, remains independent of 2x, and pauses on settings/tab hide',()=>{
- for(const [stage,scene]of [[0,'battle'],[9,'boss']]){
+test('normal and boss combat keep music through settings, preserve tab handling and honor only manual pause',()=>{
+ for(const stage of [0,9]){
   const run=engine.createRun('sword',12);run.phase='prepare';run.stage=stage;
   const h=audioHarness({run});h.click({action:'continue'});h.click({action:'fight'});
-  assert.equal(h.calls.filter(c=>c[0]==='scene').at(-1)[1],scene);
+  assert.equal(h.calls.some(c=>c[0]==='scene'),false);assert.equal(h.audio.getState().trackKey,'journey');
   h.calls.length=0;h.click({action:'speed'});assert.equal(h.calls.some(c=>c[0]==='scene'),false);
-  h.click({action:'sound'});assert.equal(h.calls.filter(c=>c[0]==='paused').at(-1)[1],true);
+  h.click({action:'sound'});assert.equal(h.calls.filter(c=>c[0]==='paused').at(-1)[1],false);
+  const battleTime=h.run().battle.t;h.calls.length=0;h.frame();assert.equal(h.run().battle.t,battleTime);assert.equal(h.calls.some(c=>c[0]==='play'),false);
   h.doc.hidden=true;h.listeners.visibilitychange();assert.deepEqual(h.calls.filter(c=>c[0]==='hidden').at(-1),['hidden',true]);
   h.doc.hidden=false;h.listeners.visibilitychange();assert.deepEqual(h.calls.filter(c=>c[0]==='hidden').at(-1),['hidden',false]);
-  h.click({action:'close-modal'});assert.equal(h.calls.filter(c=>c[0]==='paused').at(-1)[1],true);
+  h.click({action:'close-modal'});assert.equal(h.calls.filter(c=>c[0]==='paused').at(-1)[1],false);
+  h.click({action:'catalog'});assert.equal(h.calls.filter(c=>c[0]==='paused').at(-1)[1],false);h.click({action:'close-modal'});
   h.click({action:'pause'});assert.equal(h.calls.filter(c=>c[0]==='paused').at(-1)[1],false);
+  h.click({action:'pause'});assert.equal(h.calls.filter(c=>c[0]==='paused').at(-1)[1],true);
+  h.click({action:'sound'});assert.equal(h.calls.filter(c=>c[0]==='paused').at(-1)[1],true);h.click({action:'close-modal'});
+  h.listeners.keydown({key:'Escape',target:{tagName:'BODY'},preventDefault(){}});assert.equal(h.calls.filter(c=>c[0]==='paused').at(-1)[1],false);
  }
 });
 
-test('ending scenes select ending music and still expose sound settings',()=>{
+test('ending screens and a new game preserve the current song and show playlist details',()=>{
  const run=engine.createRun('sword',5);run.phase='story';run.scene='ending';run.sceneIndex=0;
- const h=audioHarness({run});h.click({action:'continue'});
- assert.equal(h.calls.filter(c=>c[0]==='scene').at(-1)[1],'ending');assert.match(h.app.innerHTML,/scene-sound-button/);
- h.click({action:'sound'});assert.match(h.app.innerHTML,/aria-label="소리 설정"/);
+ const h=audioHarness({run});h.setState({trackKey:'battle',trackTitle:'칼끝',trackIndex:1});h.click({action:'continue'});
+ assert.equal(h.calls.some(c=>c[0]==='scene'),false);assert.match(h.app.innerHTML,/scene-sound-button/);
+ h.click({action:'sound'});assert.match(h.app.innerHTML,/aria-label="소리 설정"/);assert.match(h.app.innerHTML,/순서대로 재생/);assert.match(h.app.innerHTML,/id="audio-track">칼끝/);
+ h.click({action:'close-modal'});h.click({action:'home'});h.click({action:'new'});h.click({action:'confirm-new'});h.click({kit:'sword'});
+ assert.equal(h.calls.some(c=>c[0]==='scene'),false);assert.equal(h.audio.getState().trackKey,'battle');
+ h.click({action:'sound'});assert.match(h.app.innerHTML,/id="audio-track">칼끝/);
+});
+
+test('leaving a manually paused battle clears its music pause so continuing does not stop the title-screen song',()=>{
+ const run=engine.createRun('sword',12);run.phase='prepare';const h=audioHarness({run});h.click({action:'continue'});h.click({action:'fight'});h.click({action:'pause'});
+ assert.equal(h.calls.filter(c=>c[0]==='paused').at(-1)[1],true);h.click({action:'home'});assert.equal(h.calls.filter(c=>c[0]==='paused').at(-1)[1],false);
+ h.calls.length=0;h.click({action:'continue'});assert.equal(h.calls.filter(c=>c[0]==='paused').at(-1)[1],false);assert.equal(h.calls.some(c=>c[0]==='paused'&&c[1]),false);
 });
 
 test('full battle effects reach audio but the victory cue is emitted once',()=>{

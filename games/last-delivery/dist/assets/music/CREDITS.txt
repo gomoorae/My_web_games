@@ -1,12 +1,16 @@
-마지막 표행 — YuE2 instrumental soundtrack · 1.8.1
+마지막 표행 — YuE2 instrumental playlist · 1.9.0
 
-새벽을 향한 표행 / 칼끝을 스치는 바람 / 적운 아래 마지막 고비 / 청하성의 첫 빛
+먼 길의 새벽 / 청산에 이는 바람 / 강호를 걷는 발걸음 / 저녁빛 머무는 객잔
 
 Generated locally for Last Delivery with YuE2-3B and YuE2-Vae through the
 installed YuE2 MLX 8-bit runtime. All four requests specify instrumental music.
 No reference recording was supplied. The generated masters are preserved;
-game copies use silence trimming, a circular crossfade, level matching,
-and AAC-LC encoding. Loop boundaries are measured after AAC decoding.
+each request targets a complete 180-second composition. Game copies retain
+the full composition with conservative exterior silence trimming, level matching,
+a short entrance/closing fade and AAC-LC encoding. Playback runs each track
+from beginning to end in playlist order, independently of gameplay scenes.
+There is no circular splice, internal loop or repeated audio padding.
+Actual durations and levels are measured after AAC decoding.
 Automated audio checks do not certify subjective musical quality.
 
 Model attribution:
@@ -19,8 +23,8 @@ weights: https://creativecommons.org/licenses/by-nc/4.0/
 This identifies the weight license; it does not assign that license to the
 game's code, artwork, or generated recordings.
 
-Generation: scripts/generate-yue2-bgm.mjs and source_assets/audio/yue2/requests/.
-Game audio preparation: scripts/prepare-yue2-bgm.py.
+Generation: scripts/generate-yue2-bgm.mjs and source_assets/audio/yue2-playlist/requests/.
+Game audio preparation: scripts/prepare-yue2-playlist.py.
 Music measurements and source hashes: dist/assets/music/manifest.json.
 SFX: original real-time Web Audio synthesis in dist/audio.mjs.
 The previous 1.8.0 deterministic synthesis source remains in scripts/compose-music.py.

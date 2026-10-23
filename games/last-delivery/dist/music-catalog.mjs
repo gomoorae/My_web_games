@@ -1,27 +1,23 @@
-// YuE2 generated instrumental loops; source hashes and edit measurements are in assets/music/manifest.json.
+// Full-length YuE2 playlist; each track plays once from beginning to end, independently of game scenes.
 export const MUSIC_TRACKS={
   "journey": {
-    "src": "assets/music/journey-yue2-704b5bffe7.m4a",
-    "title": "새벽을 향한 표행",
-    "loopStart": 0.9912291666666667,
-    "loopEnd": 81.17989583333333
+    "src": "assets/music/journey-full-77a7942c54.m4a",
+    "title": "먼 길의 새벽",
+    "duration": 181.71866666666668
   },
   "battle": {
-    "src": "assets/music/battle-yue2-a96a290e8c.m4a",
-    "title": "칼끝을 스치는 바람",
-    "loopStart": 1.0074166666666666,
-    "loopEnd": 81.23608333333334
+    "src": "assets/music/battle-full-1f9c6f5bbd.m4a",
+    "title": "청산에 이는 바람",
+    "duration": 176.68
   },
   "boss": {
-    "src": "assets/music/boss-yue2-89655e8d4a.m4a",
-    "title": "적운 아래 마지막 고비",
-    "loopStart": 0.9991666666666666,
-    "loopEnd": 81.38783333333333
+    "src": "assets/music/boss-full-b7336d3041.m4a",
+    "title": "강호를 걷는 발걸음",
+    "duration": 181.69866666666667
   },
   "ending": {
-    "src": "assets/music/ending-yue2-f213977f07.m4a",
-    "title": "청하성의 첫 빛",
-    "loopStart": 0.9996875,
-    "loopEnd": 64.75835416666666
+    "src": "assets/music/ending-full-6243a83092.m4a",
+    "title": "저녁빛 머무는 객잔",
+    "duration": 181.99866666666668
   }
 };
