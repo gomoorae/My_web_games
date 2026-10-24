@@ -1,6 +1,9 @@
 import {cp,mkdir,readdir,readFile,writeFile,stat} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
+import {MUSIC_TRACKS} from './dist/music-catalog.mjs';
+import {verifyProjectBgm} from './scripts/verify-bgm-catalog.mjs';
+verifyProjectBgm(new URL('./',import.meta.url),MUSIC_TRACKS);
 
 // Preserve source modules and tests beside the static browser build.
 const root=path.dirname(fileURLToPath(import.meta.url));
@@ -15,6 +18,9 @@ for(const name of ['build.mjs','export.mjs','restore-assets.mjs','publish-web.mj
 await cp(path.join(root,'source_assets/audio/yue2/requests'),path.join(destination,'source_assets/audio/yue2/requests'),{recursive:true});
 await cp(path.join(root,'source_assets/audio/yue2-playlist/requests'),path.join(destination,'source_assets/audio/yue2-playlist/requests'),{recursive:true});
 await cp(path.join(root,'source_assets/audio/yue2-playlist/titles.json'),path.join(destination,'source_assets/audio/yue2-playlist/titles.json'));
+await cp(path.join(root,'source_assets/audio/yue2-bgm-v1.10.3/requests'),path.join(destination,'source_assets/audio/yue2-bgm-v1.10.3/requests'),{recursive:true});
+await cp(path.join(root,'source_assets/audio/yue2-bgm-v1.10.3/titles.json'),path.join(destination,'source_assets/audio/yue2-bgm-v1.10.3/titles.json'));
+await cp(path.join(root,'source_assets/audio/yue2-bgm-v1.10.3/attempt-2/requests'),path.join(destination,'source_assets/audio/yue2-bgm-v1.10.3/attempt-2/requests'),{recursive:true});
 await mkdir(path.join(destination,'source_assets/story-v1.10.0'),{recursive:true});
 await cp(path.join(root,'source_assets/story-v1.10.0/prompts.json'),path.join(destination,'source_assets/story-v1.10.0/prompts.json'));
 const assets=path.join(root,'dist/assets');

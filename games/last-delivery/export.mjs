@@ -1,5 +1,7 @@
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {MUSIC_TRACKS} from './dist/music-catalog.mjs';
+import {verifyProjectBgm} from './scripts/verify-bgm-catalog.mjs';
+verifyProjectBgm(new URL('./',import.meta.url),MUSIC_TRACKS);
 const root=new URL('./',import.meta.url),out=new URL('./release/',root);mkdirSync(out,{recursive:true});
 let css=['style.css','vfx.css','inventory.css','inventory-board.css','cutscene.css','performance.css','mobile.css','assembly.css','audio.css'].map(f=>readFileSync(new URL(`dist/${f}`,root),'utf8')).join('\n');
 const declarations=[],assets=[...new Set([...css.matchAll(/url\(['"]?(assets\/[^)'"\s]+)['"]?\)/g)].map(m=>m[1]))];

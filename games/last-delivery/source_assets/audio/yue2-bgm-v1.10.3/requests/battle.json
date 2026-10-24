@@ -1,0 +1,11 @@
+{
+  "model": "yue2",
+  "taskType": "text2music",
+  "instrumental": true,
+  "lyrics": "[Instrumental]",
+  "duration": 180,
+  "steps": 32,
+  "thinking": true,
+  "seed": 241026302,
+  "prompt": "Instrumental Chinese chamber folk music, a continuous three minute composition at 88 BPM in G major pentatonic. Expressive erhu leads a graceful long melody; pipa and guzheng play interlocking flowing arpeggios with a warm acoustic bass line, and bamboo flute answers the melody. Develop four full sixteen-bar sections with a clear main theme, an answering theme, contrasting middle harmony and a complete final reprise. Melodic instruments remain audible throughout the third minute until a gentle resolved ending. Bright calm adventure along a green mountain path, steady natural acoustic performance, full musical phrases and consistent medium-soft energy. Pure instrumental ensemble, without percussion, voices, field recordings or sound effects."
+}

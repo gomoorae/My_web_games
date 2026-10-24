@@ -1,17 +1,21 @@
-마지막 표행 — YuE2 instrumental playlist · 1.9.0
+마지막 표행 — YuE2 instrumental playlist · 1.10.3
 
-먼 길의 새벽 / 청산에 이는 바람 / 강호를 걷는 발걸음 / 저녁빛 머무는 객잔
+먼 길의 새벽 / 강호를 걷는 발걸음 / 저녁빛 머무는 객잔
 
 Generated locally for Last Delivery with YuE2-3B and YuE2-Vae through the
-installed YuE2 MLX 8-bit runtime. All four requests specify instrumental music.
+installed YuE2 MLX 8-bit runtime. The playlist requests specify instrumental music.
 No reference recording was supplied. The generated masters are preserved;
 each request targets a complete 180-second composition. Game copies retain
 the full composition with conservative exterior silence trimming, level matching,
 a short entrance/closing fade and AAC-LC encoding. Playback runs each track
-from beginning to end in playlist order, independently of gameplay scenes.
+from beginning to end in shuffled playlist order, independently of gameplay scenes.
 There is no circular splice, internal loop or repeated audio padding.
 Actual durations and levels are measured after AAC decoding.
-Automated audio checks do not certify subjective musical quality.
+The two previous journey/battle recordings were excluded after identifying long
+noise/impact-only tails. Two newly generated failed candidates were also rejected.
+The delivered files receive full-duration spectrogram and segmented signal
+review; build and export require the exact accepted audio hashes.
+These checks are not a human audition and do not certify aesthetic quality.
 
 Model attribution:
 YuE2-3B: https://huggingface.co/m-a-p/YuE2-3B
@@ -23,8 +27,12 @@ weights: https://creativecommons.org/licenses/by-nc/4.0/
 This identifies the weight license; it does not assign that license to the
 game's code, artwork, or generated recordings.
 
-Generation: scripts/generate-yue2-bgm.mjs and source_assets/audio/yue2-playlist/requests/.
+Generation: scripts/generate-yue2-bgm.mjs. Original requests are preserved in
+source_assets/audio/yue2-playlist/requests/. Replacement candidate requests are
+in source_assets/audio/yue2-bgm-v1.10.3/requests/ and its attempt-2/requests/.
+Per-track source collections are recorded in manifest.json.
 Game audio preparation: scripts/prepare-yue2-playlist.py.
 Music measurements and source hashes: dist/assets/music/manifest.json.
+Content acceptance and rejected-candidate evidence: content-review.json.
 SFX: original real-time Web Audio synthesis in dist/audio.mjs.
 The previous 1.8.0 deterministic synthesis source remains in scripts/compose-music.py.

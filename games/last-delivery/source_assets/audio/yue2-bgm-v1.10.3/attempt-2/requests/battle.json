@@ -1,0 +1,11 @@
+{
+  "model": "yue2",
+  "taskType": "text2music",
+  "instrumental": true,
+  "lyrics": "[Instrumental]",
+  "duration": 180,
+  "steps": 32,
+  "thinking": true,
+  "seed": 241026303,
+  "prompt": "Instrumental Chinese acoustic folk music, a continuous three minute composition, 86 BPM, C major pentatonic. A warm lyrical erhu melody above flowing guqin arpeggios, bamboo flute countermelody and delicate pipa accompaniment. Four complete sixteen-bar melodic sections: a gentle main theme, a developed answer, a brighter contrasting melody, and a flowing reprise with a final resolved cadence. Keep the pitched melodic ensemble playing throughout all four sections, with new phrases and sustained harmony through the third minute. Intimate warm chamber recording, consistent moderate volume, gentle forward motion for a wandering swordsman walking through green mountains. Pure instrumental ensemble, without percussion, voices, field recordings or sound effects."
+}

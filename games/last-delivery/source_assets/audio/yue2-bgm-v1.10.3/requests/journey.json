@@ -1,0 +1,11 @@
+{
+  "model": "yue2",
+  "taskType": "text2music",
+  "instrumental": true,
+  "lyrics": "[Instrumental]",
+  "duration": 180,
+  "steps": 32,
+  "thinking": true,
+  "seed": 241026301,
+  "prompt": "Instrumental Chinese acoustic folk music, a continuous three minute composition, 86 BPM, D major pentatonic. A clear lyrical bamboo flute melody above flowing guqin arpeggios, warm sustained erhu countermelody and delicate pipa accompaniment. Four complete sixteen-bar melodic sections: a gentle main theme, a developed answer, a brighter contrasting melody, and a flowing reprise with a final resolved cadence. Keep the pitched melodic ensemble playing throughout all four sections, with new phrases and sustained harmony through the third minute. Intimate warm chamber recording, consistent moderate volume, gentle forward motion for a long journey through misty mountains. Pure instrumental ensemble, without percussion, voices, field recordings or sound effects."
+}

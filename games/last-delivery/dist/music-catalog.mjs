@@ -1,14 +1,9 @@
-// Full-length YuE2 playlist; each track plays once from beginning to end, independently of game scenes.
+// Only the exact full-duration BGM assets accepted in the content review are included.
 export const MUSIC_TRACKS={
   "journey": {
-    "src": "assets/music/journey-full-77a7942c54.m4a",
+    "src": "assets/music/journey-full-03de5c05a1.m4a",
     "title": "먼 길의 새벽",
-    "duration": 181.71866666666668
-  },
-  "battle": {
-    "src": "assets/music/battle-full-1f9c6f5bbd.m4a",
-    "title": "청산에 이는 바람",
-    "duration": 176.68
+    "duration": 181.99866666666668
   },
   "boss": {
     "src": "assets/music/boss-full-b7336d3041.m4a",

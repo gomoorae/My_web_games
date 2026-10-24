@@ -2,11 +2,13 @@
   {
     "id": "journey",
     "processorRevision": 1,
-    "preparedAt": "2026-10-23T11:33:56.192973+00:00",
+    "preparedAt": "2026-10-24T00:54:20.861791+00:00",
     "source": "YuE2 generated complete instrumental for sequential playback",
-    "masterSha256": "73796dc726570a4bc8b86bc28f898c06a0a516d70f1adc409cdee78f8b664020",
-    "generationRecordSha256": "ffeb829573de5f1f648c5068c6f10ea16ea92aca1a1b5d140ba81a236aac5822",
-    "requestHash": "8cc22a925c4e5b03f253f97cca5d4705bd9bec58e8cb074d9b3d22d8a72ef38b",
+    "master": "/Users/jeongsu/GAME/last-delivery/source_assets/audio/yue2-bgm-v1.10.3/journey-original.wav",
+    "masterSha256": "442ff9543d4eb63657102b8fa047a4e558e0f896ec02be25a93bfe2250a705ee",
+    "generationRecord": "/Users/jeongsu/GAME/last-delivery/source_assets/audio/yue2-bgm-v1.10.3/journey.result.json",
+    "generationRecordSha256": "8de1c041fd2db527af1a1d0aa7aec932c749ea80e1cf45e7528e3c7e0af6e444",
+    "requestHash": "749ff84284ca17dcd710a59444f2b5c1dad70e0e40c88fe7f76a7a85d1c03e74",
     "request": {
       "model": "yue2",
       "taskType": "text2music",
@@ -15,8 +17,8 @@
       "duration": 180,
       "steps": 32,
       "thinking": true,
-      "seed": 231026201,
-      "prompt": "A complete original instrumental composition lasting about three minutes, intended for a continuous wuxia adventure game listening playlist. Acoustic Chinese chamber ensemble with expressive dizi bamboo flute, pipa and guqin plucked strings, warm restrained erhu, soft wooden percussion and occasional low hand drum. Consistent intimate natural acoustic production, moderate dynamic range, modest bass, clear instruments with space for game sound effects. Develop long musical phrases with variation and a contrasting middle section; do not restart the opening repeatedly. Shape a full composition with a short musical introduction, two developed sections, a melodic return, then a gentle resolving coda beginning around 165 seconds with the final sustained notes and room decay by 180 seconds. This is a complete song with a beginning and an ending, not a short looping gameplay cue. Purely instrumental throughout: no singing, no vocals, no humming, no chanting, no choir, no spoken language, no dramatic trailer impacts, no EDM drops or electronic dance beat. Quietly hopeful dawn on a mountain road, steady walking pulse near 88 BPM, D major pentatonic with moments of wistful color. A memorable lyrical dizi theme is answered by pipa, flowing guqin arpeggios underneath. The second section introduces a warm erhu counter-melody and soft hand drum, then the flute theme returns with delicate ornamentation. Maintain calm forward motion throughout and finish with a settled, gentle cadence."
+      "seed": 241026301,
+      "prompt": "Instrumental Chinese acoustic folk music, a continuous three minute composition, 86 BPM, D major pentatonic. A clear lyrical bamboo flute melody above flowing guqin arpeggios, warm sustained erhu countermelody and delicate pipa accompaniment. Four complete sixteen-bar melodic sections: a gentle main theme, a developed answer, a brighter contrasting melody, and a flowing reprise with a final resolved cadence. Keep the pitched melodic ensemble playing throughout all four sections, with new phrases and sustained harmony through the third minute. Intimate warm chamber recording, consistent moderate volume, gentle forward motion for a long journey through misty mountains. Pure instrumental ensemble, without percussion, voices, field recordings or sound effects."
     },
     "sourceFormat": {
       "channels": 2,
@@ -26,27 +28,27 @@
       "duration": 181.99866666666668
     },
     "sourceLevels": {
-      "peak": 1,
-      "peakDbfs": 0,
-      "rms": 0.12961759802073491,
-      "rmsDbfs": -17.74672061676953
+      "peak": 0.8886666297912598,
+      "peakDbfs": -1.025222553259233,
+      "rms": 0.1492993618723042,
+      "rmsDbfs": -16.51884097020536
     },
     "edit": {
-      "sourceStartFrame": 13440,
+      "sourceStartFrame": 0,
       "sourceEndFrameExclusive": 8735936,
-      "sourceStartSeconds": 0.28,
+      "sourceStartSeconds": 0.0,
       "sourceEndSeconds": 181.99866666666668,
-      "trimmedHeadSeconds": 0.28,
-      "trimmedTailSeconds": 0,
+      "trimmedHeadSeconds": 0.0,
+      "trimmedTailSeconds": 0.0,
       "silenceTrim": {
         "method": "10 ms stereo RMS; max(-65 dBFS, p90 RMS minus 45 dB)",
-        "thresholdAmplitude": 0.001216107331595203,
+        "thresholdAmplitude": 0.0012321430802270817,
         "retainedMarginSeconds": 0.1,
         "maximumTrimPerSideSeconds": 2.5
       },
       "removedDcPerChannel": [
-        0.00001629168347880758,
-        0.00003959782252283612
+        -6.570073169136525e-06,
+        3.045612244769541e-08
       ],
       "fadeInFrames": 1680,
       "fadeInSeconds": 0.035,
@@ -54,26 +56,26 @@
       "fadeOutSeconds": 2.5,
       "fadeMethod": "sin-squared entrance and cos-squared exit amplitude windows",
       "outputOrder": "original chronological order; every selected sample retained once",
-      "outputFrames": 8722496,
-      "outputDuration": 181.71866666666668,
-      "durationReductionSeconds": 0.28
+      "outputFrames": 8735936,
+      "outputDuration": 181.99866666666668,
+      "durationReductionSeconds": 0.0
     },
     "normalization": {
       "targetRms": 0.12,
       "samplePeakLimit": 0.72,
       "decodedPeakLimit": 0.95,
-      "linearGain": 0.7691469579555624,
-      "gainDb": -2.279813465829022,
+      "linearGain": 0.804875525533906,
+      "gainDb": -1.885425566646155,
       "outputLevels": {
-        "peak": 0.7200000286102295,
-        "peakDbfs": -2.8533497262283936,
-        "rms": 0.09949089358415356,
-        "rmsDbfs": -20.04433336943549
+        "peak": 0.7152713537216187,
+        "peakDbfs": -2.9105833579049403,
+        "rms": 0.12000000001940136,
+        "rmsDbfs": -18.416375077643185
       },
       "encodeAttempts": [
         {
-          "linearGain": 0.7691469579555624,
-          "decodedPeak": 0.7413722276687622
+          "linearGain": 0.804875525533906,
+          "decodedPeak": 0.7294045090675354
         }
       ]
     },
@@ -82,28 +84,28 @@
       "container": "M4A",
       "bitrate": 160000,
       "encoder": "afconvert",
-      "aacBytes": 3521889,
+      "aacBytes": 3672619,
       "aacBitrate": 160000,
-      "sourceFrames": 8722496,
-      "encodedInputFrames": 8722496,
-      "decodedFrames": 8722496,
-      "decodedDuration": 181.71866666666668,
-      "decodedDurationDifferenceSeconds": 0,
-      "decodedPeak": 0.7413722276687622,
-      "decodedPeakDbfs": -2.599273739641838,
-      "decodedRms": 0.0993763883304339,
-      "decodedRmsDbfs": -20.05433582028737,
-      "decodedFirst100msRms": 0.00046146588599098505,
-      "decodedLast100msRms": 0.00011249467727748858
+      "sourceFrames": 8735936,
+      "encodedInputFrames": 8735936,
+      "decodedFrames": 8735936,
+      "decodedDuration": 181.99866666666668,
+      "decodedDurationDifferenceSeconds": 0.0,
+      "decodedPeak": 0.7294045090675354,
+      "decodedPeakDbfs": -2.740631125432513,
+      "decodedRms": 0.11988665344882751,
+      "decodedRmsDbfs": -18.42458325314516,
+      "decodedFirst100msRms": 0.0007636054756471082,
+      "decodedLast100msRms": 1.8148888138129676e-05
     },
     "artifacts": {
       "journey.wav": {
-        "sha256": "d098d17a93f1504b04ae9c65d1f5a2acea65f74c6634976a84f6360f4c606f2b",
-        "bytes": 52335020
+        "sha256": "145b013e1b3559b563a376cfd5968ed448faafd36dc8ff7198b90fc15ec6c723",
+        "bytes": 52415660
       },
       "journey.m4a": {
-        "sha256": "77a7942c540a5ce850a9657f53c587db202538cb927eb909d77178083346fa9b",
-        "bytes": 3521889
+        "sha256": "03de5c05a1b88d96d7201efe47b296f90f8e3bc7aaa43cea248e416c26e20875",
+        "bytes": 3672619
       }
     },
     "review": {
@@ -112,137 +114,33 @@
       "note": "Technical checks only. Listen to the full arrangement, ending, timbre and SFX balance before judging musical quality."
     },
     "title": "먼 길의 새벽",
-    "file": "journey-full-77a7942c54.m4a",
-    "duration": 181.71866666666668,
+    "file": "journey-full-03de5c05a1.m4a",
+    "duration": 181.99866666666668,
+    "sourceCollection": "source_assets/audio/yue2-bgm-v1.10.3",
     "generationWarnings": [
       {
         "message": "목표 길이 근처까지 생성했지만 자연 종료 전에 길이 제한에 도달했어. 마지막 구절이 잘렸을 수 있으니 끝부분을 확인해줘."
       }
-    ]
-  },
-  {
-    "id": "battle",
-    "processorRevision": 1,
-    "preparedAt": "2026-10-23T11:37:38.726509+00:00",
-    "source": "YuE2 generated complete instrumental for sequential playback",
-    "masterSha256": "fac8cc5867b912ab7621715726d10feb53d2d1bf2f1b7b0940b557bd10eec466",
-    "generationRecordSha256": "aa4309780af0f4577a8228eb6eeb9db3bfc1ee45623af40054599d9ffef8b345",
-    "requestHash": "33475a1b3393274c86ba25db08148e6875acb9c45bcc04b9689ffc9d06868aae",
-    "request": {
-      "model": "yue2",
-      "taskType": "text2music",
-      "instrumental": true,
-      "lyrics": "[Instrumental]",
-      "duration": 180,
-      "steps": 32,
-      "thinking": true,
-      "seed": 231026202,
-      "prompt": "A complete original instrumental composition lasting about three minutes, intended for a continuous wuxia adventure game listening playlist. Acoustic Chinese chamber ensemble with expressive dizi bamboo flute, pipa and guqin plucked strings, warm restrained erhu, soft wooden percussion and occasional low hand drum. Consistent intimate natural acoustic production, moderate dynamic range, modest bass, clear instruments with space for game sound effects. Develop long musical phrases with variation and a contrasting middle section; do not restart the opening repeatedly. Shape a full composition with a short musical introduction, two developed sections, a melodic return, then a gentle resolving coda beginning around 165 seconds with the final sustained notes and room decay by 180 seconds. This is a complete song with a beginning and an ending, not a short looping gameplay cue. Purely instrumental throughout: no singing, no vocals, no humming, no chanting, no choir, no spoken language, no dramatic trailer impacts, no EDM drops or electronic dance beat. A refreshing breeze through green mountain passes, flowing pulse near 92 BPM, G major pentatonic. Nimble pipa introduces a spacious original melody, then dizi carries a longer answer. A middle passage alternates guqin and low erhu over a light wooden pulse before a warm ensemble reprise. Graceful and adventurous with stable medium-low energy; never aggressive or bombastic. End with a clear calm melodic resolution."
-    },
-    "sourceFormat": {
-      "channels": 2,
-      "sampleWidthBytes": 3,
-      "sampleRate": 48000,
-      "frames": 8553536,
-      "duration": 178.19866666666667
-    },
-    "sourceLevels": {
-      "peak": 1,
-      "peakDbfs": 0,
-      "rms": 0.13631128617121832,
-      "rmsDbfs": -17.309363687567632
-    },
-    "edit": {
-      "sourceStartFrame": 12000,
-      "sourceEndFrameExclusive": 8492640,
-      "sourceStartSeconds": 0.25,
-      "sourceEndSeconds": 176.93,
-      "trimmedHeadSeconds": 0.25,
-      "trimmedTailSeconds": 1.2686666666666666,
-      "silenceTrim": {
-        "method": "10 ms stereo RMS; max(-65 dBFS, p90 RMS minus 45 dB)",
-        "thresholdAmplitude": 0.0011504062182768413,
-        "retainedMarginSeconds": 0.1,
-        "maximumTrimPerSideSeconds": 2.5
-      },
-      "removedDcPerChannel": [
-        -0.00015157198899028957,
-        -0.00010830364134869713
-      ],
-      "fadeInFrames": 1680,
-      "fadeInSeconds": 0.035,
-      "fadeOutFrames": 120000,
-      "fadeOutSeconds": 2.5,
-      "fadeMethod": "sin-squared entrance and cos-squared exit amplitude windows",
-      "outputOrder": "original chronological order; every selected sample retained once",
-      "outputFrames": 8480640,
-      "outputDuration": 176.68,
-      "durationReductionSeconds": 1.5186666666666666
-    },
-    "normalization": {
-      "targetRms": 0.12,
-      "samplePeakLimit": 0.72,
-      "decodedPeakLimit": 0.95,
-      "linearGain": 0.7198909705114346,
-      "gainDb": -2.8546654738963193,
-      "outputLevels": {
-        "peak": 0.7200000286102295,
-        "peakDbfs": -2.8533497262283936,
-        "rms": 0.09675320319696806,
-        "rmsDbfs": -20.286692958689663
-      },
-      "encodeAttempts": [
-        {
-          "linearGain": 0.7198909705114346,
-          "decodedPeak": 0.7711255550384521
-        }
-      ]
-    },
-    "encoding": {
-      "codec": "AAC-LC",
-      "container": "M4A",
-      "bitrate": 160000,
-      "encoder": "afconvert",
-      "aacBytes": 3401013,
-      "aacBitrate": 160000,
-      "sourceFrames": 8480640,
-      "encodedInputFrames": 8480640,
-      "decodedFrames": 8480640,
-      "decodedDuration": 176.68,
-      "decodedDurationDifferenceSeconds": 0,
-      "decodedPeak": 0.7711255550384521,
-      "decodedPeakDbfs": -2.2574980830532967,
-      "decodedRms": 0.09663004156310509,
-      "decodedRmsDbfs": -20.29775667318409,
-      "decodedFirst100msRms": 0.00007507462994899417,
-      "decodedLast100msRms": 4.893460553523179e-7
-    },
-    "artifacts": {
-      "battle.wav": {
-        "sha256": "46c3cdce0493f63e1a08a721ab6c892098eab161fb751f499d84e9491adb3291",
-        "bytes": 50883884
-      },
-      "battle.m4a": {
-        "sha256": "1f9c6f5bbda11fd52a5a07aa069ebb8a8c4aba84c1f8d5e46cbee572763ef1d3",
-        "bytes": 3401013
-      }
-    },
-    "review": {
-      "automatedTechnicalChecks": "passed",
+    ],
+    "contentReview": {
+      "purpose": "background-music",
+      "decision": "accept",
+      "audioSha256": "03de5c05a1b88d96d7201efe47b296f90f8e3bc7aaa43cea248e416c26e20875",
+      "reviewedAt": "2026-10-24T01:05:01.607999+00:00",
+      "reviewedDurationSeconds": 181.99866666666668,
+      "method": "Full-duration decoded-AAC spectrogram inspection plus every 15-second signal segment: changing pitched harmonic structure continues throughout. No noise-only or isolated-impact tail observed.",
       "listeningVerified": false,
-      "note": "Technical checks only. Listen to the full arrangement, ending, timbre and SFX balance before judging musical quality."
-    },
-    "title": "청산에 이는 바람",
-    "file": "battle-full-1f9c6f5bbd.m4a",
-    "duration": 176.68,
-    "generationWarnings": []
+      "report": "content-review.json"
+    }
   },
   {
     "id": "boss",
     "processorRevision": 1,
     "preparedAt": "2026-10-23T11:42:08.287605+00:00",
     "source": "YuE2 generated complete instrumental for sequential playback",
+    "master": "/Users/jeongsu/GAME/last-delivery/source_assets/audio/yue2-playlist/boss-original.wav",
     "masterSha256": "ae429ebc812e5dbfb236fdeb0cf6d6fdee59db211ff7d2a943dba518062cc454",
+    "generationRecord": "/Users/jeongsu/GAME/last-delivery/source_assets/audio/yue2-playlist/boss.result.json",
     "generationRecordSha256": "10a07951bd3009745982f13b65d8f2c5af6f8ae6039c1002a14a1332ef4d435e",
     "requestHash": "4b4a994f95a8a8a16b9eaff30fc96d305d3c4cbebddb10f651725238ee78cfb8",
     "request": {
@@ -275,7 +173,7 @@
       "sourceStartSeconds": 0.3,
       "sourceEndSeconds": 181.99866666666668,
       "trimmedHeadSeconds": 0.3,
-      "trimmedTailSeconds": 0,
+      "trimmedTailSeconds": 0.0,
       "silenceTrim": {
         "method": "10 ms stereo RMS; max(-65 dBFS, p90 RMS minus 45 dB)",
         "thresholdAmplitude": 0.0010168057370175808,
@@ -283,8 +181,8 @@
         "maximumTrimPerSideSeconds": 2.5
       },
       "removedDcPerChannel": [
-        -0.000006945766679160667,
-        0.00001205300110829073
+        -6.945766679160667e-06,
+        1.205300110829073e-05
       ],
       "fadeInFrames": 1680,
       "fadeInSeconds": 0.035,
@@ -326,13 +224,13 @@
       "encodedInputFrames": 8721536,
       "decodedFrames": 8721536,
       "decodedDuration": 181.69866666666667,
-      "decodedDurationDifferenceSeconds": 0,
+      "decodedDurationDifferenceSeconds": 0.0,
       "decodedPeak": 0.6988611221313477,
       "decodedPeakDbfs": -3.1121823759136573,
       "decodedRms": 0.11991165834822565,
       "decodedRmsDbfs": -18.422771815894055,
       "decodedFirst100msRms": 0.0003109317784132072,
-      "decodedLast100msRms": 0.00003132361869587026
+      "decodedLast100msRms": 3.132361869587026e-05
     },
     "artifacts": {
       "boss.wav": {
@@ -352,18 +250,31 @@
     "title": "강호를 걷는 발걸음",
     "file": "boss-full-b7336d3041.m4a",
     "duration": 181.69866666666667,
+    "sourceCollection": "source_assets/audio/yue2-playlist",
     "generationWarnings": [
       {
         "message": "목표 길이 근처까지 생성했지만 자연 종료 전에 길이 제한에 도달했어. 마지막 구절이 잘렸을 수 있으니 끝부분을 확인해줘."
       }
-    ]
+    ],
+    "contentReview": {
+      "purpose": "background-music",
+      "decision": "accept",
+      "audioSha256": "b7336d3041e3bfa74731b9daeb8d07aa9564913b8c5f2d08a0fb6f0840690349",
+      "reviewedAt": "2026-10-24T01:05:01.607999+00:00",
+      "reviewedDurationSeconds": 181.69866666666667,
+      "method": "Full-duration decoded-AAC spectrogram inspection plus every 15-second signal segment: changing pitched harmonic structure continues throughout. No noise-only or isolated-impact tail observed.",
+      "listeningVerified": false,
+      "report": "content-review.json"
+    }
   },
   {
     "id": "ending",
     "processorRevision": 1,
     "preparedAt": "2026-10-23T11:46:42.742945+00:00",
     "source": "YuE2 generated complete instrumental for sequential playback",
+    "master": "/Users/jeongsu/GAME/last-delivery/source_assets/audio/yue2-playlist/ending-original.wav",
     "masterSha256": "2aa246fe9891f98e711f884a142be97194ebed41574afc15f5a0330705eb2a41",
+    "generationRecord": "/Users/jeongsu/GAME/last-delivery/source_assets/audio/yue2-playlist/ending.result.json",
     "generationRecordSha256": "2638f0b617112c96bf78506cea02fe7b2dd982965421efab56c62d2030e6ecf9",
     "requestHash": "bfc0165f457bec4291c8915ce80e47d76cf32fd6400a062789359caedef429af",
     "request": {
@@ -393,10 +304,10 @@
     "edit": {
       "sourceStartFrame": 0,
       "sourceEndFrameExclusive": 8735936,
-      "sourceStartSeconds": 0,
+      "sourceStartSeconds": 0.0,
       "sourceEndSeconds": 181.99866666666668,
-      "trimmedHeadSeconds": 0,
-      "trimmedTailSeconds": 0,
+      "trimmedHeadSeconds": 0.0,
+      "trimmedTailSeconds": 0.0,
       "silenceTrim": {
         "method": "10 ms stereo RMS; max(-65 dBFS, p90 RMS minus 45 dB)",
         "thresholdAmplitude": 0.0013590954732763348,
@@ -404,8 +315,8 @@
         "maximumTrimPerSideSeconds": 2.5
       },
       "removedDcPerChannel": [
-        -0.000051315890973211245,
-        -0.00003487340579917656
+        -5.1315890973211245e-05,
+        -3.487340579917656e-05
       ],
       "fadeInFrames": 1680,
       "fadeInSeconds": 0.035,
@@ -415,7 +326,7 @@
       "outputOrder": "original chronological order; every selected sample retained once",
       "outputFrames": 8735936,
       "outputDuration": 181.99866666666668,
-      "durationReductionSeconds": 0
+      "durationReductionSeconds": 0.0
     },
     "normalization": {
       "targetRms": 0.12,
@@ -447,7 +358,7 @@
       "encodedInputFrames": 8735936,
       "decodedFrames": 8735936,
       "decodedDuration": 181.99866666666668,
-      "decodedDurationDifferenceSeconds": 0,
+      "decodedDurationDifferenceSeconds": 0.0,
       "decodedPeak": 0.6615844368934631,
       "decodedPeakDbfs": -3.5882943934992095,
       "decodedRms": 0.11990301114139333,
@@ -473,10 +384,21 @@
     "title": "저녁빛 머무는 객잔",
     "file": "ending-full-6243a83092.m4a",
     "duration": 181.99866666666668,
+    "sourceCollection": "source_assets/audio/yue2-playlist",
     "generationWarnings": [
       {
         "message": "목표 길이 근처까지 생성했지만 자연 종료 전에 길이 제한에 도달했어. 마지막 구절이 잘렸을 수 있으니 끝부분을 확인해줘."
       }
-    ]
+    ],
+    "contentReview": {
+      "purpose": "background-music",
+      "decision": "accept",
+      "audioSha256": "6243a83092211bc1b15f99dd6a89f64d995f9d296d3b29246efd9c7f175ad84c",
+      "reviewedAt": "2026-10-24T01:05:01.607999+00:00",
+      "reviewedDurationSeconds": 181.99866666666668,
+      "method": "Full-duration decoded-AAC spectrogram inspection plus every 15-second signal segment: changing pitched harmonic structure continues throughout. No noise-only or isolated-impact tail observed.",
+      "listeningVerified": false,
+      "report": "content-review.json"
+    }
   }
 ]
