@@ -1,38 +1,30 @@
-마지막 표행 — YuE2 instrumental playlist · 1.10.3
+마지막 표행 — New Flow Music instrumental soundtrack · 1.11.0
 
-먼 길의 새벽 / 강호를 걷는 발걸음 / 저녁빛 머무는 객잔
+새벽의 짐끈 / 청하로 가는 길 / 돌아온 표국
 
-Generated locally for Last Delivery with YuE2-3B and YuE2-Vae through the
-installed YuE2 MLX 8-bit runtime. The playlist requests specify instrumental music.
-No reference recording was supplied. The generated masters are preserved;
-each request targets a complete 180-second composition. Game copies retain
-the full composition with conservative exterior silence trimming, level matching,
-a short entrance/closing fade and AAC-LC encoding. Playback runs each track
-from beginning to end in shuffled playlist order, independently of gameplay scenes.
-There is no circular splice, internal loop or repeated audio padding.
-Actual durations and levels are measured after AAC decoding.
-The two previous journey/battle recordings were excluded after identifying long
-noise/impact-only tails. Two newly generated failed candidates were also rejected.
-The delivered files receive full-duration spectrogram and segmented signal
-review; build and export require the exact accepted audio hashes.
-These checks are not a human audition and do not certify aesthetic quality.
+Three new original instrumentals composed for Last Delivery on 2026-11-05
+with Google Flow Music, model Lyria 3.5, through the official web composer
+using browser MCP. Instrumental mode was enabled and length was set to 3:00.
+No existing recording was supplied, remixed or used as a reference.
+The existing wuxia recordings reserved for the Muhon Bidong remake were
+left intact and are excluded by source identifier and file-hash comparison.
 
-Model attribution:
-YuE2-3B: https://huggingface.co/m-a-p/YuE2-3B
-YuE2-Vae: https://huggingface.co/m-a-p/YuE2-Vae
-MLX implementation: https://github.com/vanch007/mlx-Yue
-Installed implementation revision: 9253ed133343406947bde7b67d43c7a63fb39d99
-The installed model-weight notice identifies CC BY-NC 4.0 for the checkpoint
-weights: https://creativecommons.org/licenses/by-nc/4.0/
-This identifies the weight license; it does not assign that license to the
-game's code, artwork, or generated recordings.
+Original downloads and exact requests are retained in:
+source_assets/audio/flow-music-2026-11-05/
+Preparation: scripts/prepare-flow-bgm.py
+Delivered file hashes, duration, processing and provenance: manifest.json
+Full-duration signal review and reserved-source records: content-review.json
 
-Generation: scripts/generate-yue2-bgm.mjs. Original requests are preserved in
-source_assets/audio/yue2-playlist/requests/. Replacement candidate requests are
-in source_assets/audio/yue2-bgm-v1.10.3/requests/ and its attempt-2/requests/.
-Per-track source collections are recorded in manifest.json.
-Game audio preparation: scripts/prepare-yue2-playlist.py.
-Music measurements and source hashes: dist/assets/music/manifest.json.
-Content acceptance and rejected-candidate evidence: content-review.json.
-SFX: original real-time Web Audio synthesis in dist/audio.mjs.
-The previous 1.8.0 deterministic synthesis source remains in scripts/compose-music.py.
+The game copies preserve the complete original chronological performance,
+with DC removal, consistent gain, short endpoint fades and AAC-LC encoding.
+No repeated padding, internal loop, tempo change or scene-based switching.
+Each song plays to its natural file ending in a shuffled playlist.
+Signal inspection and technical playback checks are not an auditory review.
+
+New composition pages:
+https://www.flowmusic.app/song/43014563-9d31-4e81-aeb0-d2f8488b93d5
+https://www.flowmusic.app/song/f7dcdbce-4c56-4aeb-9c11-b3ff07261568
+https://www.flowmusic.app/song/17aecc02-63f3-461c-b602-a208c5addd52
+
+SFX remain the original real-time Web Audio synthesis in dist/audio.mjs.
+Previous YuE2 sources and release records are preserved locally for history.

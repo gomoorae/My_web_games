@@ -1,843 +1,357 @@
 {
-  "reviewedAt": "2026-10-24T01:05:01.607999+00:00",
-  "scope": "Full time-frequency structure of the exact delivered AAC files, with technical playback checks recorded separately.",
-  "listeningVerified": false,
-  "limitations": "Signal/spectrogram inspection detects the observed noise-only tails; it is not an auditory evaluation of timbre, composition or aesthetic quality.",
+  "reviewedAt": "2026-11-05T02:08:58.153871+00:00",
+  "createdFor": "Last Delivery",
+  "generation": "Three new Google Flow Music / Lyria 3.5 instrumental compositions, created in a separate session on 2026-11-05. No existing recording was used as a reference or remix.",
+  "sessionUrl": "https://www.flowmusic.app/session/93c2e10c-76ab-4caa-9151-38bb42f6e45c",
   "accepted": {
     "journey": {
-      "source": "qa/bgm-v1.10.3-decoded/journey.wav",
-      "sourceSha256": "586e92112c8fb94548cc6646e94c574239a4b0bfeda9ec26cca71b9758a5275a",
-      "duration": 181.99866666666668,
+      "source": "qa/flow-music-2026-11-05/decoded/journey.wav",
+      "sourceSha256": "656cd4eb73ae2c6f9c4208aad61e0eb1fd1ff8ea41e7a3279397f25b26399223",
+      "duration": 178.592,
       "method": "Full-duration spectrogram and 15-second signal measurements only; not a listening or music-quality verdict",
-      "spectralFlatnessMedian": 0.0008883195153789616,
-      "top15PowerRatioMedian": 0.9568515803878906,
-      "spectralCentroidMedian": 347.22525921077124,
+      "spectralFlatnessMedian": 0.001539426157742601,
+      "top15PowerRatioMedian": 0.8992384460476164,
+      "spectralCentroidMedian": 552.3946769377233,
       "segments": [
         {
           "from": 0,
           "to": 15,
-          "rms": 0.07093191559148732,
-          "spectralFlatnessMedian": 0.0003361998563751909,
-          "top15PowerRatioMedian": 0.9571303062115558,
-          "spectralCentroidMedian": 520.0992261713325
+          "rms": 0.05810978079875312,
+          "spectralFlatnessMedian": 0.00035006685436459785,
+          "top15PowerRatioMedian": 0.9377207229127676,
+          "spectralCentroidMedian": 455.3643359015506
         },
         {
           "from": 15,
           "to": 30,
-          "rms": 0.11802779790241956,
-          "spectralFlatnessMedian": 0.00031462431901756866,
-          "top15PowerRatioMedian": 0.9479023226315971,
-          "spectralCentroidMedian": 295.2678809209679
+          "rms": 0.08625224306423072,
+          "spectralFlatnessMedian": 0.0008766990019633123,
+          "top15PowerRatioMedian": 0.9294660354254406,
+          "spectralCentroidMedian": 772.9451066994491
         },
         {
           "from": 30,
           "to": 45,
-          "rms": 0.09948597056629548,
-          "spectralFlatnessMedian": 0.00039184254702129636,
-          "top15PowerRatioMedian": 0.9851060043509069,
-          "spectralCentroidMedian": 318.2076336926416
+          "rms": 0.07303259845685776,
+          "spectralFlatnessMedian": 0.0011347948690025296,
+          "top15PowerRatioMedian": 0.8996986029232776,
+          "spectralCentroidMedian": 719.4741868227785
         },
         {
           "from": 45,
           "to": 60,
-          "rms": 0.12900115134079934,
-          "spectralFlatnessMedian": 0.0011866762725677923,
-          "top15PowerRatioMedian": 0.9679698882847606,
-          "spectralCentroidMedian": 248.10611834817115
+          "rms": 0.07801057378167836,
+          "spectralFlatnessMedian": 0.0009707746792506089,
+          "top15PowerRatioMedian": 0.9083878987863709,
+          "spectralCentroidMedian": 732.221650434702
         },
         {
           "from": 60,
           "to": 75,
-          "rms": 0.14061481031876008,
-          "spectralFlatnessMedian": 0.0016493464140429136,
-          "top15PowerRatioMedian": 0.9649747492323695,
-          "spectralCentroidMedian": 337.3180854447153
+          "rms": 0.10404544661191849,
+          "spectralFlatnessMedian": 0.001408764007935374,
+          "top15PowerRatioMedian": 0.8913457745702787,
+          "spectralCentroidMedian": 508.41570937058924
         },
         {
           "from": 75,
           "to": 90,
-          "rms": 0.13626703347499294,
-          "spectralFlatnessMedian": 0.0009707872603131868,
-          "top15PowerRatioMedian": 0.967707044866053,
-          "spectralCentroidMedian": 273.41747640715374
+          "rms": 0.1166157546647112,
+          "spectralFlatnessMedian": 0.0015758300829763735,
+          "top15PowerRatioMedian": 0.8746414864382658,
+          "spectralCentroidMedian": 445.1974501116612
         },
         {
           "from": 90,
           "to": 105,
-          "rms": 0.08689885806771051,
-          "spectralFlatnessMedian": 0.00018240342422820658,
-          "top15PowerRatioMedian": 0.9685461639771755,
-          "spectralCentroidMedian": 515.224285767137
+          "rms": 0.140955835003389,
+          "spectralFlatnessMedian": 0.0017357586380427911,
+          "top15PowerRatioMedian": 0.8977586597648837,
+          "spectralCentroidMedian": 626.1072156687745
         },
         {
           "from": 105,
           "to": 120,
-          "rms": 0.09759344502759743,
-          "spectralFlatnessMedian": 0.0005175182189071721,
-          "top15PowerRatioMedian": 0.9430631411060619,
-          "spectralCentroidMedian": 428.9720763492978
+          "rms": 0.11826430190314988,
+          "spectralFlatnessMedian": 0.0031790116922219497,
+          "top15PowerRatioMedian": 0.8730817267618035,
+          "spectralCentroidMedian": 458.23031974803087
         },
         {
           "from": 120,
           "to": 135,
-          "rms": 0.0853029349177326,
-          "spectralFlatnessMedian": 0.004085083046593688,
-          "top15PowerRatioMedian": 0.9225991448670104,
-          "spectralCentroidMedian": 480.7805849440463
+          "rms": 0.11997898413564706,
+          "spectralFlatnessMedian": 0.003468128725006004,
+          "top15PowerRatioMedian": 0.8670632238256808,
+          "spectralCentroidMedian": 480.39459864388135
         },
         {
           "from": 135,
           "to": 150,
-          "rms": 0.130001235640267,
-          "spectralFlatnessMedian": 0.004161379145354597,
-          "top15PowerRatioMedian": 0.9232919887756208,
-          "spectralCentroidMedian": 354.0103928668268
+          "rms": 0.13239013259722063,
+          "spectralFlatnessMedian": 0.0035512114732382046,
+          "top15PowerRatioMedian": 0.8740013161612951,
+          "spectralCentroidMedian": 612.641959977024
         },
         {
           "from": 150,
           "to": 165,
-          "rms": 0.1309962572106613,
-          "spectralFlatnessMedian": 0.004903167718603775,
-          "top15PowerRatioMedian": 0.9335887812388228,
-          "spectralCentroidMedian": 323.8068669801316
+          "rms": 0.10927869576256337,
+          "spectralFlatnessMedian": 0.002170073023966745,
+          "top15PowerRatioMedian": 0.9029007761790363,
+          "spectralCentroidMedian": 582.4905940530776
         },
         {
           "from": 165,
-          "to": 180,
-          "rms": 0.11370304992698159,
-          "spectralFlatnessMedian": 0.0012965000834272837,
-          "top15PowerRatioMedian": 0.9632069241744321,
-          "spectralCentroidMedian": 243.0495709739747
-        },
-        {
-          "from": 180,
-          "to": 181.99866666666668,
-          "rms": 0.0363739149026311,
-          "spectralFlatnessMedian": 0.0011110846933549503,
-          "top15PowerRatioMedian": 0.9845623491904855,
-          "spectralCentroidMedian": 390.0743641793009
+          "to": 178.592,
+          "rms": 0.03315745190360978,
+          "spectralFlatnessMedian": 0.00022771999558439255,
+          "top15PowerRatioMedian": 0.9656352304044296,
+          "spectralCentroidMedian": 279.17733594265036
         }
       ]
     },
     "boss": {
-      "source": "qa/bgm-v1.10.3-decoded/boss.wav",
-      "sourceSha256": "e7d8e3eb76aaf7f4111ff53ed6e3bd7e66899f3cc14aad40b5cc4ef2595e2286",
-      "duration": 181.69866666666667,
+      "source": "qa/flow-music-2026-11-05/decoded/boss.wav",
+      "sourceSha256": "0f997d3da1e75e088cb322c879b2c24a35a5451482432476d6559d9a9980da99",
+      "duration": 176.85333333333332,
       "method": "Full-duration spectrogram and 15-second signal measurements only; not a listening or music-quality verdict",
-      "spectralFlatnessMedian": 0.0010085827527490589,
-      "top15PowerRatioMedian": 0.9702144500255655,
-      "spectralCentroidMedian": 376.04072093882513,
+      "spectralFlatnessMedian": 0.0028475538889596932,
+      "top15PowerRatioMedian": 0.8488406302512506,
+      "spectralCentroidMedian": 596.8238016614748,
       "segments": [
         {
           "from": 0,
           "to": 15,
-          "rms": 0.06961985692447517,
-          "spectralFlatnessMedian": 0.0002754508811246837,
-          "top15PowerRatioMedian": 0.9811837784088239,
-          "spectralCentroidMedian": 664.4750741702874
+          "rms": 0.04530878493852288,
+          "spectralFlatnessMedian": 0.0004703146272572314,
+          "top15PowerRatioMedian": 0.8990441359894324,
+          "spectralCentroidMedian": 443.9037814323931
         },
         {
           "from": 15,
           "to": 30,
-          "rms": 0.08068094090922985,
-          "spectralFlatnessMedian": 0.00013215247656581572,
-          "top15PowerRatioMedian": 0.9779131215512168,
-          "spectralCentroidMedian": 400.1776989335626
+          "rms": 0.06057799760979343,
+          "spectralFlatnessMedian": 0.002010992567024231,
+          "top15PowerRatioMedian": 0.862634454123646,
+          "spectralCentroidMedian": 432.1101213285961
         },
         {
           "from": 30,
           "to": 45,
-          "rms": 0.08915839003648318,
-          "spectralFlatnessMedian": 0.002495104495907023,
-          "top15PowerRatioMedian": 0.9693360925526427,
-          "spectralCentroidMedian": 373.9699936183961
+          "rms": 0.07902290061136427,
+          "spectralFlatnessMedian": 0.002653082448018312,
+          "top15PowerRatioMedian": 0.8120083777931584,
+          "spectralCentroidMedian": 468.07396300158086
         },
         {
           "from": 45,
           "to": 60,
-          "rms": 0.11552452583190133,
-          "spectralFlatnessMedian": 0.0005089880458566394,
-          "top15PowerRatioMedian": 0.9835239021890052,
-          "spectralCentroidMedian": 297.1038385581069
+          "rms": 0.0830183487569348,
+          "spectralFlatnessMedian": 0.006976937957123794,
+          "top15PowerRatioMedian": 0.7694350489095079,
+          "spectralCentroidMedian": 588.6478645042193
         },
         {
           "from": 60,
           "to": 75,
-          "rms": 0.1277864730686526,
-          "spectralFlatnessMedian": 0.0014906462237568004,
-          "top15PowerRatioMedian": 0.9715083499169217,
-          "spectralCentroidMedian": 252.91590769940828
+          "rms": 0.07936311450511868,
+          "spectralFlatnessMedian": 0.00095980772949244,
+          "top15PowerRatioMedian": 0.9401752692263329,
+          "spectralCentroidMedian": 805.9354196292053
         },
         {
           "from": 75,
           "to": 90,
-          "rms": 0.1456372018327621,
-          "spectralFlatnessMedian": 0.003093343881655338,
-          "top15PowerRatioMedian": 0.9286127792244118,
-          "spectralCentroidMedian": 463.68272897858697
+          "rms": 0.08528836715676069,
+          "spectralFlatnessMedian": 0.000868224816201806,
+          "top15PowerRatioMedian": 0.9336706111914244,
+          "spectralCentroidMedian": 870.3509164926633
         },
         {
           "from": 90,
           "to": 105,
-          "rms": 0.1372565637729793,
-          "spectralFlatnessMedian": 0.001504216013345154,
-          "top15PowerRatioMedian": 0.9690295367318468,
-          "spectralCentroidMedian": 347.4437267785982
+          "rms": 0.08567824282698039,
+          "spectralFlatnessMedian": 0.0013062634268316163,
+          "top15PowerRatioMedian": 0.8990035137078659,
+          "spectralCentroidMedian": 737.5510692708605
         },
         {
           "from": 105,
           "to": 120,
-          "rms": 0.15463364463346482,
-          "spectralFlatnessMedian": 0.004283500403264633,
-          "top15PowerRatioMedian": 0.9341261045655964,
-          "spectralCentroidMedian": 454.8575554226107
+          "rms": 0.10104882906698194,
+          "spectralFlatnessMedian": 0.008043962825145957,
+          "top15PowerRatioMedian": 0.7628331163660709,
+          "spectralCentroidMedian": 598.6877370135198
         },
         {
           "from": 120,
           "to": 135,
-          "rms": 0.15395364253970023,
-          "spectralFlatnessMedian": 0.0011711989228349396,
-          "top15PowerRatioMedian": 0.955268290083378,
-          "spectralCentroidMedian": 372.34415951764777
+          "rms": 0.10485310362927802,
+          "spectralFlatnessMedian": 0.010091640952947817,
+          "top15PowerRatioMedian": 0.7340020974929866,
+          "spectralCentroidMedian": 678.0994891883229
         },
         {
           "from": 135,
           "to": 150,
-          "rms": 0.12953623711420473,
-          "spectralFlatnessMedian": 0.0007696619806309994,
-          "top15PowerRatioMedian": 0.9427115299160694,
-          "spectralCentroidMedian": 307.4449175992867
+          "rms": 0.11325401406452656,
+          "spectralFlatnessMedian": 0.006600828662011697,
+          "top15PowerRatioMedian": 0.7863436884233599,
+          "spectralCentroidMedian": 691.3619091051045
         },
         {
           "from": 150,
           "to": 165,
-          "rms": 0.08772468320153301,
-          "spectralFlatnessMedian": 0.002515643455682363,
-          "top15PowerRatioMedian": 0.9832314133493001,
-          "spectralCentroidMedian": 340.24798150923493
+          "rms": 0.0755156291129435,
+          "spectralFlatnessMedian": 0.00640773106903131,
+          "top15PowerRatioMedian": 0.794880833173714,
+          "spectralCentroidMedian": 603.0008977720397
         },
         {
           "from": 165,
-          "to": 180,
-          "rms": 0.05933589348708281,
-          "spectralFlatnessMedian": 0.0003202748661899386,
-          "top15PowerRatioMedian": 0.9894249300221065,
-          "spectralCentroidMedian": 433.3638744251291
-        },
-        {
-          "from": 180,
-          "to": 181.69866666666667,
-          "rms": 0.003434194294869033,
-          "spectralFlatnessMedian": 0.00014959296027072078,
-          "top15PowerRatioMedian": 0.9599799096635151,
-          "spectralCentroidMedian": 524.6320404722312
+          "to": 176.85333333333332,
+          "rms": 0.022535425118310064,
+          "spectralFlatnessMedian": 0.0002393994798803302,
+          "top15PowerRatioMedian": 0.9445496631161553,
+          "spectralCentroidMedian": 298.5948541824828
         }
       ]
     },
     "ending": {
-      "source": "qa/bgm-v1.10.3-decoded/ending.wav",
-      "sourceSha256": "6af5bf111571e8aa11122ba400b88dc258b5a7e9f8be1fe770a98d4852eb178a",
-      "duration": 181.99866666666668,
+      "source": "qa/flow-music-2026-11-05/decoded/ending.wav",
+      "sourceSha256": "4b351fa6801ff6102379e06fc8a614745e8f90a8d0ec86ecf42f77d7d5ffed7e",
+      "duration": 178.93333333333334,
       "method": "Full-duration spectrogram and 15-second signal measurements only; not a listening or music-quality verdict",
-      "spectralFlatnessMedian": 0.0013314963762800572,
-      "top15PowerRatioMedian": 0.9703752828888744,
-      "spectralCentroidMedian": 486.49352767296483,
+      "spectralFlatnessMedian": 0.0005961372341271947,
+      "top15PowerRatioMedian": 0.9158221362935068,
+      "spectralCentroidMedian": 474.68506547609127,
       "segments": [
         {
           "from": 0,
           "to": 15,
-          "rms": 0.08088544947085415,
-          "spectralFlatnessMedian": 0.00011411505489514968,
-          "top15PowerRatioMedian": 0.9850201701341715,
-          "spectralCentroidMedian": 756.9763185176
+          "rms": 0.06754308996454934,
+          "spectralFlatnessMedian": 0.00013450316514772472,
+          "top15PowerRatioMedian": 0.9198393686490297,
+          "spectralCentroidMedian": 355.32601757970605
         },
         {
           "from": 15,
           "to": 30,
-          "rms": 0.10790604781405257,
-          "spectralFlatnessMedian": 0.001064928032704328,
-          "top15PowerRatioMedian": 0.9496042914045966,
-          "spectralCentroidMedian": 352.97830175424224
+          "rms": 0.059999985260804876,
+          "spectralFlatnessMedian": 0.0005014122544121557,
+          "top15PowerRatioMedian": 0.9304116014607057,
+          "spectralCentroidMedian": 530.5062861627315
         },
         {
           "from": 30,
           "to": 45,
-          "rms": 0.11591988536753019,
-          "spectralFlatnessMedian": 0.000828787614767423,
-          "top15PowerRatioMedian": 0.9836464602344871,
-          "spectralCentroidMedian": 452.7121189232246
+          "rms": 0.06968526772999761,
+          "spectralFlatnessMedian": 0.0005549443105168936,
+          "top15PowerRatioMedian": 0.927480123049223,
+          "spectralCentroidMedian": 571.9456713690221
         },
         {
           "from": 45,
           "to": 60,
-          "rms": 0.1391528412220883,
-          "spectralFlatnessMedian": 0.001286909226200538,
-          "top15PowerRatioMedian": 0.9773755728075775,
-          "spectralCentroidMedian": 388.10013746467837
+          "rms": 0.0748138044837378,
+          "spectralFlatnessMedian": 0.0004545013511214283,
+          "top15PowerRatioMedian": 0.9216223487823668,
+          "spectralCentroidMedian": 469.08450099837336
         },
         {
           "from": 60,
           "to": 75,
-          "rms": 0.1363673869558245,
-          "spectralFlatnessMedian": 0.001293567663046618,
-          "top15PowerRatioMedian": 0.9793222253362652,
-          "spectralCentroidMedian": 482.62021337976375
+          "rms": 0.05905888961887513,
+          "spectralFlatnessMedian": 0.00028482142416007804,
+          "top15PowerRatioMedian": 0.9422713221768475,
+          "spectralCentroidMedian": 498.9472993483314
         },
         {
           "from": 75,
           "to": 90,
-          "rms": 0.13289835653443002,
-          "spectralFlatnessMedian": 0.002777315287934176,
-          "top15PowerRatioMedian": 0.9656745796656276,
-          "spectralCentroidMedian": 567.5055983813818
+          "rms": 0.07429862719114756,
+          "spectralFlatnessMedian": 0.000491940024766758,
+          "top15PowerRatioMedian": 0.9047527669416215,
+          "spectralCentroidMedian": 455.36647081527667
         },
         {
           "from": 90,
           "to": 105,
-          "rms": 0.11282783536196862,
-          "spectralFlatnessMedian": 0.00029526448942172363,
-          "top15PowerRatioMedian": 0.9860222517897049,
-          "spectralCentroidMedian": 518.5416295252877
+          "rms": 0.07292559443146009,
+          "spectralFlatnessMedian": 0.00028627162239344657,
+          "top15PowerRatioMedian": 0.902555412480674,
+          "spectralCentroidMedian": 340.5462232006727
         },
         {
           "from": 105,
           "to": 120,
-          "rms": 0.09574887696071778,
-          "spectralFlatnessMedian": 0.0018418418439304263,
-          "top15PowerRatioMedian": 0.9224679049070209,
-          "spectralCentroidMedian": 568.5855577119935
+          "rms": 0.10752231827923571,
+          "spectralFlatnessMedian": 0.001357009241634538,
+          "top15PowerRatioMedian": 0.8939069370774513,
+          "spectralCentroidMedian": 539.7532418634293
         },
         {
           "from": 120,
           "to": 135,
-          "rms": 0.10593817041038023,
-          "spectralFlatnessMedian": 0.002996102993995448,
-          "top15PowerRatioMedian": 0.9568940985454665,
-          "spectralCentroidMedian": 405.12963499707814
+          "rms": 0.1142566022400754,
+          "spectralFlatnessMedian": 0.001858837361613263,
+          "top15PowerRatioMedian": 0.8856823596364524,
+          "spectralCentroidMedian": 661.2951472963023
         },
         {
           "from": 135,
           "to": 150,
-          "rms": 0.10071047891643493,
-          "spectralFlatnessMedian": 0.003247476743261776,
-          "top15PowerRatioMedian": 0.9570633193987765,
-          "spectralCentroidMedian": 373.6445994386353
+          "rms": 0.12056718702201406,
+          "spectralFlatnessMedian": 0.0015243209556334363,
+          "top15PowerRatioMedian": 0.8886487147166275,
+          "spectralCentroidMedian": 573.7983254163744
         },
         {
           "from": 150,
           "to": 165,
-          "rms": 0.10818035055763874,
-          "spectralFlatnessMedian": 0.0009790300037499206,
-          "top15PowerRatioMedian": 0.9738345859487981,
-          "spectralCentroidMedian": 353.14350903557516
+          "rms": 0.08719756466659231,
+          "spectralFlatnessMedian": 0.001106437347758008,
+          "top15PowerRatioMedian": 0.9154519093393592,
+          "spectralCentroidMedian": 438.03372900424023
         },
         {
           "from": 165,
-          "to": 180,
-          "rms": 0.11320604146139894,
-          "spectralFlatnessMedian": 0.0026613185180991233,
-          "top15PowerRatioMedian": 0.964798415611825,
-          "spectralCentroidMedian": 561.0420925569831
-        },
-        {
-          "from": 180,
-          "to": 181.99866666666668,
-          "rms": 0.05432511149684718,
-          "spectralFlatnessMedian": 0.0009865910855250447,
-          "top15PowerRatioMedian": 0.9785055125768911,
-          "spectralCentroidMedian": 631.6571149662961
+          "to": 178.93333333333334,
+          "rms": 0.02525311095131483,
+          "spectralFlatnessMedian": 0.00017074964204948895,
+          "top15PowerRatioMedian": 0.974835245252612,
+          "spectralCentroidMedian": 301.97730488616446
         }
       ]
     }
   },
-  "decisions": {
-    "journey": {
-      "decision": "accept",
-      "audioSha256": "03de5c05a1b88d96d7201efe47b296f90f8e3bc7aaa43cea248e416c26e20875",
-      "reviewScope": "Full-duration spectrogram and every 15-second segment of the decoded AAC; changing pitched harmonic structure continues to the ending.",
-      "listeningVerified": false
-    },
-    "boss": {
-      "decision": "accept",
-      "audioSha256": "b7336d3041e3bfa74731b9daeb8d07aa9564913b8c5f2d08a0fb6f0840690349",
-      "reviewScope": "Full-duration spectrogram and every 15-second segment of the decoded AAC; changing pitched harmonic structure continues to the ending.",
-      "listeningVerified": false
-    },
-    "ending": {
-      "decision": "accept",
-      "audioSha256": "6243a83092211bc1b15f99dd6a89f64d995f9d296d3b29246efd9c7f175ad84c",
-      "reviewScope": "Full-duration spectrogram and every 15-second segment of the decoded AAC; changing pitched harmonic structure continues to the ending.",
-      "listeningVerified": false
-    }
-  },
-  "rejected": [
+  "replacedPreviousTracks": [
     {
       "id": "journey",
-      "title": "먼 길의 새벽",
-      "file": "journey-full-77a7942c54.m4a",
-      "audioSha256": "77a7942c540a5ce850a9657f53c587db202538cb927eb909d77178083346fa9b",
-      "decision": "reject",
-      "approximateArtifactStartSeconds": 115,
-      "reason": "After the musical section, the remaining track contains isolated broadband transients/noise rather than continuing pitched musical phrases.",
-      "evidence": {
-        "duration": 181.71866666666668,
-        "method": "Signal measurements only; not a listening or music-quality verdict",
-        "spectralFlatnessMedian": 0.0063316317472956124,
-        "top15PowerRatioMedian": 0.9064528040067175,
-        "spectralCentroidMedian": 500.45916360076257,
-        "segments": [
-          {
-            "from": 0,
-            "to": 15,
-            "rms": 0.10464754482844227,
-            "spectralFlatnessMedian": 0.0018278513257616608,
-            "top15PowerRatioMedian": 0.9156811210935591,
-            "spectralCentroidMedian": 653.0994578623233
-          },
-          {
-            "from": 15,
-            "to": 30,
-            "rms": 0.13040573498672872,
-            "spectralFlatnessMedian": 0.0023345072088256607,
-            "top15PowerRatioMedian": 0.9246363772442318,
-            "spectralCentroidMedian": 473.6534659656909
-          },
-          {
-            "from": 30,
-            "to": 45,
-            "rms": 0.08897760260530795,
-            "spectralFlatnessMedian": 0.0034398383411393743,
-            "top15PowerRatioMedian": 0.9800259176552141,
-            "spectralCentroidMedian": 388.0035740966825
-          },
-          {
-            "from": 45,
-            "to": 60,
-            "rms": 0.10016458270833006,
-            "spectralFlatnessMedian": 0.0027394952435129648,
-            "top15PowerRatioMedian": 0.965942635069157,
-            "spectralCentroidMedian": 441.69077933943777
-          },
-          {
-            "from": 60,
-            "to": 75,
-            "rms": 0.1219524997469572,
-            "spectralFlatnessMedian": 0.004040825408622616,
-            "top15PowerRatioMedian": 0.9570909183709431,
-            "spectralCentroidMedian": 438.8594124130899
-          },
-          {
-            "from": 75,
-            "to": 90,
-            "rms": 0.1533421396938325,
-            "spectralFlatnessMedian": 0.004737538307412213,
-            "top15PowerRatioMedian": 0.9485176932331271,
-            "spectralCentroidMedian": 561.8027773332783
-          },
-          {
-            "from": 90,
-            "to": 105,
-            "rms": 0.1221762617705361,
-            "spectralFlatnessMedian": 0.0018666641072539168,
-            "top15PowerRatioMedian": 0.9445995680212572,
-            "spectralCentroidMedian": 525.6997415680454
-          },
-          {
-            "from": 105,
-            "to": 120,
-            "rms": 0.09833601398659099,
-            "spectralFlatnessMedian": 0.000843547944442424,
-            "top15PowerRatioMedian": 0.9569872243423564,
-            "spectralCentroidMedian": 349.1004513443013
-          },
-          {
-            "from": 120,
-            "to": 135,
-            "rms": 0.011062031423963259,
-            "spectralFlatnessMedian": 0.14694470740737808,
-            "top15PowerRatioMedian": 0.3883330040084292,
-            "spectralCentroidMedian": 30.97260858105335
-          },
-          {
-            "from": 135,
-            "to": 150,
-            "rms": 0.021468764142101485,
-            "spectralFlatnessMedian": 0.20286424386853885,
-            "top15PowerRatioMedian": 0.3148240602339408,
-            "spectralCentroidMedian": 1274.6510208210348
-          },
-          {
-            "from": 150,
-            "to": 165,
-            "rms": 0.03519650386329454,
-            "spectralFlatnessMedian": 0.23102783935595486,
-            "top15PowerRatioMedian": 0.29457951711319,
-            "spectralCentroidMedian": 2225.2653698768713
-          },
-          {
-            "from": 165,
-            "to": 180,
-            "rms": 0.027817651334342004,
-            "spectralFlatnessMedian": 0.2164241170527681,
-            "top15PowerRatioMedian": 0.3223978873333979,
-            "spectralCentroidMedian": 2142.0991278652714
-          },
-          {
-            "from": 180,
-            "to": 181.71866666666668,
-            "rms": 0.02166427100260794,
-            "spectralFlatnessMedian": 0.26031179210707145,
-            "top15PowerRatioMedian": 0.29768305572565934,
-            "spectralCentroidMedian": 2514.050832368176
-          }
-        ]
-      }
+      "file": "journey-full-03de5c05a1.m4a",
+      "sha256": "03de5c05a1b88d96d7201efe47b296f90f8e3bc7aaa43cea248e416c26e20875"
     },
     {
-      "id": "battle",
-      "title": "청산에 이는 바람",
-      "file": "battle-full-1f9c6f5bbd.m4a",
-      "audioSha256": "1f9c6f5bbda11fd52a5a07aa069ebb8a8c4aba84c1f8d5e46cbee572763ef1d3",
-      "decision": "reject",
-      "approximateArtifactStartSeconds": 110,
-      "reason": "After the musical section, the remaining track contains isolated broadband transients/noise rather than continuing pitched musical phrases.",
-      "evidence": {
-        "duration": 176.68,
-        "method": "Signal measurements only; not a listening or music-quality verdict",
-        "spectralFlatnessMedian": 0.0013933706299964531,
-        "top15PowerRatioMedian": 0.924097955475877,
-        "spectralCentroidMedian": 408.14385141871406,
-        "segments": [
-          {
-            "from": 0,
-            "to": 15,
-            "rms": 0.05925081755678924,
-            "spectralFlatnessMedian": 0.0004448624268593034,
-            "top15PowerRatioMedian": 0.9487997047138998,
-            "spectralCentroidMedian": 696.8269366116732
-          },
-          {
-            "from": 15,
-            "to": 30,
-            "rms": 0.08089445388478717,
-            "spectralFlatnessMedian": 0.0004646659895222537,
-            "top15PowerRatioMedian": 0.9485195583398924,
-            "spectralCentroidMedian": 462.18331717426736
-          },
-          {
-            "from": 30,
-            "to": 45,
-            "rms": 0.06580102849321098,
-            "spectralFlatnessMedian": 0.0006578650363166065,
-            "top15PowerRatioMedian": 0.9715611295769414,
-            "spectralCentroidMedian": 488.13656671075233
-          },
-          {
-            "from": 45,
-            "to": 60,
-            "rms": 0.0790329907144384,
-            "spectralFlatnessMedian": 0.0005717856856727736,
-            "top15PowerRatioMedian": 0.972540827016885,
-            "spectralCentroidMedian": 485.610969182183
-          },
-          {
-            "from": 60,
-            "to": 75,
-            "rms": 0.06539424706192182,
-            "spectralFlatnessMedian": 0.0005705414078696062,
-            "top15PowerRatioMedian": 0.9773850988143594,
-            "spectralCentroidMedian": 423.40662315554243
-          },
-          {
-            "from": 75,
-            "to": 90,
-            "rms": 0.06924207294465523,
-            "spectralFlatnessMedian": 0.00035449028091300244,
-            "top15PowerRatioMedian": 0.9557193537967146,
-            "spectralCentroidMedian": 499.2182700019785
-          },
-          {
-            "from": 90,
-            "to": 105,
-            "rms": 0.07307919913488933,
-            "spectralFlatnessMedian": 0.0007244170157697692,
-            "top15PowerRatioMedian": 0.9421730600316771,
-            "spectralCentroidMedian": 449.99611877365675
-          },
-          {
-            "from": 105,
-            "to": 120,
-            "rms": 0.07334995544159856,
-            "spectralFlatnessMedian": 0.02361442506544884,
-            "top15PowerRatioMedian": 0.6960720489410939,
-            "spectralCentroidMedian": 94.9792284493285
-          },
-          {
-            "from": 120,
-            "to": 135,
-            "rms": 0.0685070216053572,
-            "spectralFlatnessMedian": 0.09295436316833916,
-            "top15PowerRatioMedian": 0.5312761012931899,
-            "spectralCentroidMedian": 143.6288705070502
-          },
-          {
-            "from": 135,
-            "to": 150,
-            "rms": 0.15948199528971005,
-            "spectralFlatnessMedian": 0.03041291580090764,
-            "top15PowerRatioMedian": 0.8233567001500766,
-            "spectralCentroidMedian": 315.3040315612463
-          },
-          {
-            "from": 150,
-            "to": 165,
-            "rms": 0.12061659195678295,
-            "spectralFlatnessMedian": 0.08914696138067726,
-            "top15PowerRatioMedian": 0.5732243813683029,
-            "spectralCentroidMedian": 2.5942980082586002
-          },
-          {
-            "from": 165,
-            "to": 176.68,
-            "rms": 0.11573361072540327,
-            "spectralFlatnessMedian": 0.10856126261797401,
-            "top15PowerRatioMedian": 0.5773738142306222,
-            "spectralCentroidMedian": 130.02427584169973
-          }
-        ]
-      }
+      "id": "boss",
+      "file": "boss-full-b7336d3041.m4a",
+      "sha256": "b7336d3041e3bfa74731b9daeb8d07aa9564913b8c5f2d08a0fb6f0840690349"
     },
     {
-      "source": "source_assets/audio/yue2-bgm-v1.10.3/prepared/battle.wav",
-      "sourceSha256": "12f5c6013a135ade63fdbd8346b6de9839f6a73ef4de375138b337dae332dd4b",
-      "duration": 181.43,
-      "method": "Full-duration spectrogram and 15-second signal measurements only; not a listening or music-quality verdict",
-      "spectralFlatnessMedian": 0.006240132759834708,
-      "top15PowerRatioMedian": 0.8443827071330345,
-      "spectralCentroidMedian": 520.6496775428523,
-      "segments": [
-        {
-          "from": 0,
-          "to": 15,
-          "rms": 0.07390423700051174,
-          "spectralFlatnessMedian": 0.0010596481267845478,
-          "top15PowerRatioMedian": 0.9482670558741951,
-          "spectralCentroidMedian": 925.1584734204363
-        },
-        {
-          "from": 15,
-          "to": 30,
-          "rms": 0.11076212479527411,
-          "spectralFlatnessMedian": 0.0015573621271263416,
-          "top15PowerRatioMedian": 0.946164062422996,
-          "spectralCentroidMedian": 609.3415669947951
-        },
-        {
-          "from": 30,
-          "to": 45,
-          "rms": 0.11436190820576911,
-          "spectralFlatnessMedian": 0.001798965750238657,
-          "top15PowerRatioMedian": 0.9717987899774745,
-          "spectralCentroidMedian": 438.7759487446701
-        },
-        {
-          "from": 45,
-          "to": 60,
-          "rms": 0.13261625999973195,
-          "spectralFlatnessMedian": 0.001869042490625251,
-          "top15PowerRatioMedian": 0.9637264076784458,
-          "spectralCentroidMedian": 402.9789732942006
-        },
-        {
-          "from": 60,
-          "to": 75,
-          "rms": 0.10063291722807081,
-          "spectralFlatnessMedian": 0.0013260819136755666,
-          "top15PowerRatioMedian": 0.9511700900716016,
-          "spectralCentroidMedian": 497.44296342399764
-        },
-        {
-          "from": 75,
-          "to": 90,
-          "rms": 0.08450089208745619,
-          "spectralFlatnessMedian": 0.00044581668588282626,
-          "top15PowerRatioMedian": 0.9254865335459683,
-          "spectralCentroidMedian": 522.1295472588101
-        },
-        {
-          "from": 90,
-          "to": 105,
-          "rms": 0.041347154426342396,
-          "spectralFlatnessMedian": 0.03766811366895565,
-          "top15PowerRatioMedian": 0.6853705303453463,
-          "spectralCentroidMedian": 421.07754248400465
-        },
-        {
-          "from": 105,
-          "to": 120,
-          "rms": 0.00215846550015968,
-          "spectralFlatnessMedian": 0.2406084521739143,
-          "top15PowerRatioMedian": 0.3653516195640507,
-          "spectralCentroidMedian": 671.0236029284998
-        },
-        {
-          "from": 120,
-          "to": 135,
-          "rms": 0.004882526374946431,
-          "spectralFlatnessMedian": 0.1646377026180847,
-          "top15PowerRatioMedian": 0.4640414416958583,
-          "spectralCentroidMedian": 416.90737926760335
-        },
-        {
-          "from": 135,
-          "to": 150,
-          "rms": 0.005421378207599341,
-          "spectralFlatnessMedian": 0.26124875938467723,
-          "top15PowerRatioMedian": 0.35581182064470085,
-          "spectralCentroidMedian": 876.4623992196963
-        },
-        {
-          "from": 150,
-          "to": 165,
-          "rms": 0.010345884825296648,
-          "spectralFlatnessMedian": 0.2186884377502198,
-          "top15PowerRatioMedian": 0.39527407051926,
-          "spectralCentroidMedian": 667.9093223166157
-        },
-        {
-          "from": 165,
-          "to": 180,
-          "rms": 0.014359230071190316,
-          "spectralFlatnessMedian": 0.2301599167807012,
-          "top15PowerRatioMedian": 0.36499050031070956,
-          "spectralCentroidMedian": 1276.372218866678
-        },
-        {
-          "from": 180,
-          "to": 181.43,
-          "rms": 0.005927704656980103,
-          "spectralFlatnessMedian": 0.31720190824826655,
-          "top15PowerRatioMedian": 0.207128295294999,
-          "spectralCentroidMedian": 2566.0545670050337
-        }
-      ],
-      "decision": "reject",
-      "approximateArtifactStartSeconds": 96,
-      "reason": "Melodic content ends near 96 seconds; the remaining generated audio contains isolated noise transients.",
-      "audioSha256": "2a0ef4cf113813529b9f5c1849f51955aaf9165ad239094e4b0535984f9b3046",
-      "listeningVerified": false
-    },
-    {
-      "source": "qa/bgm-v1.10.3-decoded/battle.wav",
-      "sourceSha256": "9d7677006a7e85d0b354d29b722710c166e6af8f5cee1ee8e1b544b49eb40e41",
-      "duration": 179.39,
-      "method": "Full-duration spectrogram and 15-second signal measurements only; not a listening or music-quality verdict",
-      "spectralFlatnessMedian": 0.0009211369689202198,
-      "top15PowerRatioMedian": 0.9601631669281139,
-      "spectralCentroidMedian": 282.56494242709346,
-      "segments": [
-        {
-          "from": 0,
-          "to": 15,
-          "rms": 0.04944624033148108,
-          "spectralFlatnessMedian": 0.000156345114954165,
-          "top15PowerRatioMedian": 0.9818141384476952,
-          "spectralCentroidMedian": 595.2129448262363
-        },
-        {
-          "from": 15,
-          "to": 30,
-          "rms": 0.07343914733564118,
-          "spectralFlatnessMedian": 0.00032771816135232913,
-          "top15PowerRatioMedian": 0.9562284378240359,
-          "spectralCentroidMedian": 288.198805405183
-        },
-        {
-          "from": 30,
-          "to": 45,
-          "rms": 0.06354808110249073,
-          "spectralFlatnessMedian": 0.0008239927914592501,
-          "top15PowerRatioMedian": 0.986179485671381,
-          "spectralCentroidMedian": 324.03141461555253
-        },
-        {
-          "from": 45,
-          "to": 60,
-          "rms": 0.061586167782649526,
-          "spectralFlatnessMedian": 0.0006866946631831793,
-          "top15PowerRatioMedian": 0.9844031664444136,
-          "spectralCentroidMedian": 314.66416085922424
-        },
-        {
-          "from": 60,
-          "to": 75,
-          "rms": 0.10796288419428512,
-          "spectralFlatnessMedian": 0.0011890135642832985,
-          "top15PowerRatioMedian": 0.9678234489238114,
-          "spectralCentroidMedian": 276.6011600009327
-        },
-        {
-          "from": 75,
-          "to": 90,
-          "rms": 0.12170636132074937,
-          "spectralFlatnessMedian": 0.0017977356594760703,
-          "top15PowerRatioMedian": 0.9582384449012114,
-          "spectralCentroidMedian": 222.56329519351362
-        },
-        {
-          "from": 90,
-          "to": 105,
-          "rms": 0.07449042676298226,
-          "spectralFlatnessMedian": 0.00020441351525155233,
-          "top15PowerRatioMedian": 0.9808898663756703,
-          "spectralCentroidMedian": 518.0583375425729
-        },
-        {
-          "from": 105,
-          "to": 120,
-          "rms": 0.06385660224243737,
-          "spectralFlatnessMedian": 0.00014860765239263209,
-          "top15PowerRatioMedian": 0.9723207048440725,
-          "spectralCentroidMedian": 317.91431292172706
-        },
-        {
-          "from": 120,
-          "to": 135,
-          "rms": 0.03458625178811141,
-          "spectralFlatnessMedian": 0.00020918285069047892,
-          "top15PowerRatioMedian": 0.9649599745175794,
-          "spectralCentroidMedian": 106.24680940949827
-        },
-        {
-          "from": 135,
-          "to": 150,
-          "rms": 0.004325180465380781,
-          "spectralFlatnessMedian": 0.0825081699379708,
-          "top15PowerRatioMedian": 0.4767773072976974,
-          "spectralCentroidMedian": 1.9213484072553075
-        },
-        {
-          "from": 150,
-          "to": 165,
-          "rms": 0.003528826252416063,
-          "spectralFlatnessMedian": 0.15252944136836946,
-          "top15PowerRatioMedian": 0.43432564786126643,
-          "spectralCentroidMedian": 1.9740207482317311
-        },
-        {
-          "from": 165,
-          "to": 179.39,
-          "rms": 0.0066781155118874405,
-          "spectralFlatnessMedian": 0.14346939490160027,
-          "top15PowerRatioMedian": 0.32388042493258734,
-          "spectralCentroidMedian": 235.85642082064922
-        }
-      ],
-      "decision": "reject",
-      "approximateArtifactStartSeconds": 125,
-      "reason": "Melodic content ends near 125 seconds; the remaining generated audio contains isolated noise transients.",
-      "audioSha256": "28427c6d88f1e5d64cd7a15ab7a2aab223534d6293c0a0d93ea9e9f4c1ecf234",
-      "listeningVerified": false
+      "id": "ending",
+      "file": "ending-full-6243a83092.m4a",
+      "sha256": "6243a83092211bc1b15f99dd6a89f64d995f9d296d3b29246efd9c7f175ad84c"
     }
-  ]
+  ],
+  "listeningVerified": false,
+  "limitations": "Full-duration time-frequency content inspection and technical playback validation; not an auditory evaluation of timbre or artistic quality.",
+  "otherGameRecordingsExcluded": {
+    "count": 3,
+    "sourceHashes": [
+      "1131334746840894f445ffe07f32f2f3b8790c135fba25ab3c31b9389822389d",
+      "83dc0230c3064d91ab66e1ed3feaec4b64899e0788179f0a32d89c74c7bea347",
+      "e52556c20ebb4871b25021927a3a19ee37668e282de3e4410aee2be49c4e7b7d"
+    ],
+    "fullReservationRecord": "Preserved locally with the original project; not bundled in the public release."
+  }
 }

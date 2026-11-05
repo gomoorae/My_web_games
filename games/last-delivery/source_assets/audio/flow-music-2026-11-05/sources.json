@@ -1,0 +1,47 @@
+[
+  {
+    "id": "journey",
+    "title": "새벽의 짐끈",
+    "providerTitle": "마지막 표행 · 새벽의 짐끈",
+    "seed": 110501,
+    "bpm": 88,
+    "prompt": "A complete original 3-minute instrumental soundtrack for Last Delivery, a wuxia courier adventure. Gentle forward motion at 88 BPM in D major pentatonic. Lyrical dizi bamboo flute carries a memorable long melody, answered by warm erhu, with flowing guqin and pipa arpeggios and a very soft acoustic pulse. Intimate and hopeful, like tying a travelling bundle at dawn and setting out on a mountain road. Clear pitched musical instruments throughout; calm medium energy suitable for continuous background listening. Arrangement: 0:00-0:12 short musical introduction, 0:12-1:00 developed main melody, 1:00-1:45 contrasting erhu-led section, 1:45-2:40 varied flute reprise, 2:40-3:00 resolved melodic coda with natural instrument decay. Keep the melodic ensemble present through the third minute. Pure instrumental music: no vocals, humming, choir, speech, field recordings, foley, isolated impact sounds, battle sound effects, trailer booms, EDM drops or percussion-only passages. Clean balanced acoustic recording, restrained bass and percussion, gentle natural ending. Entirely new composition, not a remix or continuation of any existing song.",
+    "songId": "43014563-9d31-4e81-aeb0-d2f8488b93d5",
+    "sourceUrl": "https://storage.googleapis.com/producer-app-public/clips/43014563-9d31-4e81-aeb0-d2f8488b93d5.m4a",
+    "pageUrl": "https://www.flowmusic.app/song/43014563-9d31-4e81-aeb0-d2f8488b93d5",
+    "file": "journey-original.m4a",
+    "bytes": 2302003,
+    "sha256": "9048c943a8971c37fe7f675a6cb8d43b4b2687425bfcb358cfed575a41dbf0cb",
+    "decodedFile": "journey-original.wav"
+  },
+  {
+    "id": "boss",
+    "title": "청하로 가는 길",
+    "providerTitle": "마지막 표행 · 청하로 가는 길",
+    "seed": 110502,
+    "bpm": 94,
+    "prompt": "A complete original 3-minute instrumental Chinese acoustic adventure soundtrack for Last Delivery, a travelling courier wuxia game. 94 BPM in G major pentatonic with warm modal color. Pipa and guzheng weave graceful flowing patterns, an expressive erhu plays a long adventurous melody, and dizi flute answers between phrases. A restrained hand-drum pulse supports the music without dominating it. The mood is purposeful, open-hearted and quietly courageous, crossing river bridges and mountain passes with a precious delivery. Medium energy, steady movement, clear acoustic timbres, space for gameplay. Full arrangement: 0:00-0:15 melodic introduction, 0:15-1:00 main theme, 1:00-1:45 contrasting flute-and-erhu dialogue, 1:45-2:40 developed ensemble return, 2:40-3:00 gentle resolved coda. Maintain active melodic and harmonic instruments throughout all three minutes. Strictly instrumental: no singing, humming, chants, voice, spoken words, field recordings, weapon sounds, whooshes, impact effects, trailer booms, electronic drops or percussion-only sections. Clean natural recording with moderate dynamics and a musical ending. Entirely newly composed, without any reference song or remix.",
+    "songId": "f7dcdbce-4c56-4aeb-9c11-b3ff07261568",
+    "sourceUrl": "https://storage.googleapis.com/producer-app-public/clips/f7dcdbce-4c56-4aeb-9c11-b3ff07261568.m4a",
+    "pageUrl": "https://www.flowmusic.app/song/f7dcdbce-4c56-4aeb-9c11-b3ff07261568",
+    "file": "boss-original.m4a",
+    "bytes": 2277371,
+    "sha256": "edb851a5669ad8f9f7d00b48b3ed6135003e5fe7e5bffc3cf6f256ce2a1bdd5b",
+    "decodedFile": "boss-original.wav"
+  },
+  {
+    "id": "ending",
+    "title": "돌아온 표국",
+    "providerTitle": "마지막 표행 · 돌아온 표국",
+    "seed": 110503,
+    "bpm": 82,
+    "prompt": "A complete original 3-minute instrumental wuxia chamber soundtrack for Last Delivery. Warm, quietly uplifting music for a courier who keeps a promise and returns to rebuild the escort agency. 82 BPM in C major pentatonic with gentle open harmonies. Intimate guqin and guzheng arpeggios support a tender erhu melody; dizi flute enters with a clear answering theme, and delicate pipa keeps a flowing pulse. Light and melodic rather than sleepy ambient music, moderate soft dynamics, natural acoustic space. Arrangement: 0:00-0:15 lyrical guqin introduction, 0:15-1:00 complete erhu theme, 1:00-1:45 brighter flute variation, 1:45-2:40 rich but restrained ensemble reprise, 2:40-3:00 resolved closing melody and natural decay. Maintain coherent pitched music all the way through the third minute; finish as a complete song. Strictly instrumental, no vocals, humming, choir, narration, sound effects, footsteps, wind recordings, metallic hits, cinematic risers, trailer impacts, harsh drums or electronic drops. Clear original melodies, gentle acoustic production, suitable for a continuous shuffled background-music playlist. Compose entirely new music without reusing or remixing any existing recording.",
+    "songId": "17aecc02-63f3-461c-b602-a208c5addd52",
+    "sourceUrl": "https://storage.googleapis.com/producer-app-public/clips/17aecc02-63f3-461c-b602-a208c5addd52.m4a",
+    "pageUrl": "https://www.flowmusic.app/song/17aecc02-63f3-461c-b602-a208c5addd52",
+    "file": "ending-original.m4a",
+    "bytes": 2500812,
+    "sha256": "9b9d7458b0e8d00c65d39ada7152acf4252b0619c83406a17634bb6db5fceca9",
+    "decodedFile": "ending-original.wav"
+  }
+]

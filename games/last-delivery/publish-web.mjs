@@ -15,12 +15,18 @@ await cp(path.join(root,'dist'),path.join(destination,'dist'),{recursive:true,fi
 for(const name of ['build.mjs','export.mjs','restore-assets.mjs','publish-web.mjs','package.json','README.md','tests','scripts']){
   await cp(path.join(root,name),path.join(destination,name),{recursive:true,filter:source=>!source.split(path.sep).includes('__pycache__')&&!source.endsWith('.pyc')});
 }
+const publicReadme=(await readFile(path.join(root,'README.md'),'utf8')).replace(/## 작업 폴더 안내\n[\s\S]*?(?=## 바로 플레이)/,'## 배포 묶음 안내\n\n이 폴더는 마지막 표행의 웹 배포본이다. 실행 파일과 소스는 `dist/`, 검사 도구는 `tests/`, 음원 제작 기록은 `source_assets/audio/`에 있다. 원본 음원과 이전 배포본·백업은 로컬 `last-delivery` 작업 폴더에 보관한다.\n\n');
+await writeFile(path.join(destination,'README.md'),publicReadme);
 await cp(path.join(root,'source_assets/audio/yue2/requests'),path.join(destination,'source_assets/audio/yue2/requests'),{recursive:true});
 await cp(path.join(root,'source_assets/audio/yue2-playlist/requests'),path.join(destination,'source_assets/audio/yue2-playlist/requests'),{recursive:true});
 await cp(path.join(root,'source_assets/audio/yue2-playlist/titles.json'),path.join(destination,'source_assets/audio/yue2-playlist/titles.json'));
 await cp(path.join(root,'source_assets/audio/yue2-bgm-v1.10.3/requests'),path.join(destination,'source_assets/audio/yue2-bgm-v1.10.3/requests'),{recursive:true});
 await cp(path.join(root,'source_assets/audio/yue2-bgm-v1.10.3/titles.json'),path.join(destination,'source_assets/audio/yue2-bgm-v1.10.3/titles.json'));
 await cp(path.join(root,'source_assets/audio/yue2-bgm-v1.10.3/attempt-2/requests'),path.join(destination,'source_assets/audio/yue2-bgm-v1.10.3/attempt-2/requests'),{recursive:true});
+await mkdir(path.join(destination,'source_assets/audio/flow-music-2026-11-05'),{recursive:true});
+for(const name of ['README.md','requests.json','sources.json']){
+  await cp(path.join(root,'source_assets/audio/flow-music-2026-11-05',name),path.join(destination,'source_assets/audio/flow-music-2026-11-05',name));
+}
 await mkdir(path.join(destination,'source_assets/story-v1.10.0'),{recursive:true});
 await cp(path.join(root,'source_assets/story-v1.10.0/prompts.json'),path.join(destination,'source_assets/story-v1.10.0/prompts.json'));
 const assets=path.join(root,'dist/assets');

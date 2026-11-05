@@ -1,54 +1,66 @@
 [
   {
     "id": "journey",
-    "processorRevision": 1,
-    "preparedAt": "2026-10-24T00:54:20.861791+00:00",
-    "source": "YuE2 generated complete instrumental for sequential playback",
-    "master": "/Users/jeongsu/GAME/last-delivery/source_assets/audio/yue2-bgm-v1.10.3/journey-original.wav",
-    "masterSha256": "442ff9543d4eb63657102b8fa047a4e558e0f896ec02be25a93bfe2250a705ee",
-    "generationRecord": "/Users/jeongsu/GAME/last-delivery/source_assets/audio/yue2-bgm-v1.10.3/journey.result.json",
-    "generationRecordSha256": "8de1c041fd2db527af1a1d0aa7aec932c749ea80e1cf45e7528e3c7e0af6e444",
-    "requestHash": "749ff84284ca17dcd710a59444f2b5c1dad70e0e40c88fe7f76a7a85d1c03e74",
-    "request": {
-      "model": "yue2",
-      "taskType": "text2music",
-      "instrumental": true,
-      "lyrics": "[Instrumental]",
-      "duration": 180,
-      "steps": 32,
-      "thinking": true,
-      "seed": 241026301,
-      "prompt": "Instrumental Chinese acoustic folk music, a continuous three minute composition, 86 BPM, D major pentatonic. A clear lyrical bamboo flute melody above flowing guqin arpeggios, warm sustained erhu countermelody and delicate pipa accompaniment. Four complete sixteen-bar melodic sections: a gentle main theme, a developed answer, a brighter contrasting melody, and a flowing reprise with a final resolved cadence. Keep the pitched melodic ensemble playing throughout all four sections, with new phrases and sustained harmony through the third minute. Intimate warm chamber recording, consistent moderate volume, gentle forward motion for a long journey through misty mountains. Pure instrumental ensemble, without percussion, voices, field recordings or sound effects."
+    "title": "새벽의 짐끈",
+    "preparedAt": "2026-11-05T02:07:06.431792+00:00",
+    "createdFor": "Last Delivery",
+    "generator": {
+      "provider": "Google Flow Music",
+      "model": "Lyria 3.5",
+      "transport": "Official web composer through browser MCP",
+      "sessionUrl": "https://www.flowmusic.app/session/93c2e10c-76ab-4caa-9151-38bb42f6e45c",
+      "songId": "43014563-9d31-4e81-aeb0-d2f8488b93d5",
+      "pageUrl": "https://www.flowmusic.app/song/43014563-9d31-4e81-aeb0-d2f8488b93d5",
+      "date": "2026-11-05",
+      "referenceAudioUsed": false
     },
+    "request": {
+      "id": "journey",
+      "title": "새벽의 짐끈",
+      "providerTitle": "마지막 표행 · 새벽의 짐끈",
+      "seed": 110501,
+      "bpm": 88,
+      "prompt": "A complete original 3-minute instrumental soundtrack for Last Delivery, a wuxia courier adventure. Gentle forward motion at 88 BPM in D major pentatonic. Lyrical dizi bamboo flute carries a memorable long melody, answered by warm erhu, with flowing guqin and pipa arpeggios and a very soft acoustic pulse. Intimate and hopeful, like tying a travelling bundle at dawn and setting out on a mountain road. Clear pitched musical instruments throughout; calm medium energy suitable for continuous background listening. Arrangement: 0:00-0:12 short musical introduction, 0:12-1:00 developed main melody, 1:00-1:45 contrasting erhu-led section, 1:45-2:40 varied flute reprise, 2:40-3:00 resolved melodic coda with natural instrument decay. Keep the melodic ensemble present through the third minute. Pure instrumental music: no vocals, humming, choir, speech, field recordings, foley, isolated impact sounds, battle sound effects, trailer booms, EDM drops or percussion-only passages. Clean balanced acoustic recording, restrained bass and percussion, gentle natural ending. Entirely new composition, not a remix or continuation of any existing song.",
+      "songId": "43014563-9d31-4e81-aeb0-d2f8488b93d5",
+      "sourceUrl": "https://storage.googleapis.com/producer-app-public/clips/43014563-9d31-4e81-aeb0-d2f8488b93d5.m4a"
+    },
+    "sourceCollection": "source_assets/audio/flow-music-2026-11-05",
+    "original": {
+      "file": "journey-original.m4a",
+      "sha256": "9048c943a8971c37fe7f675a6cb8d43b4b2687425bfcb358cfed575a41dbf0cb",
+      "bytes": 2302003,
+      "url": "https://storage.googleapis.com/producer-app-public/clips/43014563-9d31-4e81-aeb0-d2f8488b93d5.m4a"
+    },
+    "masterSha256": "d938d2e9a64786d022f20f2a5d4227b6966a0136faa43dfddb95ceb2bcc11492",
     "sourceFormat": {
       "channels": 2,
       "sampleWidthBytes": 3,
       "sampleRate": 48000,
-      "frames": 8735936,
-      "duration": 181.99866666666668
+      "frames": 8572416,
+      "duration": 178.592
     },
     "sourceLevels": {
-      "peak": 0.8886666297912598,
-      "peakDbfs": -1.025222553259233,
-      "rms": 0.1492993618723042,
-      "rmsDbfs": -16.51884097020536
+      "peak": 0.9995126724243164,
+      "peakDbfs": -0.004233905273181998,
+      "rms": 0.15013558642238076,
+      "rmsDbfs": -16.47032710715468
     },
     "edit": {
       "sourceStartFrame": 0,
-      "sourceEndFrameExclusive": 8735936,
+      "sourceEndFrameExclusive": 8572416,
       "sourceStartSeconds": 0.0,
-      "sourceEndSeconds": 181.99866666666668,
+      "sourceEndSeconds": 178.592,
       "trimmedHeadSeconds": 0.0,
       "trimmedTailSeconds": 0.0,
       "silenceTrim": {
         "method": "10 ms stereo RMS; max(-65 dBFS, p90 RMS minus 45 dB)",
-        "thresholdAmplitude": 0.0012321430802270817,
+        "thresholdAmplitude": 0.001196459946014371,
         "retainedMarginSeconds": 0.1,
-        "maximumTrimPerSideSeconds": 2.5
+        "maximumTrimPerSideSeconds": 0.0
       },
       "removedDcPerChannel": [
-        -6.570073169136525e-06,
-        3.045612244769541e-08
+        0.001556954898254104,
+        0.0012476596076163612
       ],
       "fadeInFrames": 1680,
       "fadeInSeconds": 0.035,
@@ -56,267 +68,130 @@
       "fadeOutSeconds": 2.5,
       "fadeMethod": "sin-squared entrance and cos-squared exit amplitude windows",
       "outputOrder": "original chronological order; every selected sample retained once",
-      "outputFrames": 8735936,
-      "outputDuration": 181.99866666666668,
+      "outputFrames": 8572416,
+      "outputDuration": 178.592,
       "durationReductionSeconds": 0.0
     },
     "normalization": {
       "targetRms": 0.12,
       "samplePeakLimit": 0.72,
       "decodedPeakLimit": 0.95,
-      "linearGain": 0.804875525533906,
-      "gainDb": -1.885425566646155,
-      "outputLevels": {
-        "peak": 0.7152713537216187,
-        "peakDbfs": -2.9105833579049403,
-        "rms": 0.12000000001940136,
-        "rmsDbfs": -18.416375077643185
-      },
+      "linearGain": 0.7214748984903698,
       "encodeAttempts": [
         {
-          "linearGain": 0.804875525533906,
-          "decodedPeak": 0.7294045090675354
+          "gain": 0.7214748984903698,
+          "decodedPeak": 0.7261025905609131
         }
       ]
     },
     "encoding": {
       "codec": "AAC-LC",
       "container": "M4A",
-      "bitrate": 160000,
       "encoder": "afconvert",
-      "aacBytes": 3672619,
+      "aacBytes": 3524845,
       "aacBitrate": 160000,
-      "sourceFrames": 8735936,
-      "encodedInputFrames": 8735936,
-      "decodedFrames": 8735936,
-      "decodedDuration": 181.99866666666668,
+      "sourceFrames": 8572416,
+      "encodedInputFrames": 8572416,
+      "decodedFrames": 8572416,
+      "decodedDuration": 178.592,
       "decodedDurationDifferenceSeconds": 0.0,
-      "decodedPeak": 0.7294045090675354,
-      "decodedPeakDbfs": -2.740631125432513,
-      "decodedRms": 0.11988665344882751,
-      "decodedRmsDbfs": -18.42458325314516,
-      "decodedFirst100msRms": 0.0007636054756471082,
-      "decodedLast100msRms": 1.8148888138129676e-05
+      "decodedPeak": 0.7261025905609131,
+      "decodedPeakDbfs": -2.780040275617615,
+      "decodedRms": 0.10820694065223066,
+      "decodedRmsDbfs": -19.314897632964083,
+      "decodedFirst100msRms": 0.042639597419726234,
+      "decodedLast100msRms": 1.3433270607591422e-07
     },
+    "duration": 178.592,
     "artifacts": {
       "journey.wav": {
-        "sha256": "145b013e1b3559b563a376cfd5968ed448faafd36dc8ff7198b90fc15ec6c723",
-        "bytes": 52415660
+        "sha256": "1821082ff02589e6029ca5d87122bc083e338bbd0c28ede859e1b76cac50775d",
+        "bytes": 51434540
       },
       "journey.m4a": {
-        "sha256": "03de5c05a1b88d96d7201efe47b296f90f8e3bc7aaa43cea248e416c26e20875",
-        "bytes": 3672619
+        "sha256": "25e977bd3b7ec944e3711e6735c54f95303388b20ad16c01cd670ad62b8b300d",
+        "bytes": 3524845
       }
     },
     "review": {
       "automatedTechnicalChecks": "passed",
       "listeningVerified": false,
-      "note": "Technical checks only. Listen to the full arrangement, ending, timbre and SFX balance before judging musical quality."
+      "note": "Content inspection must be completed separately before catalog acceptance."
     },
-    "title": "먼 길의 새벽",
-    "file": "journey-full-03de5c05a1.m4a",
-    "duration": 181.99866666666668,
-    "sourceCollection": "source_assets/audio/yue2-bgm-v1.10.3",
-    "generationWarnings": [
-      {
-        "message": "목표 길이 근처까지 생성했지만 자연 종료 전에 길이 제한에 도달했어. 마지막 구절이 잘렸을 수 있으니 끝부분을 확인해줘."
-      }
-    ],
+    "file": "journey-flow-25e977bd3b.m4a",
     "contentReview": {
       "purpose": "background-music",
       "decision": "accept",
-      "audioSha256": "03de5c05a1b88d96d7201efe47b296f90f8e3bc7aaa43cea248e416c26e20875",
-      "reviewedAt": "2026-10-24T01:05:01.607999+00:00",
-      "reviewedDurationSeconds": 181.99866666666668,
-      "method": "Full-duration decoded-AAC spectrogram inspection plus every 15-second signal segment: changing pitched harmonic structure continues throughout. No noise-only or isolated-impact tail observed.",
+      "audioSha256": "25e977bd3b7ec944e3711e6735c54f95303388b20ad16c01cd670ad62b8b300d",
+      "reviewedAt": "2026-11-05T02:08:58.153871+00:00",
+      "reviewedDurationSeconds": 178.592,
+      "method": "Full-duration decoded AAC spectrogram inspection and every 15-second signal segment. Changing pitched harmonic structure persists through the resolved ending; no noise-only tail observed.",
       "listeningVerified": false,
       "report": "content-review.json"
     }
   },
   {
     "id": "boss",
-    "processorRevision": 1,
-    "preparedAt": "2026-10-23T11:42:08.287605+00:00",
-    "source": "YuE2 generated complete instrumental for sequential playback",
-    "master": "/Users/jeongsu/GAME/last-delivery/source_assets/audio/yue2-playlist/boss-original.wav",
-    "masterSha256": "ae429ebc812e5dbfb236fdeb0cf6d6fdee59db211ff7d2a943dba518062cc454",
-    "generationRecord": "/Users/jeongsu/GAME/last-delivery/source_assets/audio/yue2-playlist/boss.result.json",
-    "generationRecordSha256": "10a07951bd3009745982f13b65d8f2c5af6f8ae6039c1002a14a1332ef4d435e",
-    "requestHash": "4b4a994f95a8a8a16b9eaff30fc96d305d3c4cbebddb10f651725238ee78cfb8",
-    "request": {
-      "model": "yue2",
-      "taskType": "text2music",
-      "instrumental": true,
-      "lyrics": "[Instrumental]",
-      "duration": 180,
-      "steps": 32,
-      "thinking": true,
-      "seed": 231026203,
-      "prompt": "A complete original instrumental composition lasting about three minutes, intended for a continuous wuxia adventure game listening playlist. Acoustic Chinese chamber ensemble with expressive dizi bamboo flute, pipa and guqin plucked strings, warm restrained erhu, soft wooden percussion and occasional low hand drum. Consistent intimate natural acoustic production, moderate dynamic range, modest bass, clear instruments with space for game sound effects. Develop long musical phrases with variation and a contrasting middle section; do not restart the opening repeatedly. Shape a full composition with a short musical introduction, two developed sections, a melodic return, then a gentle resolving coda beginning around 165 seconds with the final sustained notes and room decay by 180 seconds. This is a complete song with a beginning and an ending, not a short looping gameplay cue. Purely instrumental throughout: no singing, no vocals, no humming, no chanting, no choir, no spoken language, no dramatic trailer impacts, no EDM drops or electronic dance beat. A long thoughtful journey through the martial world, measured pulse near 90 BPM, D minor pentatonic softened by open harmonies. Warm erhu and guqin share an original lyrical motif, with dizi answering between phrases. Light pipa and hand drum provide a restrained steady rhythm. Develop a brighter middle variation, then return to the melody with an expressive sustained conclusion. Determined and reflective rather than tense, dark or cinematic; finish naturally and gently."
+    "title": "청하로 가는 길",
+    "preparedAt": "2026-11-05T02:07:07.613483+00:00",
+    "createdFor": "Last Delivery",
+    "generator": {
+      "provider": "Google Flow Music",
+      "model": "Lyria 3.5",
+      "transport": "Official web composer through browser MCP",
+      "sessionUrl": "https://www.flowmusic.app/session/93c2e10c-76ab-4caa-9151-38bb42f6e45c",
+      "songId": "f7dcdbce-4c56-4aeb-9c11-b3ff07261568",
+      "pageUrl": "https://www.flowmusic.app/song/f7dcdbce-4c56-4aeb-9c11-b3ff07261568",
+      "date": "2026-11-05",
+      "referenceAudioUsed": false
     },
+    "request": {
+      "id": "boss",
+      "title": "청하로 가는 길",
+      "providerTitle": "마지막 표행 · 청하로 가는 길",
+      "seed": 110502,
+      "bpm": 94,
+      "prompt": "A complete original 3-minute instrumental Chinese acoustic adventure soundtrack for Last Delivery, a travelling courier wuxia game. 94 BPM in G major pentatonic with warm modal color. Pipa and guzheng weave graceful flowing patterns, an expressive erhu plays a long adventurous melody, and dizi flute answers between phrases. A restrained hand-drum pulse supports the music without dominating it. The mood is purposeful, open-hearted and quietly courageous, crossing river bridges and mountain passes with a precious delivery. Medium energy, steady movement, clear acoustic timbres, space for gameplay. Full arrangement: 0:00-0:15 melodic introduction, 0:15-1:00 main theme, 1:00-1:45 contrasting flute-and-erhu dialogue, 1:45-2:40 developed ensemble return, 2:40-3:00 gentle resolved coda. Maintain active melodic and harmonic instruments throughout all three minutes. Strictly instrumental: no singing, humming, chants, voice, spoken words, field recordings, weapon sounds, whooshes, impact effects, trailer booms, electronic drops or percussion-only sections. Clean natural recording with moderate dynamics and a musical ending. Entirely newly composed, without any reference song or remix.",
+      "songId": "f7dcdbce-4c56-4aeb-9c11-b3ff07261568",
+      "sourceUrl": "https://storage.googleapis.com/producer-app-public/clips/f7dcdbce-4c56-4aeb-9c11-b3ff07261568.m4a"
+    },
+    "sourceCollection": "source_assets/audio/flow-music-2026-11-05",
+    "original": {
+      "file": "boss-original.m4a",
+      "sha256": "edb851a5669ad8f9f7d00b48b3ed6135003e5fe7e5bffc3cf6f256ce2a1bdd5b",
+      "bytes": 2277371,
+      "url": "https://storage.googleapis.com/producer-app-public/clips/f7dcdbce-4c56-4aeb-9c11-b3ff07261568.m4a"
+    },
+    "masterSha256": "83aad8c49d16a78219005141b09f116703cd0ca0480b1ef3728395d59fa9aa4b",
     "sourceFormat": {
       "channels": 2,
       "sampleWidthBytes": 3,
       "sampleRate": 48000,
-      "frames": 8735936,
-      "duration": 181.99866666666668
+      "frames": 8488960,
+      "duration": 176.85333333333332
     },
     "sourceLevels": {
-      "peak": 0.7120106220245361,
-      "peakDbfs": -2.9502705471439765,
-      "rms": 0.12269253323966509,
-      "rmsDbfs": -18.223637330868662
-    },
-    "edit": {
-      "sourceStartFrame": 14400,
-      "sourceEndFrameExclusive": 8735936,
-      "sourceStartSeconds": 0.3,
-      "sourceEndSeconds": 181.99866666666668,
-      "trimmedHeadSeconds": 0.3,
-      "trimmedTailSeconds": 0.0,
-      "silenceTrim": {
-        "method": "10 ms stereo RMS; max(-65 dBFS, p90 RMS minus 45 dB)",
-        "thresholdAmplitude": 0.0010168057370175808,
-        "retainedMarginSeconds": 0.1,
-        "maximumTrimPerSideSeconds": 2.5
-      },
-      "removedDcPerChannel": [
-        -6.945766679160667e-06,
-        1.205300110829073e-05
-      ],
-      "fadeInFrames": 1680,
-      "fadeInSeconds": 0.035,
-      "fadeOutFrames": 120000,
-      "fadeOutSeconds": 2.5,
-      "fadeMethod": "sin-squared entrance and cos-squared exit amplitude windows",
-      "outputOrder": "original chronological order; every selected sample retained once",
-      "outputFrames": 8721536,
-      "outputDuration": 181.69866666666667,
-      "durationReductionSeconds": 0.3
-    },
-    "normalization": {
-      "targetRms": 0.12,
-      "samplePeakLimit": 0.72,
-      "decodedPeakLimit": 0.95,
-      "linearGain": 0.9772967112587734,
-      "gainDb": -0.19947125378821834,
-      "outputLevels": {
-        "peak": 0.6958388090133667,
-        "peakDbfs": -3.1498270601925564,
-        "rms": 0.12000000001026269,
-        "rmsDbfs": -18.416375078304664
-      },
-      "encodeAttempts": [
-        {
-          "linearGain": 0.9772967112587734,
-          "decodedPeak": 0.6988611221313477
-        }
-      ]
-    },
-    "encoding": {
-      "codec": "AAC-LC",
-      "container": "M4A",
-      "bitrate": 160000,
-      "encoder": "afconvert",
-      "aacBytes": 3610433,
-      "aacBitrate": 160000,
-      "sourceFrames": 8721536,
-      "encodedInputFrames": 8721536,
-      "decodedFrames": 8721536,
-      "decodedDuration": 181.69866666666667,
-      "decodedDurationDifferenceSeconds": 0.0,
-      "decodedPeak": 0.6988611221313477,
-      "decodedPeakDbfs": -3.1121823759136573,
-      "decodedRms": 0.11991165834822565,
-      "decodedRmsDbfs": -18.422771815894055,
-      "decodedFirst100msRms": 0.0003109317784132072,
-      "decodedLast100msRms": 3.132361869587026e-05
-    },
-    "artifacts": {
-      "boss.wav": {
-        "sha256": "e876ad8088f20d6bb42a9dc74de6bccbdc5f0359ed429f4fde69537ea16a7831",
-        "bytes": 52329260
-      },
-      "boss.m4a": {
-        "sha256": "b7336d3041e3bfa74731b9daeb8d07aa9564913b8c5f2d08a0fb6f0840690349",
-        "bytes": 3610433
-      }
-    },
-    "review": {
-      "automatedTechnicalChecks": "passed",
-      "listeningVerified": false,
-      "note": "Technical checks only. Listen to the full arrangement, ending, timbre and SFX balance before judging musical quality."
-    },
-    "title": "강호를 걷는 발걸음",
-    "file": "boss-full-b7336d3041.m4a",
-    "duration": 181.69866666666667,
-    "sourceCollection": "source_assets/audio/yue2-playlist",
-    "generationWarnings": [
-      {
-        "message": "목표 길이 근처까지 생성했지만 자연 종료 전에 길이 제한에 도달했어. 마지막 구절이 잘렸을 수 있으니 끝부분을 확인해줘."
-      }
-    ],
-    "contentReview": {
-      "purpose": "background-music",
-      "decision": "accept",
-      "audioSha256": "b7336d3041e3bfa74731b9daeb8d07aa9564913b8c5f2d08a0fb6f0840690349",
-      "reviewedAt": "2026-10-24T01:05:01.607999+00:00",
-      "reviewedDurationSeconds": 181.69866666666667,
-      "method": "Full-duration decoded-AAC spectrogram inspection plus every 15-second signal segment: changing pitched harmonic structure continues throughout. No noise-only or isolated-impact tail observed.",
-      "listeningVerified": false,
-      "report": "content-review.json"
-    }
-  },
-  {
-    "id": "ending",
-    "processorRevision": 1,
-    "preparedAt": "2026-10-23T11:46:42.742945+00:00",
-    "source": "YuE2 generated complete instrumental for sequential playback",
-    "master": "/Users/jeongsu/GAME/last-delivery/source_assets/audio/yue2-playlist/ending-original.wav",
-    "masterSha256": "2aa246fe9891f98e711f884a142be97194ebed41574afc15f5a0330705eb2a41",
-    "generationRecord": "/Users/jeongsu/GAME/last-delivery/source_assets/audio/yue2-playlist/ending.result.json",
-    "generationRecordSha256": "2638f0b617112c96bf78506cea02fe7b2dd982965421efab56c62d2030e6ecf9",
-    "requestHash": "bfc0165f457bec4291c8915ce80e47d76cf32fd6400a062789359caedef429af",
-    "request": {
-      "model": "yue2",
-      "taskType": "text2music",
-      "instrumental": true,
-      "lyrics": "[Instrumental]",
-      "duration": 180,
-      "steps": 32,
-      "thinking": true,
-      "seed": 231026204,
-      "prompt": "A complete original instrumental composition lasting about three minutes, intended for a continuous wuxia adventure game listening playlist. Acoustic Chinese chamber ensemble with expressive dizi bamboo flute, pipa and guqin plucked strings, warm restrained erhu, soft wooden percussion and occasional low hand drum. Consistent intimate natural acoustic production, moderate dynamic range, modest bass, clear instruments with space for game sound effects. Develop long musical phrases with variation and a contrasting middle section; do not restart the opening repeatedly. Shape a full composition with a short musical introduction, two developed sections, a melodic return, then a gentle resolving coda beginning around 165 seconds with the final sustained notes and room decay by 180 seconds. This is a complete song with a beginning and an ending, not a short looping gameplay cue. Purely instrumental throughout: no singing, no vocals, no humming, no chanting, no choir, no spoken language, no dramatic trailer impacts, no EDM drops or electronic dance beat. Warm evening light at a roadside inn after travelling, gently flowing pulse near 86 BPM, C major pentatonic. Intimate guqin and pipa begin a complete original melody; breathy dizi gradually joins and soft erhu adds depth. A lightly rhythmic central passage opens the harmony, then the main tune returns in a clear comfortable register. Keep enough motion for continued gameplay rather than a slow ambient lullaby. Conclude with a tender resolved cadence and natural instrument decay."
-    },
-    "sourceFormat": {
-      "channels": 2,
-      "sampleWidthBytes": 3,
-      "sampleRate": 48000,
-      "frames": 8735936,
-      "duration": 181.99866666666668
-    },
-    "sourceLevels": {
-      "peak": 0.9224215745925903,
-      "peakDbfs": -0.7014109569181497,
-      "rms": 0.16622184032440376,
-      "rmsDbfs": -15.586238274190263
+      "peak": 0.9947205781936646,
+      "peakDbfs": -0.04597795073591662,
+      "rms": 0.12419869599633349,
+      "rmsDbfs": -18.11765927877166
     },
     "edit": {
       "sourceStartFrame": 0,
-      "sourceEndFrameExclusive": 8735936,
+      "sourceEndFrameExclusive": 8488960,
       "sourceStartSeconds": 0.0,
-      "sourceEndSeconds": 181.99866666666668,
+      "sourceEndSeconds": 176.85333333333332,
       "trimmedHeadSeconds": 0.0,
       "trimmedTailSeconds": 0.0,
       "silenceTrim": {
         "method": "10 ms stereo RMS; max(-65 dBFS, p90 RMS minus 45 dB)",
-        "thresholdAmplitude": 0.0013590954732763348,
+        "thresholdAmplitude": 0.001026079987926796,
         "retainedMarginSeconds": 0.1,
-        "maximumTrimPerSideSeconds": 2.5
+        "maximumTrimPerSideSeconds": 0.0
       },
       "removedDcPerChannel": [
-        -5.1315890973211245e-05,
-        -3.487340579917656e-05
+        0.0010814670255532392,
+        0.0008545029365240773
       ],
       "fadeInFrames": 1680,
       "fadeInSeconds": 0.035,
@@ -324,79 +199,195 @@
       "fadeOutSeconds": 2.5,
       "fadeMethod": "sin-squared entrance and cos-squared exit amplitude windows",
       "outputOrder": "original chronological order; every selected sample retained once",
-      "outputFrames": 8735936,
-      "outputDuration": 181.99866666666668,
+      "outputFrames": 8488960,
+      "outputDuration": 176.85333333333332,
       "durationReductionSeconds": 0.0
     },
     "normalization": {
       "targetRms": 0.12,
       "samplePeakLimit": 0.72,
       "decodedPeakLimit": 0.95,
-      "linearGain": 0.7246952634398705,
-      "gainDb": -2.796891543846933,
-      "outputLevels": {
-        "peak": 0.6685117483139038,
-        "peakDbfs": -3.497819122323647,
-        "rms": 0.11999999999874451,
-        "rmsDbfs": -18.41637507913838
-      },
+      "linearGain": 0.7232001017770026,
       "encodeAttempts": [
         {
-          "linearGain": 0.7246952634398705,
-          "decodedPeak": 0.6615844368934631
+          "gain": 0.7232001017770026,
+          "decodedPeak": 0.7191282510757446
         }
       ]
     },
     "encoding": {
       "codec": "AAC-LC",
       "container": "M4A",
-      "bitrate": 160000,
       "encoder": "afconvert",
-      "aacBytes": 3635450,
+      "aacBytes": 3502570,
       "aacBitrate": 160000,
-      "sourceFrames": 8735936,
-      "encodedInputFrames": 8735936,
-      "decodedFrames": 8735936,
-      "decodedDuration": 181.99866666666668,
+      "sourceFrames": 8488960,
+      "encodedInputFrames": 8488960,
+      "decodedFrames": 8488960,
+      "decodedDuration": 176.85333333333332,
       "decodedDurationDifferenceSeconds": 0.0,
-      "decodedPeak": 0.6615844368934631,
-      "decodedPeakDbfs": -3.5882943934992095,
-      "decodedRms": 0.11990301114139333,
-      "decodedRmsDbfs": -18.42339820530064,
-      "decodedFirst100msRms": 0.0031411410772378655,
-      "decodedLast100msRms": 0.0001724987194035389
+      "decodedPeak": 0.7191282510757446,
+      "decodedPeakDbfs": -2.863872991578089,
+      "decodedRms": 0.08968936273695592,
+      "decodedRmsDbfs": -20.945181234677346,
+      "decodedFirst100msRms": 0.03663907110352595,
+      "decodedLast100msRms": 1.0748530313033025e-07
     },
+    "duration": 176.85333333333332,
     "artifacts": {
-      "ending.wav": {
-        "sha256": "a923ec57cf48295b050db8e7679b8f28cb6d242615f4fed6b42ea8a2ef46d0b2",
-        "bytes": 52415660
+      "boss.wav": {
+        "sha256": "d4a4a4aac8cc2562befce8814a89421f5562cf832baee964805a235f3d2ebda2",
+        "bytes": 50933804
       },
-      "ending.m4a": {
-        "sha256": "6243a83092211bc1b15f99dd6a89f64d995f9d296d3b29246efd9c7f175ad84c",
-        "bytes": 3635450
+      "boss.m4a": {
+        "sha256": "9a33c61abf4c5403e83b1a65262983a3b2edb6e3af58e5142036f992a9b668fc",
+        "bytes": 3502570
       }
     },
     "review": {
       "automatedTechnicalChecks": "passed",
       "listeningVerified": false,
-      "note": "Technical checks only. Listen to the full arrangement, ending, timbre and SFX balance before judging musical quality."
+      "note": "Content inspection must be completed separately before catalog acceptance."
     },
-    "title": "저녁빛 머무는 객잔",
-    "file": "ending-full-6243a83092.m4a",
-    "duration": 181.99866666666668,
-    "sourceCollection": "source_assets/audio/yue2-playlist",
-    "generationWarnings": [
-      {
-        "message": "목표 길이 근처까지 생성했지만 자연 종료 전에 길이 제한에 도달했어. 마지막 구절이 잘렸을 수 있으니 끝부분을 확인해줘."
-      }
-    ],
+    "file": "boss-flow-9a33c61abf.m4a",
     "contentReview": {
       "purpose": "background-music",
       "decision": "accept",
-      "audioSha256": "6243a83092211bc1b15f99dd6a89f64d995f9d296d3b29246efd9c7f175ad84c",
-      "reviewedAt": "2026-10-24T01:05:01.607999+00:00",
-      "reviewedDurationSeconds": 181.99866666666668,
-      "method": "Full-duration decoded-AAC spectrogram inspection plus every 15-second signal segment: changing pitched harmonic structure continues throughout. No noise-only or isolated-impact tail observed.",
+      "audioSha256": "9a33c61abf4c5403e83b1a65262983a3b2edb6e3af58e5142036f992a9b668fc",
+      "reviewedAt": "2026-11-05T02:08:58.153871+00:00",
+      "reviewedDurationSeconds": 176.85333333333332,
+      "method": "Full-duration decoded AAC spectrogram inspection and every 15-second signal segment. Changing pitched harmonic structure persists through the resolved ending; no noise-only tail observed.",
+      "listeningVerified": false,
+      "report": "content-review.json"
+    }
+  },
+  {
+    "id": "ending",
+    "title": "돌아온 표국",
+    "preparedAt": "2026-11-05T02:07:08.877645+00:00",
+    "createdFor": "Last Delivery",
+    "generator": {
+      "provider": "Google Flow Music",
+      "model": "Lyria 3.5",
+      "transport": "Official web composer through browser MCP",
+      "sessionUrl": "https://www.flowmusic.app/session/93c2e10c-76ab-4caa-9151-38bb42f6e45c",
+      "songId": "17aecc02-63f3-461c-b602-a208c5addd52",
+      "pageUrl": "https://www.flowmusic.app/song/17aecc02-63f3-461c-b602-a208c5addd52",
+      "date": "2026-11-05",
+      "referenceAudioUsed": false
+    },
+    "request": {
+      "id": "ending",
+      "title": "돌아온 표국",
+      "providerTitle": "마지막 표행 · 돌아온 표국",
+      "seed": 110503,
+      "bpm": 82,
+      "prompt": "A complete original 3-minute instrumental wuxia chamber soundtrack for Last Delivery. Warm, quietly uplifting music for a courier who keeps a promise and returns to rebuild the escort agency. 82 BPM in C major pentatonic with gentle open harmonies. Intimate guqin and guzheng arpeggios support a tender erhu melody; dizi flute enters with a clear answering theme, and delicate pipa keeps a flowing pulse. Light and melodic rather than sleepy ambient music, moderate soft dynamics, natural acoustic space. Arrangement: 0:00-0:15 lyrical guqin introduction, 0:15-1:00 complete erhu theme, 1:00-1:45 brighter flute variation, 1:45-2:40 rich but restrained ensemble reprise, 2:40-3:00 resolved closing melody and natural decay. Maintain coherent pitched music all the way through the third minute; finish as a complete song. Strictly instrumental, no vocals, humming, choir, narration, sound effects, footsteps, wind recordings, metallic hits, cinematic risers, trailer impacts, harsh drums or electronic drops. Clear original melodies, gentle acoustic production, suitable for a continuous shuffled background-music playlist. Compose entirely new music without reusing or remixing any existing recording.",
+      "songId": "17aecc02-63f3-461c-b602-a208c5addd52",
+      "sourceUrl": "https://storage.googleapis.com/producer-app-public/clips/17aecc02-63f3-461c-b602-a208c5addd52.m4a"
+    },
+    "sourceCollection": "source_assets/audio/flow-music-2026-11-05",
+    "original": {
+      "file": "ending-original.m4a",
+      "sha256": "9b9d7458b0e8d00c65d39ada7152acf4252b0619c83406a17634bb6db5fceca9",
+      "bytes": 2500812,
+      "url": "https://storage.googleapis.com/producer-app-public/clips/17aecc02-63f3-461c-b602-a208c5addd52.m4a"
+    },
+    "masterSha256": "de860a718a9edc4ec733ab310c06a534fe81e0fe7e2ab6d9dd4ccfc77190237f",
+    "sourceFormat": {
+      "channels": 2,
+      "sampleWidthBytes": 3,
+      "sampleRate": 48000,
+      "frames": 8588800,
+      "duration": 178.93333333333334
+    },
+    "sourceLevels": {
+      "peak": 1.0,
+      "peakDbfs": 0.0,
+      "rms": 0.12156490627676636,
+      "rmsDbfs": -18.303835608181554
+    },
+    "edit": {
+      "sourceStartFrame": 0,
+      "sourceEndFrameExclusive": 8588800,
+      "sourceStartSeconds": 0.0,
+      "sourceEndSeconds": 178.93333333333334,
+      "trimmedHeadSeconds": 0.0,
+      "trimmedTailSeconds": 0.0,
+      "silenceTrim": {
+        "method": "10 ms stereo RMS; max(-65 dBFS, p90 RMS minus 45 dB)",
+        "thresholdAmplitude": 0.0009956922683981096,
+        "retainedMarginSeconds": 0.1,
+        "maximumTrimPerSideSeconds": 0.0
+      },
+      "removedDcPerChannel": [
+        0.0005971588671135254,
+        0.00042936094894994125
+      ],
+      "fadeInFrames": 1680,
+      "fadeInSeconds": 0.035,
+      "fadeOutFrames": 120000,
+      "fadeOutSeconds": 2.5,
+      "fadeMethod": "sin-squared entrance and cos-squared exit amplitude windows",
+      "outputOrder": "original chronological order; every selected sample retained once",
+      "outputFrames": 8588800,
+      "outputDuration": 178.93333333333334,
+      "durationReductionSeconds": 0.0
+    },
+    "normalization": {
+      "targetRms": 0.12,
+      "samplePeakLimit": 0.72,
+      "decodedPeakLimit": 0.95,
+      "linearGain": 0.7195703022135217,
+      "encodeAttempts": [
+        {
+          "gain": 0.7195703022135217,
+          "decodedPeak": 0.7077215909957886
+        }
+      ]
+    },
+    "encoding": {
+      "codec": "AAC-LC",
+      "container": "M4A",
+      "encoder": "afconvert",
+      "aacBytes": 3531062,
+      "aacBitrate": 160000,
+      "sourceFrames": 8588800,
+      "encodedInputFrames": 8588800,
+      "decodedFrames": 8588800,
+      "decodedDuration": 178.93333333333334,
+      "decodedDurationDifferenceSeconds": 0.0,
+      "decodedPeak": 0.7077215909957886,
+      "decodedPeakDbfs": -3.002751096873364,
+      "decodedRms": 0.08739653989468096,
+      "decodedRmsDbfs": -21.170115222459117,
+      "decodedFirst100msRms": 0.10376905698485674,
+      "decodedLast100msRms": 0.0
+    },
+    "duration": 178.93333333333334,
+    "artifacts": {
+      "ending.wav": {
+        "sha256": "1de890181dfc463554b164b1da53278b6bfb6d564527ef192954635ded89fa57",
+        "bytes": 51532844
+      },
+      "ending.m4a": {
+        "sha256": "765e63b3de9e3cb8d8e8c0a53c66860110c8310f714037da3c738ebd55f8fa8a",
+        "bytes": 3531062
+      }
+    },
+    "review": {
+      "automatedTechnicalChecks": "passed",
+      "listeningVerified": false,
+      "note": "Content inspection must be completed separately before catalog acceptance."
+    },
+    "file": "ending-flow-765e63b3de.m4a",
+    "contentReview": {
+      "purpose": "background-music",
+      "decision": "accept",
+      "audioSha256": "765e63b3de9e3cb8d8e8c0a53c66860110c8310f714037da3c738ebd55f8fa8a",
+      "reviewedAt": "2026-11-05T02:08:58.153871+00:00",
+      "reviewedDurationSeconds": 178.93333333333334,
+      "method": "Full-duration decoded AAC spectrogram inspection and every 15-second signal segment. Changing pitched harmonic structure persists through the resolved ending; no noise-only tail observed.",
       "listeningVerified": false,
       "report": "content-review.json"
     }

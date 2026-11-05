@@ -1,18 +1,18 @@
-// Only the exact full-duration BGM assets accepted in the content review are included.
+// Newly composed Flow Music instrumentals for Last Delivery only; shuffled full-track playback.
 export const MUSIC_TRACKS={
   "journey": {
-    "src": "assets/music/journey-full-03de5c05a1.m4a",
-    "title": "먼 길의 새벽",
-    "duration": 181.99866666666668
+    "src": "assets/music/journey-flow-25e977bd3b.m4a",
+    "title": "새벽의 짐끈",
+    "duration": 178.592
   },
   "boss": {
-    "src": "assets/music/boss-full-b7336d3041.m4a",
-    "title": "강호를 걷는 발걸음",
-    "duration": 181.69866666666667
+    "src": "assets/music/boss-flow-9a33c61abf.m4a",
+    "title": "청하로 가는 길",
+    "duration": 176.85333333333332
   },
   "ending": {
-    "src": "assets/music/ending-full-6243a83092.m4a",
-    "title": "저녁빛 머무는 객잔",
-    "duration": 181.99866666666668
+    "src": "assets/music/ending-flow-765e63b3de.m4a",
+    "title": "돌아온 표국",
+    "duration": 178.93333333333334
   }
 };
