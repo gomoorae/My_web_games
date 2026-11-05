@@ -6,9 +6,14 @@ export function cleanPcSensitivity(value,fallback=PC_SENSITIVITY.default){
   return Math.round(clamped*20)/20;
 }
 
-// Sensitivity applies after direction normalization, including diagonals.
-// Focus keeps 70 percent of normal speed at every selected sensitivity.
-// Relative touch-target movement has its own unchanged speed limit.
+// Retain the original keyboard fallback for mobile and generic engine callers.
+// Desktop input explicitly opts into its independent normal/focus profile.
 export function keyboardSpeed(focus=false,sensitivity=1){
   return 285*(focus?.7:1)*cleanPcSensitivity(sensitivity,1);
+}
+
+export const PC_MOVEMENT_SPEED=Object.freeze({normal:420,focus:180});
+export const PC_CONTROLS_VERSION=3;
+export function pcKeyboardSpeed(focus=false,sensitivity=1,focusSensitivity=1){
+  return focus?PC_MOVEMENT_SPEED.focus*cleanPcSensitivity(focusSensitivity,1):PC_MOVEMENT_SPEED.normal*cleanPcSensitivity(sensitivity,1);
 }

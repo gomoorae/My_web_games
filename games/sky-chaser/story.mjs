@@ -1,5 +1,5 @@
-import {STORIES,STORY_IDS,STORY_STORAGE,SceneTimer,loadStoryProgress,saveStoryProgress,shouldPlayStory} from './story-core.mjs?v=1.1.1';
-import {StoryCinema,storyPresentation} from './story-cinema.mjs?v=1.1.1';
+import {STORIES,STORY_IDS,STORY_STORAGE,SceneTimer,loadStoryProgress,saveStoryProgress,shouldPlayStory} from './story-core.mjs?v=1.2.0';
+import {StoryCinema,storyPresentation} from './story-cinema.mjs?v=1.2.0';
 
 export class StoryPlayer {
   constructor({storage,sprites=()=>({}),artReady=Promise.resolve(),motion=()=>true,onOpen=()=>{},onClose=()=>{},onScene=()=>{},onPause=()=>{}}={}){

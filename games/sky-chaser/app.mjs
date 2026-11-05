@@ -1,17 +1,17 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=1.1.1';
-import {Renderer} from './render.mjs?v=1.1.1';
-import {Sound} from './audio.mjs?v=1.1.1';
-import {readRecords,writeRecords} from './records.mjs?v=1.1.1';
-import {FrameLoop} from './frame-loop.mjs?v=1.1.1';
-import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=1.1.1';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=1.2.0';
+import {Renderer} from './render.mjs?v=1.2.0';
+import {Sound} from './audio.mjs?v=1.2.0';
+import {readRecords,writeRecords} from './records.mjs?v=1.2.0';
+import {FrameLoop} from './frame-loop.mjs?v=1.2.0';
+import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=1.2.0';
 
-import {StoryPlayer} from './story.mjs?v=1.1.1';
-import {BOSS_STORIES,START_STORIES,STAGE_STORIES,STAGE_GOALS} from './story-core.mjs?v=1.1.1';
+import {StoryPlayer} from './story.mjs?v=1.2.0';
+import {BOSS_STORIES,START_STORIES,STAGE_STORIES,STAGE_GOALS} from './story-core.mjs?v=1.2.0';
 
 let story=null,audioEpoch=0;
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();
-let pcSensitivity=PC_SENSITIVITY.default;
+let pcSensitivity=PC_SENSITIVITY.default,pcFocusSensitivity=PC_SENSITIVITY.default;
 const route='campaign';
 let difficulty='normal',keys=new Set(),pointer=null,touchTarget=null,touchCharge=false,chargeRequested=false;
 let accumulator=0,visualTime=0,countdown=0,noticeTimer=0,previousState='ready';
@@ -23,14 +23,14 @@ const frameLoop=new FrameLoop({update:advance,draw:present,
   animate:()=>!story?.active&&(game.state==='playing'||(['clear','gameover'].includes(game.state)&&renderer.hasEffects()))});
 function invalidate(reset=false){lastUi=-Infinity;frameLoop.invalidate(reset);}
 try{
-  const saved=readRecords(localStorage);bests=saved;pcSensitivity=saved.pcSensitivity;
+  const saved=readRecords(localStorage);bests=saved;pcSensitivity=saved.pcSensitivity;pcFocusSensitivity=saved.pcFocusSensitivity;
   sound.setVolumes(saved);
   if(saved.muted===true){sound.enabled=false;}
   if(saved.motion===false)renderer.motion=false;
 }catch{}
 if(matchMedia('(prefers-reduced-motion: reduce)').matches)renderer.motion=false;
 function persist(){
-  try{bests=writeRecords(localStorage,{...bests,muted:!sound.enabled,motion:renderer.motion,pcSensitivity,musicVolume:sound.musicVolume,effectsVolume:sound.effectsVolume});}catch{}
+  try{bests=writeRecords(localStorage,{...bests,muted:!sound.enabled,motion:renderer.motion,pcSensitivity,pcFocusSensitivity,musicVolume:sound.musicVolume,effectsVolume:sound.effectsVolume});}catch{}
 }
 function saveBest(){
   if(game.score>bests[game.mode][game.difficulty]){newBest=true;bests[game.mode][game.difficulty]=game.score;persist();}
@@ -42,7 +42,7 @@ function clearInput(){
 function getInput(){
   return {x:Number(keys.has('ArrowRight')||keys.has('KeyD'))-Number(keys.has('ArrowLeft')||keys.has('KeyA')),
     y:Number(keys.has('ArrowDown')||keys.has('KeyS'))-Number(keys.has('ArrowUp')||keys.has('KeyW')),
-    focus:keys.has('ShiftLeft')||keys.has('ShiftRight'),moveScale:pcSensitivity,
+    focus:keys.has('ShiftLeft')||keys.has('ShiftRight'),moveScale:pcSensitivity,focusScale:pcFocusSensitivity,pcKeyboard:true,
     fire:true,charge:keys.has('KeyZ')||touchCharge,chargePressed:chargeRequested,
     target:touchTarget};
 }
@@ -50,9 +50,9 @@ function notice(text,seconds=2.8,warning=false){
   $('notice').textContent=text;$('notice').className='notice visible'+(warning?' warning':'');noticeTimer=seconds;
 }
 function sensitivityLabel(){
-  const label=Math.round(pcSensitivity*100)+'%';
-  $('pc-sensitivity').value=String(pcSensitivity);$('pc-sensitivity-value').textContent=label;
-  $('pc-sensitivity').setAttribute('aria-valuetext',label);
+  for(const [id,value] of [['pc-sensitivity',pcSensitivity],['pc-focus-sensitivity',pcFocusSensitivity]]){
+    const label=Math.round(value*100)+'%';$(id).value=String(value);$(id+'-value').textContent=label;$(id).setAttribute('aria-valuetext',label);
+  }
 }
 function updateSettings(){
   sensitivityLabel();
@@ -142,7 +142,9 @@ $('pc-settings-open').addEventListener('click',openSettings);
 $('pc-settings-close').addEventListener('click',closeSettings);
 $('pc-sensitivity').addEventListener('input',e=>{pcSensitivity=cleanPcSensitivity(Number(e.target.value));sensitivityLabel();});
 $('pc-sensitivity').addEventListener('change',persist);
-$('pc-sensitivity-reset').addEventListener('click',()=>{pcSensitivity=PC_SENSITIVITY.default;sensitivityLabel();persist();});
+$('pc-focus-sensitivity').addEventListener('input',e=>{pcFocusSensitivity=cleanPcSensitivity(Number(e.target.value));sensitivityLabel();});
+$('pc-focus-sensitivity').addEventListener('change',persist);
+$('pc-sensitivity-reset').addEventListener('click',()=>{pcSensitivity=pcFocusSensitivity=PC_SENSITIVITY.default;sensitivityLabel();persist();});
 async function toggleFullscreen(){
   try{
     if(document.fullscreenElement)await document.exitFullscreen();

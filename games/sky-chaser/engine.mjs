@@ -1,11 +1,11 @@
-import {hostileSpeed,regularInterval,regularCanFire} from './difficulty.mjs?v=1.1.1';
+import {hostileSpeed,regularInterval,regularCanFire} from './difficulty.mjs?v=1.2.0';
 import {STAGES,RUN_MODES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,updateStormGuns,crossesLaser} from './stages.mjs?v=1.1.1';
-import {FORGE_WAVES,FORGE_EASY_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,updateForgeBomber,moveMortar,mortarArmed,mortarCrossfire,updateForgeGuns} from './forge.mjs?v=1.1.1';
-import {keyboardSpeed} from './pc-controls.mjs?v=1.1.1';
+  attachPods,syncPods,stormAttack,updateStormGuns,crossesLaser} from './stages.mjs?v=1.2.0';
+import {FORGE_WAVES,FORGE_EASY_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,updateForgeBomber,moveMortar,mortarArmed,mortarCrossfire,updateForgeGuns} from './forge.mjs?v=1.2.0';
+import {keyboardSpeed,pcKeyboardSpeed} from './pc-controls.mjs?v=1.2.0';
 export {STAGES,RUN_MODES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '1.1.1';
+export const VERSION = '1.2.0';
 export const PLAYER_SCALE = .72;
 export const PLAYER_HIT_RADIUS = 3.6;
 export const CHARGE_REQUIRED = 240;
@@ -462,7 +462,7 @@ export class Game {
     let dx = clamp(input.x || 0, -1, 1), dy = clamp(input.y || 0, -1, 1);
     const len = Math.hypot(dx, dy);
     if (len > 1) { dx /= len; dy /= len; }
-    const speed = keyboardSpeed(input.focus,input.moveScale);
+    const speed = input.pcKeyboard?pcKeyboardSpeed(input.focus,input.moveScale,input.focusScale):keyboardSpeed(input.focus,input.moveScale);
     p.x = clamp(p.x + dx * speed * dt, 21, W - 21);
     p.y = clamp(p.y + dy * speed * dt, 55, H - 30);
     if (input.target) {

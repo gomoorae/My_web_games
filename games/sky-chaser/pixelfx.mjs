@@ -1,4 +1,4 @@
-import {PIXELFX_CATALOG} from './pixelfx-catalog.mjs?v=1.1.1';
+import {PIXELFX_CATALOG} from './pixelfx-catalog.mjs?v=1.2.0';
 export const MAX_TRANSIENT_FX=32,MAX_HIT_FX=18;
 export class PixelFXBank {
   constructor({catalog=PIXELFX_CATALOG,createImage=()=>new Image()}={}){this.catalog=catalog;this.createImage=createImage;this.images=new Map();this.failed=new Set();this.pending=null;}

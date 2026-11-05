@@ -1,5 +1,5 @@
-import {cleanPcSensitivity} from './pc-controls.mjs?v=1.1.1';
-import {audioSettings} from './audio-settings.mjs?v=1.1.1';
+import {cleanPcSensitivity,PC_CONTROLS_VERSION} from './pc-controls.mjs?v=1.2.0';
+import {audioSettings} from './audio-settings.mjs?v=1.2.0';
 // Old practice scores are retained only as archived data. They never enter
 // the campaign leaderboard or expose a playable route.
 const RECORD_ROUTES=['campaign','practice2','practice3'];
@@ -18,7 +18,10 @@ export function readRecords(storage){
   // a manually chosen 90%. Upgrade that value once; keep other adjustments.
   const controlsCurrent=Number.isFinite(saved.pcControlsVersion)&&saved.pcControlsVersion>=2;
   const sensitivity=!controlsCurrent&&saved.pcSensitivity===.9?1:saved.pcSensitivity;
-  return {...empty,...audioSettings(saved),pcControlsVersion:2,pcSensitivity:cleanPcSensitivity(sensitivity),muted:saved.muted??two.muted??old.muted??false,motion:saved.motion??two.motion??old.motion??true};
+  const normal=cleanPcSensitivity(sensitivity);
+  // Split the previously shared preference once, retaining the selected scale.
+  const focus=cleanPcSensitivity(saved.pcFocusSensitivity,normal);
+  return {...empty,...audioSettings(saved),pcControlsVersion:PC_CONTROLS_VERSION,pcSensitivity:normal,pcFocusSensitivity:focus,muted:saved.muted??two.muted??old.muted??false,motion:saved.motion??two.motion??old.motion??true};
 }
 export function writeRecords(storage,records){
   const current=readRecords(storage);
@@ -27,6 +30,7 @@ export function writeRecords(storage,records){
   current.muted=records.muted;current.motion=records.motion;
   Object.assign(current,audioSettings({musicVolume:records.musicVolume??current.musicVolume,effectsVolume:records.effectsVolume??current.effectsVolume}));
   current.pcSensitivity=cleanPcSensitivity(records.pcSensitivity,current.pcSensitivity);
+  current.pcFocusSensitivity=cleanPcSensitivity(records.pcFocusSensitivity,current.pcFocusSensitivity);
   storage.setItem('sky-chaser.v3',JSON.stringify(current));
   return current;
 }
