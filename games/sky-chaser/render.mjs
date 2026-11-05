@@ -1,9 +1,9 @@
-import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=0.10.1';
-import {ArtBank} from './art.mjs?v=0.10.1';
-import {drawLaser} from './laser-fx.mjs?v=0.10.1';
-import {drawMortars} from './forge-fx.mjs?v=0.10.1';
-import {renderRatio} from './frame-loop.mjs?v=0.10.1';
-import {glow,flame,normalShot} from './canvas-fx.mjs?v=0.10.1';
+import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=1.0.0';
+import {ArtBank} from './art.mjs?v=1.0.0';
+import {drawLaser} from './laser-fx.mjs?v=1.0.0';
+import {drawMortars} from './forge-fx.mjs?v=1.0.0';
+import {renderRatio} from './frame-loop.mjs?v=1.0.0';
+import {glow,flame,normalShot} from './canvas-fx.mjs?v=1.0.0';
 const TAU=Math.PI*2;
 const mix=(a,b,t)=>a+(b-a)*t;
 const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
@@ -622,7 +622,7 @@ export class Renderer {
   hud(c,g){
     c.save();
     const fade=c.createLinearGradient(0,0,0,90);fade.addColorStop(0,'#102e42e8');fade.addColorStop(1,'#102e4200');c.fillStyle=fade;c.fillRect(0,0,W,90);
-    c.fillStyle='#fff0cd';c.font='700 12px sans-serif';c.textAlign='left';c.fillText('0'+g.stage+' / '+STAGES[g.stage].name+(g.mode!=='campaign'?' · 연습':''),20,26);
+    c.fillStyle='#fff0cd';c.font='700 12px sans-serif';c.textAlign='left';c.fillText('0'+g.stage+' / '+STAGES[g.stage].name,20,26);
     c.textAlign='right';c.font='700 17px monospace';c.fillText(String(g.score).padStart(7,'0'),W-20,27);
     if(g.boss){
       const e=g.boss;c.textAlign='left';c.font='700 10px sans-serif';

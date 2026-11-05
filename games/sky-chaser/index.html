@@ -6,12 +6,12 @@
   <meta name="theme-color" content="#143b4a">
   <meta name="description" content="룬 사수 루미와 함께 공중 해적단을 추격하세요. 세 스테이지와 변신 보스에 도전하는 세로 스크롤 아케이드 슈팅.">
   <title>스카이 체이서 — Sky Chaser</title>
-  <script src="./entry.js?v=0.10.1"></script>
+  <script src="./entry.js?v=1.0.0"></script>
   <style>html[data-controls="mobile"] body{display:none}.start-hint a{color:inherit;text-underline-offset:3px}</style>
   <link rel="icon" href="./assets/emblem.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css?v=0.10.1">
-  <link rel="stylesheet" href="./desktop.css?v=0.10.1">
-  <link rel="stylesheet" href="./story.css?v=0.10.1">
+  <link rel="stylesheet" href="./style.css?v=1.0.0">
+  <link rel="stylesheet" href="./desktop.css?v=1.0.0">
+  <link rel="stylesheet" href="./story.css?v=1.0.0">
 </head>
 <body>
   <header class="topbar">
@@ -55,14 +55,14 @@
             <p class="title-kicker">하늘을 달리는, 단 한 번의 출격</p>
             <h2><span>SKY</span><br>CHASER<span class="title-star">✦</span></h2>
             <p class="title-sub">스카이 체이서</p>
-            <div class="route-select" role="group" aria-label="출격 코스"><button data-route="campaign" class="selected" aria-pressed="true">연속 출격 <small>1 → 3 STAGE</small></button><button data-route="practice2" aria-pressed="false">2스테이지 연습 <small>STAGE 02</small></button><button data-route="practice3" aria-pressed="false">3스테이지 연습 <small>STAGE 03</small></button></div><p id="route-hint">1 → 3스테이지 · 남은 목숨과 무장을 이어갑니다</p>
+            <p class="campaign-brief">해풍의 항구에서 시작하는 세 스테이지의 비행</p>
             <div class="difficulty" role="group" aria-label="난이도">
               <button data-difficulty="easy" aria-pressed="false">쉬움 <small>여유로운 비행</small></button>
               <button data-difficulty="normal" class="selected" aria-pressed="true">보통 <small>짜릿한 도전</small></button>
             </div>
             <button id="start" class="primary" disabled>비행 준비 중…</button>
             <p id="asset-status" class="asset-status" role="status">세 스테이지의 그림을 불러오는 중입니다.</p>
-            <p class="start-hint">기본 사격 자동 · ENTER로 출격 · <a href="./mobile.html?v=0.10.1">모바일 조작으로 플레이</a></p><div class="title-extras"><button id="story-open" class="story-open" type="button">이야기 · 빼앗긴 바람</button><a class="soundtrack-link" href="./soundtrack.html?v=0.10.1">♫ BGM 감상</a></div>
+            <p class="start-hint">기본 사격 자동 · ENTER로 출격 · <a href="./mobile.html?v=1.0.0">모바일 조작으로 플레이</a></p><div class="title-extras"><button id="story-open" class="story-open" type="button">이야기 · 빼앗긴 바람</button><a class="soundtrack-link" href="./soundtrack.html?v=1.0.0">♫ BGM 감상</a></div>
           </div>
         </div>
         <div id="modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -77,7 +77,7 @@
           </div>
         </div>
       </div>
-      <div class="arena-caption"><span><i></i> <span id="status-text">출격 대기</span></span><span id="flight-clock">00:00</span><span>SKY CHASER · 0.8</span></div>
+      <div class="arena-caption"><span><i></i> <span id="status-text">출격 대기</span></span><span id="flight-clock">00:00</span><span>SKY CHASER · 1.0</span></div>
       <div class="touch-controls" aria-label="터치 조작">
         <span>화면 드래그로 이동 · 자동 사격</span>
         <button id="touch-charge">차지샷 <small>적중으로 충전</small></button><button id="touch-bomb">폭탄 <b id="touch-bomb-count">3</b></button>
@@ -125,8 +125,8 @@
       <p class="pc-setting-note">감도와 음량은 이 브라우저에 자동으로 저장됩니다.</p>
     </div>
   </section>
-  <footer class="page-footer"><span>푸른 하늘, 뜨거운 한 판.</span><span>3 STAGES <i>/</i> 1 PILOT <i>/</i> ENDLESS RETRIES</span><span>THE STOLEN WIND — v0.10.1</span></footer>
+  <footer class="page-footer"><span>푸른 하늘, 뜨거운 한 판.</span><span>3 STAGES <i>/</i> 1 PILOT <i>/</i> ENDLESS RETRIES</span><span>THE STOLEN WIND — v1.0.0</span></footer>
   <noscript>이 게임을 플레이하려면 브라우저에서 JavaScript를 허용해 주세요.</noscript>
-  <script type="module">if(document.documentElement.dataset.controls!=='mobile')import('./app.mjs?v=0.10.1');</script>
+  <script type="module">if(document.documentElement.dataset.controls!=='mobile')import('./app.mjs?v=1.0.0');</script>
 </body>
 </html>

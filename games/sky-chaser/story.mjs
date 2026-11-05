@@ -1,5 +1,5 @@
-import {STORIES,STORY_IDS,STORY_STORAGE,SceneTimer,loadStoryProgress,saveStoryProgress,shouldPlayStory} from './story-core.mjs?v=0.10.1';
-import {StoryCinema,storyPresentation} from './story-cinema.mjs?v=0.10.1';
+import {STORIES,STORY_IDS,STORY_STORAGE,SceneTimer,loadStoryProgress,saveStoryProgress,shouldPlayStory} from './story-core.mjs?v=1.0.0';
+import {StoryCinema,storyPresentation} from './story-cinema.mjs?v=1.0.0';
 
 export class StoryPlayer {
   constructor({storage,sprites=()=>({}),artReady=Promise.resolve(),motion=()=>true,onOpen=()=>{},onClose=()=>{},onScene=()=>{},onPause=()=>{}}={}){
@@ -119,7 +119,7 @@ export class StoryPlayer {
       const button=document.createElement('button');button.type='button';button.dataset.storyReplay=id;
       button.disabled=!this.progress.unlocked.includes(id);
       const label=document.createElement('span');label.textContent=STORIES[id].label;button.append(label);
-      const hint=document.createElement('small');hint.textContent=button.disabled?(id==='ending'?'연속 출격 클리어 후':'연속 출격에서 만나기'):'다시 보기 →';button.append(hint);
+      const hint=document.createElement('small');hint.textContent=button.disabled?(id==='ending'?'전체 스테이지 클리어 후':'비행 중 만나기'):'다시 보기 →';button.append(hint);
       button.onclick=()=>this.play(id,{replay:true});list.append(button);
     }
   }

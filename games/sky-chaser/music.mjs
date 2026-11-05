@@ -1,4 +1,4 @@
-import {MUSIC_CATALOG} from './music-catalog.mjs?v=0.10.1';
+import {MUSIC_CATALOG} from './music-catalog.mjs?v=1.0.0';
 
 export function loopRegion(spec,duration){
   const start=Math.max(0,Math.min(spec.loopStart||0,duration-2));
@@ -8,14 +8,29 @@ export function loopRegion(spec,duration){
   return {start,boundary,end:boundary+fade,fade,period:boundary-start};
 }
 
-// Two long decoded tracks at most. Sources already
+// Two decoded tracks at most, within the existing byte budget. Sources already
 // scheduled in the audio clock keep the next loop steady without a frame loop.
 export class MusicPlayer {
   constructor(context,output,{catalog=MUSIC_CATALOG,fetcher=(...args)=>fetch(...args),schedule=(fn,ms)=>setTimeout(fn,ms),cancel=id=>clearTimeout(id),maxBytes=84*1024*1024}={}){
     Object.assign(this,{context,output,catalog,fetcher,schedule,cancel,maxBytes});
-    this.cache=new Map();this.pending=new Map();this.failures=new Set();this.voices=new Set();
+    this.cache=new Map();this.pending=new Map();this.encoded=new Map();this.fetching=new Map();this.failures=new Set();this.voices=new Set();
     this.id=null;this.active=false;this.serial=0;this.offset=0;this.timer=null;this.status='idle';this.loops=0;
     this.bus=context.createGain();this.bus.connect(output);this.bus.gain.value=1;this.level=1;
+  }
+  async bytes(key){
+    if(this.encoded.has(key)){const data=this.encoded.get(key);this.encoded.delete(key);this.encoded.set(key,data);return data;}
+    if(this.fetching.has(key))return this.fetching.get(key);
+    const task=(async()=>{
+      const response=await this.fetcher(key,{signal:globalThis.AbortSignal?.timeout?.(12000)});
+      if(!response.ok)throw Error('Audio unavailable');
+      const data=await response.arrayBuffer();this.encoded.set(key,data);
+      const size=()=>[...this.encoded.values()].reduce((n,b)=>n+b.byteLength,0);
+      while(this.encoded.size>2||size()>12*1024*1024)this.encoded.delete(this.encoded.keys().next().value);
+      return data;
+    })();
+    this.fetching.set(key,task);
+    const finish=()=>{if(this.fetching.get(key)===task)this.fetching.delete(key);};task.then(finish,finish);
+    return task;
   }
   async load(id){
     const spec=this.catalog[id];if(!spec)return null;const key=spec.file;
@@ -23,11 +38,10 @@ export class MusicPlayer {
     if(this.pending.has(key))return this.pending.get(key);
     const task=(async()=>{
       try{
-        const response=await this.fetcher(key,{signal:globalThis.AbortSignal?.timeout?.(12000)});if(!response.ok)throw Error('Audio unavailable');
-        const data=await response.arrayBuffer(),buffer=await this.context.decodeAudioData(data);
+        const data=await this.bytes(key),buffer=await this.context.decodeAudioData(data.slice(0));
         if(!buffer||!Number.isFinite(buffer.duration)||buffer.duration<.05)throw Error('Invalid audio');
         this.cache.set(key,{buffer,kind:spec.kind,bytes:buffer.length*buffer.numberOfChannels*4});this.failures.delete(key);this.trim();return buffer;
-      }catch{this.failures.add(key);return null;}
+      }catch{this.encoded.delete(key);this.failures.add(key);return null;}
     })();
     this.pending.set(key,task);void task.finally(()=>{if(this.pending.get(key)===task)this.pending.delete(key);});return task;
   }
@@ -41,7 +55,13 @@ export class MusicPlayer {
       if(entry.kind==='music'||total()>this.maxBytes)this.cache.delete(key);
     }
   }
-  preload(id){if(!this.failures.has(this.catalog[id]?.file))void this.load(id);}
+  preload(id){
+    const key=this.catalog[id]?.file;
+    if(!key||this.failures.has(key)||this.cache.has(key)||this.pending.has(key))return;
+    // A three-minute stage can fill most of the decoded budget by itself.
+    // Prefetch compressed AAC only; avoid decoding and immediately evicting a boss.
+    void this.bytes(key).catch(()=>this.failures.add(key));
+  }
   setTrack(id,{active=true,level=1,restart=false}={}){
     id=this.catalog[id]?.kind==='music'?id:null;
     const changed=id!==this.id||restart,wasActive=this.active;
@@ -95,5 +115,5 @@ export class MusicPlayer {
     this.voice(buffer,region.start,at,region,region.fade,serial);
     this.timer=this.schedule(()=>{this.timer=null;if(serial!==this.serial||!this.active)return;this.loops++;this.queue(buffer,region,at+region.period,serial);},Math.max(1,(at-now+.05)*1000));
   }
-  snapshot(){return {track:this.id,active:this.active,status:this.status,position:+this.position().toFixed(2),loops:this.loops,voices:this.voices.size,cachedFiles:this.cache.size,decodedBytes:[...this.cache.values()].reduce((n,e)=>n+e.bytes,0)};}
+  snapshot(){return {track:this.id,active:this.active,status:this.status,position:+this.position().toFixed(2),loops:this.loops,voices:this.voices.size,cachedFiles:this.cache.size,decodedBytes:[...this.cache.values()].reduce((n,e)=>n+e.bytes,0),encodedBytes:[...this.encoded.values()].reduce((n,b)=>n+b.byteLength,0)};}
 }

@@ -1,5 +1,5 @@
-import {audioSettings} from './audio-settings.mjs?v=0.10.1';
-export const MOBILE_VERSION='0.10.1';
+import {audioSettings} from './audio-settings.mjs?v=1.0.0';
+export const MOBILE_VERSION='1.0.0';
 export const MOBILE_STORAGE='sky-chaser.mobile.v1';
 export const PREVIEW_STORAGE='sky-chaser.mobile-preview.v1';
 export const DEFAULT_SENSITIVITY=1.1;
@@ -8,6 +8,7 @@ const finite=(n,fallback)=>typeof n==='number'&&Number.isFinite(n)?n:fallback;
 export function cleanProfile(raw={}){
   raw=raw&&typeof raw==='object'?raw:{};
   const bests={};
+  // Retain old practice records as archived data; the game only starts campaign.
   for(const mode of ['campaign','practice2','practice3']){
     bests[mode]={};for(const level of ['easy','normal'])bests[mode][level]=Math.floor(clamp(finite(raw.bests?.[mode]?.[level],0),0,999999999));
   }

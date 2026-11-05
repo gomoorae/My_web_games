@@ -8,7 +8,7 @@ export const STAGE_GOALS={
 };
 export const BOSS_STORIES={boss:'raven',tempest:'tempest',ignis:'ignis'};
 export const STAGE_STORIES={2:'canyon',3:'foundry'};
-export const START_STORIES={campaign:'opening',practice2:'canyon',practice3:'foundry'};
+export const START_STORIES={campaign:'opening'};
 export const STORIES={
   opening:{label:'오프닝 · 빼앗긴 바람',chapter:'PROLOGUE',scenes:[
     {title:'하늘길을 달리는 배달부',text:'섬과 도시를 잇는 바람길. 룬 등대의 「바람의 심장」이 그 길을 지켜 왔다.',line:'루미에게 이 하늘은, 매일 누군가의 소식을 전하던 길이었다.',art:asset('harbor-painted-v2.png'),position:'50% 50%',duration:5500,theme:'harbor'},
@@ -54,10 +54,7 @@ export function saveStoryProgress(storage,progress){
 export function shouldPlayStory(progress,id,mode='campaign',replay=false){
   if(!Object.hasOwn(STORIES,id))return false;
   if(replay)return progress.unlocked.includes(id);
-  if(mode==='campaign')return true;
-  // Practice shows its own arrival and boss; the campaign ending stays earned
-  // by completing all three stages. Seen flags only track the replay library.
-  return mode==='practice2'&&['canyon','tempest'].includes(id)||mode==='practice3'&&['foundry','ignis'].includes(id);
+  return mode==='campaign';
 }
 
 // One timer per scene; cancellation and pause never run an old completion.

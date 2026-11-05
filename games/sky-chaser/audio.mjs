@@ -1,6 +1,6 @@
-import {MusicPlayer} from './music.mjs?v=0.10.1';
-import {combatMusic,storyMusic} from './music-catalog.mjs?v=0.10.1';
-import {audioSettings,cleanVolume} from './audio-settings.mjs?v=0.10.1';
+import {MusicPlayer} from './music.mjs?v=1.0.0';
+import {combatMusic,storyMusic} from './music-catalog.mjs?v=1.0.0';
+import {audioSettings,cleanVolume} from './audio-settings.mjs?v=1.0.0';
 
 export class Sound {
   constructor(){
@@ -39,7 +39,7 @@ export class Sound {
   setPlaying(value){this.playing=!!value;this.applyMusic();}
   title(){this.narrative=false;this.track='title';this.level=1;this.playing=true;this.applyMusic();}
   battle(game,playing=true){this.narrative=false;this.track=combatMusic(game);this.level=1;this.playing=playing;this.preloaded=null;this.applyMusic();if(this.enabled&&this.track)this.music?.preload(this.track);}
-  finish(game){this.narrative=false;this.track=game.state==='clear'?(game.mode==='campaign'?'ending':combatMusic(game)):null;this.level=1;this.playing=game.state==='clear';this.applyMusic();}
+  finish(game){this.narrative=false;this.track=game.state==='clear'?'ending':null;this.level=1;this.playing=game.state==='clear';this.applyMusic();}
   beginStory(sequence){
     this.narrative=true;
     if(sequence){this.track=storyMusic(sequence);this.level=1;this.playing=true;}

@@ -1,20 +1,21 @@
-import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=0.10.1';
-import {Renderer} from './render.mjs?v=0.10.1';
-import {Sound} from './audio.mjs?v=0.10.1';
-import {readRecords,writeRecords} from './records.mjs?v=0.10.1';
-import {FrameLoop} from './frame-loop.mjs?v=0.10.1';
-import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=0.10.1';
+import {Game, W, H, STEP, clamp, VERSION,POWER_DURATION,STAGES,RUN_MODES,CHARGE_REQUIRED} from './engine.mjs?v=1.0.0';
+import {Renderer} from './render.mjs?v=1.0.0';
+import {Sound} from './audio.mjs?v=1.0.0';
+import {readRecords,writeRecords} from './records.mjs?v=1.0.0';
+import {FrameLoop} from './frame-loop.mjs?v=1.0.0';
+import {PC_SENSITIVITY,cleanPcSensitivity} from './pc-controls.mjs?v=1.0.0';
 
-import {StoryPlayer} from './story.mjs?v=0.10.1';
-import {BOSS_STORIES,START_STORIES,STAGE_STORIES,STAGE_GOALS} from './story-core.mjs?v=0.10.1';
+import {StoryPlayer} from './story.mjs?v=1.0.0';
+import {BOSS_STORIES,START_STORIES,STAGE_STORIES,STAGE_GOALS} from './story-core.mjs?v=1.0.0';
 
 let story=null,audioEpoch=0;
 const $=id=>document.getElementById(id);
 const game=new Game(), renderer=new Renderer($('game')), sound=new Sound();
 let pcSensitivity=PC_SENSITIVITY.default;
-let difficulty='normal',route='campaign',keys=new Set(),pointer=null,touchTarget=null,touchCharge=false,chargeRequested=false;
+const route='campaign';
+let difficulty='normal',keys=new Set(),pointer=null,touchTarget=null,touchCharge=false,chargeRequested=false;
 let accumulator=0,visualTime=0,countdown=0,noticeTimer=0,previousState='ready';
-let bests={campaign:{easy:0,normal:0},practice2:{easy:0,normal:0},practice3:{easy:0,normal:0}},newBest=false,artReady=false,artFailed=false;
+let bests={campaign:{easy:0,normal:0}},newBest=false,artReady=false,artFailed=false;
 const format=n=>String(Math.floor(n)).padStart(7,'0');
 const timeLabel=t=>String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0');
 const frameLoop=new FrameLoop({update:advance,draw:present,
@@ -114,7 +115,7 @@ function showResult(){
   sound.finish(game);
   $('modal-kicker').textContent=win?'MISSION COMPLETE':'THE SKY IS WAITING';
   $('modal-title').textContent=win?'항로를 되찾았다!':'다시 날아볼까?';
-  $('modal-copy').textContent=win?(game.mode==='practice2'?'2스테이지 연습 완료. 템페스트를 격추했어!':game.mode==='practice3'?'3스테이지 연습 완료. 이그니스를 격추했어!':'항구와 협곡, 홍련의 조선소까지. 모든 항로를 되찾았다!'):'P를 회수해 화력을 유지하고, 위험한 순간에는 X로 폭탄을 사용해 보세요.';
+  $('modal-copy').textContent=win?'항구와 협곡, 홍련의 조선소까지. 모든 항로를 되찾았다!':'P를 회수해 화력을 유지하고, 위험한 순간에는 X로 폭탄을 사용해 보세요.';
   $('result-stats').hidden=false;
   $('result-stats').innerHTML='<div class="result-score"><strong>'+format(game.score)+'</strong><span>'+RUN_MODES[game.mode].name+' · '+(game.difficulty==='easy'?'쉬움':'보통')+'</span>'+(newBest?'<em>NEW PERSONAL BEST</em>':'')+'</div><div><strong>'+game.kills+'</strong><span>격추</span></div><div><strong>'+game.maxCombo+'</strong><span>최대 연속 격추</span></div><div><strong>'+timeLabel(game.time)+'</strong><span>비행 시간</span></div>';
   $('continue').hidden=true;$('retry').textContent='다시 출격하기 ↗';$('modal').hidden=false;$('retry').focus({preventScroll:true});
@@ -162,14 +163,6 @@ for(const button of document.querySelectorAll('[data-difficulty]')){
     }
   });
 }
-for(const button of document.querySelectorAll('[data-route]'))button.addEventListener('click',()=>{
-  route=button.dataset.route;game.reset(difficulty,route);renderer.reset();
-  for(const b of document.querySelectorAll('[data-route]')){
-    b.classList.toggle('selected',b===button);b.setAttribute('aria-pressed',String(b===button));
-  }
-  $('route-hint').textContent=RUN_MODES[route].hint;
-  invalidate();
-});
 const playKeys=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD','KeyX','KeyZ','ShiftLeft','ShiftRight','Escape']);
 window.addEventListener('keydown',e=>{
   if(story?.active)return;
@@ -235,7 +228,7 @@ function ui(){
   const ready=game.state==='ready',mode=ready?difficulty:game.difficulty;
   const recordRoute=ready?route:game.mode;
   text($('score'),format(game.score));text($('best'),format(Math.max(bests[recordRoute][mode],ready?0:game.score)));
-  text($('best-mode'),(recordRoute==='campaign'?'연속 · ':RUN_MODES[recordRoute].startStage+'연습 · ')+(mode==='easy'?'쉬움':'보통'));
+  text($('best-mode'),'정식 · '+(mode==='easy'?'쉬움':'보통'));
   text($('lives'),'♥ '.repeat(Math.max(0,game.lives)).trim()||'—');
   attribute($('lives'),'aria-label','목숨 '+game.lives+'개');
   text($('bombs'),'✦ '.repeat(game.bombs).trim()||'—');attribute($('bombs'),'aria-label','폭탄 '+game.bombs+'개');

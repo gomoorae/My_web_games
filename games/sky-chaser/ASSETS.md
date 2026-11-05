@@ -1,5 +1,23 @@
 # 에셋 제작 정보
 
+## 1.0.0 새 Flow 사운드트랙 · 2026-11-05
+
+현재 게임의 여덟 BGM은 Google Flow Music / Lyria 3.5에서 스카이 체이서 전용으로 새로 생성한 곡입니다. 공식 웹 제작 화면을 브라우저 MCP로 사용했고 연주곡 옵션을 켰습니다. 다른 게임 음원이나 기존 YuE2 곡을 재사용하지 않았습니다. 아래 이전 버전 항목은 교체 전 제작 이력입니다.
+
+| 구간 | 생성 원본 | 게임 파일 SHA-256 |
+|---|---|---|
+| title | [빼앗긴 바람 — 루미의 테마](https://www.flowmusic.app/song/1dcee71d-bc9d-41dc-b0f6-2016315fc3bc) | `a192124808a33cf1ef39a7a789accb763e7c0617f7cc6e0f11ea25686cabb870` |
+| stage1 | [해풍을 가르는 날개](https://www.flowmusic.app/song/8839b46a-8273-4d20-8952-98e2e843d998) | `1ef44cf8ce092eb366faa39af213c7b95fbf08626fc012a50de29d7f0f9109f1` |
+| stage2 | [뇌운의 항로](https://www.flowmusic.app/song/d91f7905-8e6f-4047-84fe-9509fd0f1d4b) | `e4721ed76253faf90c35e12f2c6f3ec5e9eca5528266d672772b4405d24a4e75` |
+| stage3 | [홍련의 추격](https://www.flowmusic.app/song/b138e277-0bee-424d-b858-3c9a45771803) | `93a65921c9fc75fc2cef8b1a3897fb8f5e5c64c2c22cd4954dbeb2c4962f8dc5` |
+| boss1 | [아이언 레이븐 — 항로 돌파](https://www.flowmusic.app/song/2ff13410-aafc-4df0-94c7-39a7384683dc) | `9140d671aa8ef82254f9016580dca4d68fd1c4e4563b4d39bcd4860e499f0170` |
+| boss2 | [템페스트 — 폭풍의 심장](https://www.flowmusic.app/song/2fabf7cf-363f-4f96-b445-65953bfad2e5) | `062f1f3d18c08d2662525c4e9538d685ba8196b915d084269bf49740f8ddafdb` |
+| boss3 | [이그니스 — 마지막 비행](https://www.flowmusic.app/song/5e95f405-c405-42a4-a086-dcceff597f19) | `2bf89f033a566f77f5a8097bd50aea2d1ee1c627c2cd4eb3402af69255b4abe9` |
+| ending | [돌아온 바람 — 배송 완료](https://www.flowmusic.app/song/312929e8-fe25-4218-8a72-8e94d5416916) | `9521b9d3a9d509bdb7d107c72ac4fc9a8cc13026cc2ab2db5968ab3b722e7ee8` |
+
+원본 M4A와 프롬프트·시드는 소스의 `source_assets/audio/flow-music-2026-11-05/`에 보관합니다. AAC 재인코딩, 음량 정렬, 마지막 2.5초 페이드와 게임용 반복 지점 분석을 적용했습니다. 파형·박자·화성 분석과 실제 브라우저 재생은 검증했으며 사람의 청취 평가로 표시하지 않습니다.
+
+
 
 ## 0.5.0 홍련의 조선소 · 2026-10-16
 

@@ -1,11 +1,11 @@
-import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=0.10.1';
-import {Renderer} from './render.mjs?v=0.10.1';
-import {Sound} from './audio.mjs?v=0.10.1';
-import {FrameLoop} from './frame-loop.mjs?v=0.10.1';
-import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=0.10.1';
+import {Game,STEP,W,H,VERSION,CHARGE_REQUIRED,RUN_MODES} from './engine.mjs?v=1.0.0';
+import {Renderer} from './render.mjs?v=1.0.0';
+import {Sound} from './audio.mjs?v=1.0.0';
+import {FrameLoop} from './frame-loop.mjs?v=1.0.0';
+import {MobileControls,mobileLayout,loadProfile,saveProfile,MOBILE_VERSION} from './mobile-core.mjs?v=1.0.0';
 
-import {StoryPlayer} from './story.mjs?v=0.10.1';
-import {BOSS_STORIES,START_STORIES,STAGE_STORIES} from './story-core.mjs?v=0.10.1';
+import {StoryPlayer} from './story.mjs?v=1.0.0';
+import {BOSS_STORIES,START_STORIES,STAGE_STORIES} from './story-core.mjs?v=1.0.0';
 
 let story=null;
 const $=id=>document.getElementById(id),game=new Game(),sound=new Sound();
@@ -13,7 +13,8 @@ let storage;try{storage=window.localStorage;}catch{}
 const profile=loadProfile(storage),controls=new MobileControls(profile.sensitivity),keys=new Set(),captures=new Map();
 sound.enabled=!profile.muted;
 sound.setVolumes(profile);
-let renderer,loop,layout,layoutRequest=null,ready=false,assetFailed=false,difficulty='normal',route='campaign';
+let renderer,loop,layout,layoutRequest=null,ready=false,assetFailed=false,difficulty='normal';
+const route='campaign';
 let countdown=0,accumulator=0,noticeTime=0,lastUi=-Infinity,audioEpoch=0,allowCompact=false;
 const format=n=>String(Math.floor(n)).padStart(7,'0');
 const put=(el,value)=>{value=String(value);if(el.textContent!==value)el.textContent=value;};
@@ -187,7 +188,6 @@ $('controls').addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('pointerup',endPointer,true);document.addEventListener('pointercancel',endPointer,true);
 $('start').onclick=start;$('retry').onclick=start;$('resume').onclick=resume;$('home').onclick=home;
 $('pause').onclick=()=>game.state==='paused'?resume():pause();
-$('course').onchange=e=>{route=Object.hasOwn(RUN_MODES,e.target.value)?e.target.value:'campaign';game.reset(difficulty,route);renderer.reset();invalidate();};
 for(const b of document.querySelectorAll('[data-difficulty]'))b.onclick=()=>{difficulty=b.dataset.difficulty;for(const x of document.querySelectorAll('[data-difficulty]'))x.setAttribute('aria-pressed',String(x===b));};
 $('settings-open').onclick=()=>{if(story?.active)return;pause();resetInput();$('settings').hidden=false;updateSettings();$('settings-close').focus({preventScroll:true});};
 function closeSettings(){$('settings').hidden=true;resetInput();$('settings-open').focus({preventScroll:true});invalidate();}

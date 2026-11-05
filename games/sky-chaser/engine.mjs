@@ -1,11 +1,11 @@
-import {hostileSpeed,regularInterval,regularCanFire} from './difficulty.mjs?v=0.10.1';
+import {hostileSpeed,regularInterval,regularCanFire} from './difficulty.mjs?v=1.0.0';
 import {STAGES,RUN_MODES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,updateStormGuns,crossesLaser} from './stages.mjs?v=0.10.1';
-import {FORGE_WAVES,FORGE_EASY_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,updateForgeBomber,moveMortar,mortarArmed,mortarCrossfire,updateForgeGuns} from './forge.mjs?v=0.10.1';
-import {keyboardSpeed} from './pc-controls.mjs?v=0.10.1';
+  attachPods,syncPods,stormAttack,updateStormGuns,crossesLaser} from './stages.mjs?v=1.0.0';
+import {FORGE_WAVES,FORGE_EASY_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,updateForgeBomber,moveMortar,mortarArmed,mortarCrossfire,updateForgeGuns} from './forge.mjs?v=1.0.0';
+import {keyboardSpeed} from './pc-controls.mjs?v=1.0.0';
 export {STAGES,RUN_MODES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '0.10.1';
+export const VERSION = '1.0.0';
 export const PLAYER_SCALE = .72;
 export const PLAYER_HIT_RADIUS = 3.6;
 export const CHARGE_REQUIRED = 240;
@@ -68,11 +68,11 @@ const SPECS = {
 
 export class Game {
   constructor(seed = 421) { this.seed = seed; this.reset(); }
-  reset(difficulty = 'normal', mode = 'campaign') {
+  reset(difficulty = 'normal') {
     this.rng = this.seed;
     this.difficulty = difficulty;
-    this.mode = Object.hasOwn(RUN_MODES,mode) ? mode : 'campaign';
-    this.stage = RUN_MODES[this.mode].startStage;this.endStage=RUN_MODES[this.mode].endStage;
+    this.mode = 'campaign';
+    this.stage = 1;this.endStage=3;
     this.stageElapsed = 0; this.introTimer = 0; this.supplyTimer = 3; this.supplies = 0;
     this.state = 'ready'; this.time = 0; this.stageTime = 0;
     this.score = 0; this.kills = 0; this.shotsFired = 0; this.hits = 0;
@@ -84,7 +84,7 @@ export class Game {
     this.finalDefeated = false; this.clearTimer = 0; this.bombTimer = 0;
     this.activeBomb = null; this.bombDamage = 0;
     this.player = {pilot: 'lumi', x: 240, y: 592, px: 240, py: 592, r: PLAYER_HIT_RADIUS,
-      power: this.mode === 'campaign' ? 1 : 3, powerTime: POWER_DURATION,
+      power: 1, powerTime: POWER_DURATION,
       inv: 2.6, fire: 0, drone: .3, charge: 0, chargeHeld: false, bank: 0};
   }
   random() {
@@ -93,7 +93,7 @@ export class Game {
   }
   event(kind, detail = {}) { this.events.push({kind, ...detail}); }
   takeEvents() { return this.events.splice(0); }
-  start(difficulty = 'normal', mode = 'campaign') { this.reset(difficulty,mode); this.state = 'playing'; this.event('start'); }
+  start(difficulty = 'normal') { this.reset(difficulty); this.state = 'playing'; this.event('start'); }
   nextStage() {
     if(this.stage>=3)return;
     this.stage++;this.stageTime=0;this.stageElapsed=0;this.wave=0;this.midDefeated=false;

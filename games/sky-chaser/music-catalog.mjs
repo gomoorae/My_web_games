@@ -1,92 +1,92 @@
 // Stage music continues through midbosses; one final-boss theme lasts to stage end.
 export const MUSIC_CATALOG={
-  "stage1": {
-    "id": "stage1",
-    "title": "해풍의 항구",
-    "file": "./assets/music/stage1.m4a",
-    "kind": "music",
-    "duration": 61.29866666666667,
-    "loopStart": 5.512684,
-    "loopBoundary": 56.71439,
-    "loopEnd": 56.89439,
-    "crossfadeSeconds": 0.18
-  },
   "title": {
     "id": "title",
     "title": "빼앗긴 바람 — 루미의 테마",
-    "file": "./assets/music/title.m4a",
+    "file": "./assets/music/title-flow-a192124808.m4a",
     "kind": "music",
-    "duration": 60.398666666666664,
-    "loopStart": 3.420473,
-    "loopBoundary": 59.511353,
-    "loopEnd": 59.691353,
-    "crossfadeSeconds": 0.18
+    "duration": 128.448,
+    "loopStart": 24.430983,
+    "loopBoundary": 104.432144,
+    "loopEnd": 104.932011,
+    "crossfadeSeconds": 0.499867
+  },
+  "stage1": {
+    "id": "stage1",
+    "title": "해풍을 가르는 날개",
+    "file": "./assets/music/stage1-flow-1ef44cf8ce.m4a",
+    "kind": "music",
+    "duration": 177.621,
+    "loopStart": 8.60472,
+    "loopBoundary": 147.52056,
+    "loopEnd": 147.934,
+    "crossfadeSeconds": 0.41344
   },
   "stage2": {
     "id": "stage2",
-    "title": "뇌운을 가르는 날개",
-    "file": "./assets/music/stage2-wordless-v092.m4a",
+    "title": "뇌운의 항로",
+    "file": "./assets/music/stage2-flow-e4721ed762.m4a",
     "kind": "music",
-    "duration": 91.99866666666667,
-    "loopStart": 19.25352,
-    "loopBoundary": 69.382032,
-    "loopEnd": 70.165392,
-    "crossfadeSeconds": 0.78336
+    "duration": 165.80266666666665,
+    "loopStart": 35.526184,
+    "loopBoundary": 157.130237,
+    "loopEnd": 157.530251,
+    "crossfadeSeconds": 0.400013
   },
   "stage3": {
     "id": "stage3",
-    "title": "홍련의 조선소",
-    "file": "./assets/music/stage3-wordless-v092.m4a",
+    "title": "홍련의 추격",
+    "file": "./assets/music/stage3-flow-93a65921c9.m4a",
     "kind": "music",
-    "duration": 101.99866666666667,
-    "loopStart": 41.19148,
-    "loopBoundary": 84.024483,
-    "loopEnd": 84.693923,
-    "crossfadeSeconds": 0.66944
+    "duration": 177.536,
+    "loopStart": 18.538429,
+    "loopBoundary": 143.835524,
+    "loopEnd": 144.19139,
+    "crossfadeSeconds": 0.355867
   },
   "boss1": {
     "id": "boss1",
-    "title": "아이언 레이븐 — 해적 기함",
-    "file": "./assets/music/boss1.m4a",
+    "title": "아이언 레이븐 — 항로 돌파",
+    "file": "./assets/music/boss1-flow-9140d671aa.m4a",
     "kind": "music",
-    "duration": 52.29866666666667,
-    "loopStart": 6.561917,
-    "loopBoundary": 47.701117,
-    "loopEnd": 47.881117,
-    "crossfadeSeconds": 0.18
+    "duration": 126.208,
+    "loopStart": 24.09624,
+    "loopBoundary": 102.303062,
+    "loopEnd": 102.679382,
+    "crossfadeSeconds": 0.37632
   },
   "boss2": {
     "id": "boss2",
-    "title": "템페스트 — 폭풍의 눈",
-    "file": "./assets/music/boss2.m4a",
+    "title": "템페스트 — 폭풍의 심장",
+    "file": "./assets/music/boss2-flow-062f1f3d18.m4a",
     "kind": "music",
-    "duration": 57.69866666666667,
-    "loopStart": 0.494643,
-    "loopBoundary": 53.502003,
-    "loopEnd": 53.682003,
-    "crossfadeSeconds": 0.18
+    "duration": 118.12266666666666,
+    "loopStart": 11.152,
+    "loopBoundary": 105.85152,
+    "loopEnd": 106.19968,
+    "crossfadeSeconds": 0.34816
   },
   "boss3": {
     "id": "boss3",
     "title": "이그니스 — 마지막 비행",
-    "file": "./assets/music/boss3.m4a",
+    "file": "./assets/music/boss3-flow-2bf89f033a.m4a",
     "kind": "music",
-    "duration": 75.05866666666667,
-    "loopStart": 0.362283,
-    "loopBoundary": 70.720043,
-    "loopEnd": 70.900043,
-    "crossfadeSeconds": 0.18
+    "duration": 122.15466666666667,
+    "loopStart": 7.958895,
+    "loopBoundary": 106.429903,
+    "loopEnd": 106.814623,
+    "crossfadeSeconds": 0.38472
   },
   "ending": {
     "id": "ending",
     "title": "돌아온 바람 — 배송 완료",
-    "file": "./assets/music/ending.m4a",
+    "file": "./assets/music/ending-flow-9521b9d3a9.m4a",
     "kind": "music",
-    "duration": 62.42,
-    "loopStart": 8.41379,
-    "loopBoundary": 56.70819,
-    "loopEnd": 56.88819,
-    "crossfadeSeconds": 0.18
+    "duration": 119.381,
+    "loopStart": 34.6248,
+    "loopBoundary": 99.231791,
+    "loopEnd": 99.808871,
+    "crossfadeSeconds": 0.57708
   }
 };
 export function combatMusic(game){

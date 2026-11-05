@@ -8,9 +8,7 @@ export const STAGES = Object.freeze({
     route:['공중 도크 진입','화로거북 볼칸','제련 구역 돌파','홍련룡 이그니스']}
 });
 export const RUN_MODES=Object.freeze({
-  campaign:{startStage:1,endStage:3,name:'연속 출격',hint:'1 → 3스테이지 · 남은 목숨과 무장을 이어갑니다'},
-  practice2:{startStage:2,endStage:2,name:'2스테이지 연습',hint:'목숨 3 · 파워 3 · 폭탄 3으로 협곡부터 출격'},
-  practice3:{startStage:3,endStage:3,name:'3스테이지 연습',hint:'목숨 3 · 파워 3 · 폭탄 3으로 조선소부터 출격'}
+  campaign:Object.freeze({startStage:1,endStage:3,name:'정식 출격',hint:'해풍의 항구부터 홍련의 조선소까지'})
 });
 export const POWER_DURATION = 25, SUPPLY_INTERVAL = 12;
 export const HOSTILE_DENSITY = 2;
