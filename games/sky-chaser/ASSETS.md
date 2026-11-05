@@ -1,5 +1,21 @@
 # 에셋 제작 정보
 
+## 1.1.0 PixelFX 전투 효과 · 2026-11-05
+
+[PixelFX](https://github.com/patch-gg/pixelfx) 0.3.0, 커밋 `a84159688af3ca37a4be05a0d422b94451b2e24e`를 사용했습니다. MIT 라이선스, Copyright (c) 2026 Patch 및 Hugo Duprez. 라이선스 전문은 [assets/vfx/LICENSE.txt](assets/vfx/LICENSE.txt)에 포함합니다.
+
+| 게임 효과 | PixelFX 원본 | 출력 SHA-256 |
+|---|---|---|
+| bolt | `projectiles/laser-bolt` | `418b59c9058cd6c3bb9bc00285078ecda31dd30dc5be4b903240fc059fe33bcc` |
+| hit | `impacts/hit-spark` | `69997293345c2c12363d786b2cc92b972a7da8e8a211183a24e44438f85d9303` |
+| critical | `impacts/crit-hit` | `0910783def456baf5b85928cd67b2c76b6a07ce4c3c8eeae8b40eea4cb7ae792` |
+| blast | `explosions/small-explosion` | `ec581620b62a92937fb336be44576346718c3635725cdb6b199ac0cfe6f70801` |
+| reactor | `explosions/plasma-explosion` | `8574ad5bdd57cc6bb8b5a8b06e86e2d2eeee89fe086a1bea2a06d7f0472bf36c` |
+| rune | `arcane/mana-burst` | `11e19fd14f5b0615a58684f8c38c4bb24e4eb4f96a1028fc11847ab1ac19e8f6` |
+
+청록·금빛 팔레트와 광량을 조정하고, 일반 화염 폭발은 앞 1.8초를 0.55초 마무리 페이드와 함께 추출했습니다. 발사 룬은 모으는 구간 뒤부터 사용합니다. 회전·빈 테두리 제거·투명 여백을 적용한 PNG 아틀라스를 미리 생성하며 게임은 이를 재생합니다. 제작 설정은 `scripts/build-pixelfx.mjs`, 상세 출처와 검사는 `source_assets/pixelfx/manifest.json`에 있습니다. 캐릭터·적·배경의 기존 그림과 Flow 음악은 변경하지 않았습니다.
+
+
 ## 1.0.0 새 Flow 사운드트랙 · 2026-11-05
 
 현재 게임의 여덟 BGM은 Google Flow Music / Lyria 3.5에서 스카이 체이서 전용으로 새로 생성한 곡입니다. 공식 웹 제작 화면을 브라우저 MCP로 사용했고 연주곡 옵션을 켰습니다. 다른 게임 음원이나 기존 YuE2 곡을 재사용하지 않았습니다. 아래 이전 버전 항목은 교체 전 제작 이력입니다.

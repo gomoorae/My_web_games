@@ -1,5 +1,5 @@
-import {cleanPcSensitivity} from './pc-controls.mjs?v=1.0.0';
-import {audioSettings} from './audio-settings.mjs?v=1.0.0';
+import {cleanPcSensitivity} from './pc-controls.mjs?v=1.1.0';
+import {audioSettings} from './audio-settings.mjs?v=1.1.0';
 // Old practice scores are retained only as archived data. They never enter
 // the campaign leaderboard or expose a playable route.
 const RECORD_ROUTES=['campaign','practice2','practice3'];

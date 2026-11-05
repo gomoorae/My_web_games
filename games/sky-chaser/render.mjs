@@ -1,9 +1,10 @@
-import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=1.0.0';
-import {ArtBank} from './art.mjs?v=1.0.0';
-import {drawLaser} from './laser-fx.mjs?v=1.0.0';
-import {drawMortars} from './forge-fx.mjs?v=1.0.0';
-import {renderRatio} from './frame-loop.mjs?v=1.0.0';
-import {glow,flame,normalShot} from './canvas-fx.mjs?v=1.0.0';
+import {pixelFXBank,CombatFX} from './pixelfx.mjs?v=1.1.0';
+import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=1.1.0';
+import {ArtBank} from './art.mjs?v=1.1.0';
+import {drawLaser} from './laser-fx.mjs?v=1.1.0';
+import {drawMortars} from './forge-fx.mjs?v=1.1.0';
+import {renderRatio} from './frame-loop.mjs?v=1.1.0';
+import {glow,flame,normalShot} from './canvas-fx.mjs?v=1.1.0';
 const TAU=Math.PI*2;
 const mix=(a,b,t)=>a+(b-a)*t;
 const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
@@ -36,12 +37,12 @@ function makeCloud(index){
 
 export class Renderer {
   constructor(canvas){
-    this.canvas=canvas;this.c=canvas.getContext('2d',{alpha:false});this.art=new ArtBank();
+    this.canvas=canvas;this.c=canvas.getContext('2d',{alpha:false});this.art=new ArtBank();this.pixelBank=pixelFXBank;
     this.motion=true;this.clouds=[0,1,2,3].map(makeCloud);this.reset();this.resize();
-    this.ready=this.art.load().then(()=>this.prepareScenery());
+    this.ready=Promise.all([this.art.load().then(()=>this.prepareScenery()),this.pixelBank.load()]);
   }
-  reset(){this.particles=[];this.rings=[];this.blasts=[];this.wrecks=[];this.bombBeams=[];this.damageTexts=[];this.trail=[];this.flash=0;this.shake=0;this.fxTime=0;this.lastTrail=0;this.lastTime=0;}
-  hasEffects(){return this.flash>0||this.shake>.1||[this.particles,this.rings,this.blasts,this.wrecks,this.bombBeams,this.damageTexts].some(a=>a.length>0);}
+  reset(){this.fx=new CombatFX(this.pixelBank);this.particles=[];this.rings=[];this.blasts=[];this.wrecks=[];this.bombBeams=[];this.damageTexts=[];this.trail=[];this.flash=0;this.shake=0;this.fxTime=0;this.lastTrail=0;this.lastTime=0;}
+  hasEffects(){return this.fx.active||this.flash>0||this.shake>.1||[this.particles,this.rings,this.blasts,this.wrecks,this.bombBeams,this.damageTexts].some(a=>a.length>0);}
   prepareScenery(){
     this.groundTiles={};
     for(const key of ['harbor','canyon','foundry']){
@@ -74,9 +75,9 @@ export class Renderer {
   }
   explosion(x,y,large=false,type='scout',phase=1){
     const reactor=type==='tempest'&&phase===3;
-    this.burst(x,y,large?64:16,large);
-    this.blasts.push({x,y,age:0,life:large?1.3:.5,size:large?92:26,reactor});
-    this.rings.push({x,y,age:0,life:large?.9:.4,size:large?180:48,color:reactor?'#b9fff0':'#ffe7a2'});
+    this.burst(x,y,this.pixelBank?.has('blast')?(large?26:7):(large?64:16),large);
+    this.blasts.push({x,y,age:0,life:large?1.3:.6,size:large?92:type==='bomber'?42:type==='turret'?32:26,reactor});
+    if(!this.pixelBank?.has('blast'))this.rings.push({x,y,age:0,life:large?.9:.4,size:large?180:48,color:reactor?'#b9fff0':'#ffe7a2'});
     if(type==='boss'){
       for(let i=0;i<9;i++)this.blasts.push({x:x+(seed(i+4)-.5)*230,y:y+(seed(i+5)-.5)*190,age:-i*.13,life:1.2,size:60+seed(i+7)*45});
       this.wrecks.push({type:'raven',x,y,age:0,life:2.6,width:326});
@@ -92,13 +93,18 @@ export class Renderer {
   }
   consume(events){
     for(const e of events){
+      if(e.kind==='shot')this.fx.spawn('hit',e.x,e.y,{life:.085,scale:.22,angle:-Math.PI/2,alpha:.72,priority:0,range:.18});
+      if(e.kind==='shotImpact'){
+        const heavy=e.style==='charge'||e.style==='charge-small';
+        this.fx.spawn(heavy?'critical':'hit',e.x,e.y,{life:heavy?.42:.36,scale:heavy?.62:e.style==='homing'?.48:.44,angle:Math.atan2(e.vy,e.vx),alpha:heavy?.9:.86,priority:heavy?2:0,targetId:heavy?null:e.targetId});
+      }
       if(e.kind==='explode')this.explosion(e.x,e.y,e.large,e.type,e.phase);
       if(e.kind==='partBreak'){this.explosion(e.x,e.y,false,'player');this.burst(e.x,e.y,18,true);}
-      if(e.kind==='shellBreak'){this.burst(e.x,e.y,10);this.rings.push({x:e.x,y:e.y,age:0,life:.25,size:28,color:'#ffe5aa'});}
+      if(e.kind==='shellBreak'){this.fx.spawn('critical',e.x,e.y,{life:.32,scale:.46,priority:2});this.burst(e.x,e.y,5);this.rings.push({x:e.x,y:e.y,age:0,life:.25,size:28,color:'#ffe5aa'});}
       if(e.kind==='mortarBurst'){this.burst(e.x,e.y,12);this.shake=Math.max(this.shake,1.8);}
       if(e.kind==='supply')this.rings.push({x:e.x,y:90,age:0,life:1,size:55,color:'#92ffe0'});
       if(e.kind==='stageStart')this.reset();
-      if(e.kind==='hurt'){this.explosion(e.x,e.y,false,'player');this.flash=.23;this.shake=8;}
+      if(e.kind==='hurt'){this.fx.spawn('reactor',e.x,e.y,{life:.65,scale:.7,alpha:.9,priority:3});this.explosion(e.x,e.y,false,'player');this.flash=.23;this.shake=8;}
       if(e.kind==='bomb'){
         this.flash=.16;this.shake=4;this.burst(e.x,e.y,26,true);
         this.rings.push({x:e.x,y:e.y,age:0,life:.65,size:460,color:'#afffe3'});
@@ -109,6 +115,7 @@ export class Renderer {
           const side=(i+e.index)%2?1:-1;
           this.bombBeams.push({x0:e.x+side*105,y0:e.y-76,x1:target.x,y1:target.y,age:0,life:e.final?.58:.34,final:e.final,seed:e.index+i*7});
           if(target.damage){
+            this.fx.spawn(e.final?'rune':'critical',target.x,target.y,{life:e.final?.72:.35,scale:e.final?.95:.5,alpha:.85,priority:2});
             this.rings.push({x:target.x,y:target.y,age:0,life:.4,size:e.final?96:47,color:'#b0ffe4'});
             if(['boss','midboss','gemini','tempest','vulcan','ignis'].includes(target.type))this.damageTexts.push({x:target.x+(e.index%2?27:-27),y:target.y+24,amount:Math.round(target.damage),age:0});
           }
@@ -117,6 +124,7 @@ export class Renderer {
         if(e.final)this.flash=.1;
       }
       if(e.kind==='charge'){
+        this.fx.spawn('rune',e.x,e.y-40*PLAYER_SCALE,{life:.56,scale:.65,alpha:.82,priority:2});
         this.rings.push({x:e.x,y:e.y-40*PLAYER_SCALE,age:0,life:.4,size:(e.full?65:35)*PLAYER_SCALE,color:'#a2ffe4'});
         this.shake=e.full?2:0;
       }
@@ -125,8 +133,9 @@ export class Renderer {
         for(let i=0;i<7;i++)this.blasts.push({x:e.x+(seed(i+20)-.5)*185,y:e.y+(seed(i+30)-.5)*160,age:-.15-i*.12,life:.55,size:31+seed(i+2)*20});
         this.burst(e.x,e.y,35,true);
       }
-      if(e.kind==='impact')this.burst(e.x,e.y,5);
+      if(e.kind==='impact')this.burst(e.x,e.y,3);
     }
+    if(this.blasts.length>40)this.blasts.splice(0,this.blasts.length-40);
   }
   background(c,t,stageTime,px=240,stage=1){
     const storm=stage===2,forge=stage===3,moody=storm||forge,altitude=moody?.08:ease((stageTime-88)/38);
@@ -456,6 +465,8 @@ export class Renderer {
   }
   shots(c,g,t){
     for(const s of g.shots){
+      const full=s.style.startsWith('charge'),homing=s.style==='homing',angle=Math.atan2(s.vy,s.vx)+Math.PI/2;
+      if(this.pixelBank?.draw(c,'bolt',(t*2+s.x*.003)%1,s.x,s.y,{sx:full?4.2:homing?.65:.72,sy:full?1.35:homing?.5:.59,angle,alpha:full?1:.95}))continue;
       if(s.style.startsWith('charge')){
         const full=s.style==='charge',r=s.r;
         glow(c,s.x,s.y,r*2.8,'#65e8d3',.75);
@@ -506,6 +517,7 @@ export class Renderer {
     this.wrecks=this.wrecks.filter(w=>w.age<w.life);
     for(const b of this.blasts){
       if(!paused)b.age+=dt;if(b.age<0)continue;const p=b.age/b.life;
+      if(this.pixelBank?.draw(c,b.reactor?'reactor':'blast',p,b.x,b.y,{sx:b.size/(b.reactor?72:60),alpha:.9}))continue;
       glow(c,b.x,b.y,b.size*(.3+p),b.reactor?'#49e8ee':'#ffad4e',(1-p)*.8);
       for(let i=0;i<7;i++){
         const a=i*2.4,dist=b.size*p*.55,x=b.x+Math.cos(a)*dist,y=b.y+Math.sin(a)*dist,r=b.size*(.14+Math.sin(Math.PI*p)*.2);
@@ -527,6 +539,7 @@ export class Renderer {
       c.restore();
     }
     this.particles=this.particles.filter(p=>p.life>0);
+    this.fx.draw(c,dt,paused);
     for(const text of this.damageTexts){
       if(!paused)text.age+=dt;
       c.save();c.globalAlpha=clamp(1-text.age/.72,0,1);c.font='900 19px sans-serif';c.textAlign='center';

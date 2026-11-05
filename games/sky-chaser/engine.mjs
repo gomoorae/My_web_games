@@ -1,11 +1,11 @@
-import {hostileSpeed,regularInterval,regularCanFire} from './difficulty.mjs?v=1.0.0';
+import {hostileSpeed,regularInterval,regularCanFire} from './difficulty.mjs?v=1.1.0';
 import {STAGES,RUN_MODES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,updateStormGuns,crossesLaser} from './stages.mjs?v=1.0.0';
-import {FORGE_WAVES,FORGE_EASY_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,updateForgeBomber,moveMortar,mortarArmed,mortarCrossfire,updateForgeGuns} from './forge.mjs?v=1.0.0';
-import {keyboardSpeed} from './pc-controls.mjs?v=1.0.0';
+  attachPods,syncPods,stormAttack,updateStormGuns,crossesLaser} from './stages.mjs?v=1.1.0';
+import {FORGE_WAVES,FORGE_EASY_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,updateForgeBomber,moveMortar,mortarArmed,mortarCrossfire,updateForgeGuns} from './forge.mjs?v=1.1.0';
+import {keyboardSpeed} from './pc-controls.mjs?v=1.1.0';
 export {STAGES,RUN_MODES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '1.0.0';
+export const VERSION = '1.1.0';
 export const PLAYER_SCALE = .72;
 export const PLAYER_HIT_RADIUS = 3.6;
 export const CHARGE_REQUIRED = 240;
@@ -178,7 +178,12 @@ export class Game {
     if (p.power === 1) add(0, 0, 5);
     else { add(-8, 0, 4); add(8, 0, 4); }
     if (p.power >= 3) { add(-16, -70, 2); add(16, 70, 2); }
-    this.shotsFired++; this.event('shot', {power: p.power});
+    this.shotsFired++; this.event('shot', {power:p.power,x:p.x,y:p.y-41*PLAYER_SCALE});
+  }
+  shotImpact(shot,target,damage){
+    if(damage<=0)return;
+    const dx=shot.x-target.x,dy=shot.y-target.y,k=Math.min(1,target.r/Math.max(1,Math.hypot(dx,dy)));
+    this.event('shotImpact',{x:target.x+dx*k,y:target.y+dy*k,targetId:target.id,style:shot.style,vx:shot.vx,vy:shot.vy});
   }
   chargeFromHit(shot,damage) {
     if((shot.style==='shot'||shot.style==='homing')&&damage>0)
@@ -513,7 +518,7 @@ export class Game {
       for(const m of this.mortars){
         if(!mortarArmed(m)||s.hitIds.has(m.id))continue;
         if(sweptHit(s.px-m.px,s.py-m.py,s.x-m.x,s.y-m.y,s.r+m.r)){
-          this.chargeFromHit(s,this.damageMortar(m,s.damage));s.hitIds.add(m.id);
+          const dealt=this.damageMortar(m,s.damage);this.chargeFromHit(s,dealt);this.shotImpact(s,m,dealt);s.hitIds.add(m.id);
           if(s.style!=='charge'&&s.style!=='charge-small'){s.dead=true;break;}
         }
       }
@@ -524,7 +529,7 @@ export class Game {
           if(s.hitIds.has(target.id))continue;
           if (sweptHit(s.px - target.px, s.py - target.py, s.x - target.x, s.y - target.y, s.r + target.r)) {
             const dealt=target===e?this.damage(e,s.damage):this.damagePart(e,target,s.damage);
-            this.chargeFromHit(s,dealt);
+            this.chargeFromHit(s,dealt);this.shotImpact(s,target,dealt);
             s.hitIds.add(target.id);
             if (s.style !== 'charge' && s.style !== 'charge-small') { s.dead = true; break; }
           }
