@@ -1,0 +1,13 @@
+{
+  "file": "flame-forge.webp",
+  "frame": {
+    "x": 0,
+    "y": 37,
+    "width": 1236,
+    "height": 1217
+  },
+  "muzzle": {
+    "originX": 0.18,
+    "originY": 0.63
+  }
+}

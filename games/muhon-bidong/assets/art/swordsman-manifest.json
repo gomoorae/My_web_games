@@ -1,0 +1,137 @@
+{
+  "version": "1.16.0",
+  "file": "swordsman-sheet.png",
+  "width": 1536,
+  "height": 1024,
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "displayScale": 0.16312056737588654,
+  "frames": [
+    {
+      "index": 0,
+      "x": 112,
+      "y": 110,
+      "width": 192,
+      "height": 290,
+      "originX": 0.5104166666666666,
+      "originY": 0.5172413793103449,
+      "sourceAnchor": [
+        210,
+        260
+      ]
+    },
+    {
+      "index": 1,
+      "x": 494,
+      "y": 110,
+      "width": 194,
+      "height": 290,
+      "originX": 0.5154639175257731,
+      "originY": 0.5172413793103449,
+      "sourceAnchor": [
+        594,
+        260
+      ]
+    },
+    {
+      "index": 2,
+      "x": 846,
+      "y": 145,
+      "width": 242,
+      "height": 243,
+      "originX": 0.5206611570247934,
+      "originY": 0.5637860082304527,
+      "sourceAnchor": [
+        972,
+        282
+      ]
+    },
+    {
+      "index": 3,
+      "x": 1218,
+      "y": 122,
+      "width": 265,
+      "height": 273,
+      "originX": 0.4339622641509434,
+      "originY": 0.5018315018315018,
+      "sourceAnchor": [
+        1333,
+        259
+      ]
+    },
+    {
+      "index": 4,
+      "x": 54,
+      "y": 647,
+      "width": 294,
+      "height": 221,
+      "originX": 0.6394557823129252,
+      "originY": 0.5384615384615384,
+      "sourceAnchor": [
+        242,
+        766
+      ]
+    },
+    {
+      "index": 5,
+      "x": 431,
+      "y": 665,
+      "width": 290,
+      "height": 203,
+      "originX": 0.6103448275862069,
+      "originY": 0.5812807881773399,
+      "sourceAnchor": [
+        608,
+        783
+      ]
+    },
+    {
+      "index": 6,
+      "x": 837,
+      "y": 618,
+      "width": 233,
+      "height": 258,
+      "originX": 0.5536480686695279,
+      "originY": 0.5736434108527132,
+      "sourceAnchor": [
+        966,
+        766
+      ]
+    },
+    {
+      "index": 7,
+      "x": 1242,
+      "y": 602,
+      "width": 216,
+      "height": 244,
+      "originX": 0.6388888888888888,
+      "originY": 0.7131147540983607,
+      "sourceAnchor": [
+        1380,
+        776
+      ]
+    }
+  ],
+  "animations": {
+    "approach": [
+      0,
+      1
+    ],
+    "windup": [
+      2,
+      3
+    ],
+    "dash": [
+      4,
+      5
+    ],
+    "repelled": [
+      6,
+      7
+    ]
+  },
+  "method": "built-in image_gen with transparency and cell-padding refinements; generated alpha preserved",
+  "fullyTransparentPixels": 1270968,
+  "sha256": "61251ed7d41000fd386dc843b8415ecc459364b3797d0fd9c6cc77c46a91a980"
+}

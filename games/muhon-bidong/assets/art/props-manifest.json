@@ -1,0 +1,83 @@
+{
+  "version": "0.2.0",
+  "generatedAt": "2026-10-29T11:54:15+09:00",
+  "method": "built-in image_gen",
+  "styleReference": "arena.png",
+  "promptRecords": [
+    "art-source/0.2.0/prompts.json",
+    "art-source/0.2.0/refinement-prompt.json"
+  ],
+  "props": {
+    "door": {
+      "file": "stone-door.png",
+      "width": 953,
+      "height": 1650,
+      "mode": "RGBA",
+      "bytes": 2084710,
+      "sha256": "2ec03d22af1727e4232bbb6f1fab64a73446d8f93bca94e876b23fd241d73c25",
+      "alphaRange": [
+        0,
+        255
+      ],
+      "meaningfulAlphaThreshold": 8,
+      "meaningfulAlphaBounds": {
+        "x": 70,
+        "y": 114,
+        "width": 815,
+        "height": 1423
+      },
+      "crop": {
+        "x": 68,
+        "y": 112,
+        "width": 818,
+        "height": 1427
+      },
+      "splitX": 477,
+      "leftHalf": {
+        "x": 68,
+        "y": 112,
+        "width": 409,
+        "height": 1427
+      },
+      "rightHalf": {
+        "x": 477,
+        "y": 112,
+        "width": 409,
+        "height": 1427
+      },
+      "recommendedDisplay": {
+        "width": 108.91380518570428,
+        "height": 190
+      },
+      "uniformScale": 0.13314646110721795,
+      "notes": "Crop ignores nearly invisible alpha speckles outside the slab. Split along the measured dark central seam. Both halves are moving slabs; no stationary arch is included."
+    },
+    "tile": {
+      "file": "stone-tile.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGB",
+      "bytes": 2681127,
+      "sha256": "a75a80ced077388016e870b80f27939334e3a3acc28bfbda2f4bb62248fbb6de",
+      "crop": {
+        "x": 0,
+        "y": 15,
+        "width": 1254,
+        "height": 1239
+      },
+      "recommendedTileDisplay": {
+        "width": 128,
+        "height": 126.4688995215311
+      },
+      "uniformScale": 0.10207336523125997,
+      "opaque": true,
+      "repeatQA": {
+        "verticalCropEdgeMeanAbsoluteRGBDifference": 2.5263,
+        "fullImageVerticalEdgeMeanAbsoluteRGBDifference": 29.9314,
+        "fullImageHorizontalEdgeMeanAbsoluteRGBDifference": 15.1385,
+        "strictFourEdgePixelMatch": false
+      },
+      "notes": "Use the recommended crop for vertical repetition: it begins and ends on the same dark mortar joint. Source pixels are unmodified. Horizontal wrap is approximate; narrow obstacle segments normally do not repeat horizontally. If exact wide-surface wrapping is required, mirror alternating repeats at runtime."
+    }
+  }
+}

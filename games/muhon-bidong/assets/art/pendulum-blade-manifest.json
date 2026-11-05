@@ -1,0 +1,11 @@
+{
+  "file": "pendulum-blade.webp",
+  "frame": {
+    "x": 61,
+    "y": 69,
+    "width": 1138,
+    "height": 1117
+  },
+  "displaySize": 56,
+  "collisionRadius": 22
+}

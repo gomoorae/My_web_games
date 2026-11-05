@@ -1,9 +1,10 @@
 # My Games
 
-gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 페이지에서 게임을 선택하면 바로 이동합니다. 별냠을 상단에 소개하고 NEON TERRITORY, 월하무쌍과 기존 게임은 아래 카드로 제공합니다.
+gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 페이지에서 게임을 선택하면 바로 이동합니다. 무혼 비동을 상단에 소개하고 다른 게임은 아래 카드로 제공합니다.
 
 | 게임 | 경로 |
 |---|---|
+| 무혼 비동 · 경공과 반격 액션 | [게임](games/muhon-bidong/index.html?v=1.27.0) · [조작과 제작 자료](games/muhon-bidong/README.md) |
 | 마지막 표행 · 무협 보따리 로그라이크 | [게임](games/last-delivery/) · [플레이 안내](games/last-delivery/README.md) |
 | 스카이 체이서 · 세로 슈팅 | [게임](games/sky-chaser/index.html) · [플레이 안내](games/sky-chaser/README.md) |
 | 별냠 · 별 수집 도약 게임 | [게임](games/star-munch/index.html) · [규칙과 소스 안내](games/star-munch/README.md) |
@@ -14,6 +15,12 @@ gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 
 | 바이크 칼치기 | [게임](games/bike_game/index.html) |
 
 각 게임의 메인으로/게임 목록으로 링크로 돌아올 수 있습니다.
+
+## 무혼 비동
+
+**[무혼 비동 1.27.0 플레이](https://gomoorae.github.io/My_web_games/games/muhon-bidong/?v=1.27.0)** — 경공으로 장애물과 특수기를 피하고, 날아오는 무기를 반격해 네 무혼을 꺾는 픽셀 무협 액션입니다. 네 지역, 이어받는 능력, 성장 보상, 자동 저장과 여명 엔딩을 제공합니다.
+
+PC는 Space로 상승하고 J로 반격합니다. 메뉴는 방향키·Tab으로 이동하고 Space·Enter로 선택합니다. 휴대폰은 화면 왼쪽을 누르고 있으면 상승, 오른쪽을 터치하면 반격합니다. [자세한 조작과 제작 자료](games/muhon-bidong/README.md)
 
 ## 마지막 표행
 

@@ -1,0 +1,33 @@
+{
+  "file": "physical-props.webp",
+  "frames": {
+    "rubble": {
+      "x": 18,
+      "y": 227,
+      "width": 670,
+      "height": 294
+    },
+    "hanging": {
+      "x": 767,
+      "y": 100,
+      "width": 382,
+      "height": 458
+    },
+    "falling": {
+      "x": 65,
+      "y": 671,
+      "width": 515,
+      "height": 500
+    },
+    "emitter": {
+      "x": 722,
+      "y": 689,
+      "width": 501,
+      "height": 450
+    }
+  },
+  "emitterMuzzle": {
+    "originX": 0.12,
+    "originY": 0.62
+  }
+}

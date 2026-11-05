@@ -1,0 +1,99 @@
+{
+  "version": "1.0.0",
+  "createdAt": "2026-10-29T15:23:10+09:00",
+  "method": "built-in image_gen",
+  "styleReference": "arena.png",
+  "styleReferenceSha256": "09eb52f4f30f812d546f43072f189623d74b1350cf21c879ec8ae236dff35c76",
+  "promptRecord": "art-source/1.0.0/worlds/prompts.json",
+  "world": {
+    "width": 480,
+    "height": 270,
+    "groundY": 240
+  },
+  "assets": {
+    "wind": {
+      "file": "wind-arena.png",
+      "textureKey": "wind-arena",
+      "chapter": 2,
+      "purpose": "청뢰잔도",
+      "width": 1672,
+      "height": 941,
+      "mode": "RGB",
+      "bytes": 2260033,
+      "sha256": "e9fddaea24f9bd98eb8c2e752f030246fcb3912241dceb21bf0f3433f48fdc3c",
+      "groundSourceY": 802,
+      "targetGroundY": 240,
+      "recommendedDisplay": {
+        "x": 240,
+        "y": 136.901914,
+        "width": 520,
+        "height": 292.655502
+      },
+      "groundMeasurement": "Top horizontal foreground stone ledge, selected from lower-band luminance edge scan and visual inspection.",
+      "notes": "Use this image-specific display position to align the ground to y240. Foreground ground is continuous; other architecture is distant background. No characters, text or gameplay UI."
+    },
+    "flame": {
+      "file": "flame-arena.png",
+      "textureKey": "flame-arena",
+      "chapter": 3,
+      "purpose": "적염심연",
+      "width": 1672,
+      "height": 941,
+      "mode": "RGB",
+      "bytes": 2048856,
+      "sha256": "1356c50ccd138bad8f6d6f6aaf27edcd21f48394c8dca58e49eb998d9056bd6f",
+      "groundSourceY": 811,
+      "targetGroundY": 240,
+      "recommendedDisplay": {
+        "x": 240,
+        "y": 134.102871,
+        "width": 520,
+        "height": 292.655502
+      },
+      "groundMeasurement": "Top horizontal foreground stone ledge, selected from lower-band luminance edge scan and visual inspection.",
+      "notes": "Use this image-specific display position to align the ground to y240. Foreground ground is continuous; other architecture is distant background. No characters, text or gameplay UI."
+    },
+    "sanctum": {
+      "file": "sanctum-arena.png",
+      "textureKey": "sanctum-arena",
+      "chapter": 4,
+      "purpose": "무혼심처",
+      "width": 1672,
+      "height": 941,
+      "mode": "RGB",
+      "bytes": 2256157,
+      "sha256": "a854845dc109307262cb01c501ffc8b4cd06564113d40d8e244ad653e4ac3752",
+      "groundSourceY": 806,
+      "targetGroundY": 240,
+      "recommendedDisplay": {
+        "x": 240,
+        "y": 135.657895,
+        "width": 520,
+        "height": 292.655502
+      },
+      "groundMeasurement": "Top horizontal foreground stone ledge, selected from lower-band luminance edge scan and visual inspection.",
+      "notes": "Use this image-specific display position to align the ground to y240. Foreground ground is continuous; other architecture is distant background. No characters, text or gameplay UI."
+    },
+    "ending": {
+      "file": "dawn-ending.png",
+      "textureKey": "dawn-ending",
+      "chapter": null,
+      "purpose": "여명 엔딩",
+      "width": 1671,
+      "height": 941,
+      "mode": "RGB",
+      "bytes": 2301812,
+      "sha256": "df3046b2b475dc68126722618c214359f0d98f2b6c7d38504afd91097a532c6e",
+      "groundSourceY": 786,
+      "targetGroundY": 240,
+      "recommendedDisplay": {
+        "x": 240,
+        "y": 141.81927,
+        "width": 520,
+        "height": 292.83064
+      },
+      "groundMeasurement": "Top horizontal foreground stone ledge, selected from lower-band luminance edge scan and visual inspection.",
+      "notes": "Use this image-specific display position to align the ground to y240. Foreground ground is continuous; other architecture is distant background. No characters, text or gameplay UI."
+    }
+  }
+}

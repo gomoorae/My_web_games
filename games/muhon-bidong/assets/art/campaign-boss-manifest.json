@@ -1,0 +1,623 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-10-29T06:35:26.326Z",
+  "method": "built-in image_gen generation and padding refinement",
+  "assets": {
+    "spear": {
+      "file": "spear-boss-sheet.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "bytes": 1516493,
+      "sha256": "1f9f334747dd30d3e491c5d5f566e6e7bcec6e4f95a76509654ee3db74c438e1",
+      "frameCount": 14,
+      "sourcePoseCount": 16,
+      "useExplicitFrames": true,
+      "frames": [
+        {
+          "index": 0,
+          "sourceIndex": 0,
+          "x": 111,
+          "y": 54,
+          "width": 176,
+          "height": 259,
+          "originX": 0.45113636363636367,
+          "originY": 0.5540540540540541
+        },
+        {
+          "index": 1,
+          "sourceIndex": 1,
+          "x": 411,
+          "y": 59,
+          "width": 182,
+          "height": 254,
+          "originX": 0.4510989010989012,
+          "originY": 0.5452755905511811
+        },
+        {
+          "index": 2,
+          "sourceIndex": 2,
+          "x": 712,
+          "y": 59,
+          "width": 187,
+          "height": 254,
+          "originX": 0.4510695187165777,
+          "originY": 0.5452755905511811
+        },
+        {
+          "index": 3,
+          "sourceIndex": 3,
+          "x": 1024,
+          "y": 59,
+          "width": 180,
+          "height": 254,
+          "originX": 0.45111111111111135,
+          "originY": 0.5452755905511811
+        },
+        {
+          "index": 4,
+          "sourceIndex": 4,
+          "x": 82,
+          "y": 364,
+          "width": 219,
+          "height": 249,
+          "originX": 0.4803652968036529,
+          "originY": 0.536144578313253
+        },
+        {
+          "index": 5,
+          "sourceIndex": 5,
+          "x": 323,
+          "y": 402,
+          "width": 294,
+          "height": 211,
+          "originX": 0.5986394557823129,
+          "originY": 0.45260663507109006
+        },
+        {
+          "index": 6,
+          "sourceIndex": 6,
+          "x": 642,
+          "y": 409,
+          "width": 295,
+          "height": 204,
+          "originX": 0.5986440677966103,
+          "originY": 0.4338235294117647
+        },
+        {
+          "index": 7,
+          "sourceIndex": 7,
+          "x": 952,
+          "y": 401,
+          "width": 263,
+          "height": 212,
+          "originX": 0.5689353612167305,
+          "originY": 0.455188679245283
+        },
+        {
+          "index": 8,
+          "sourceIndex": 10,
+          "x": 682,
+          "y": 704,
+          "width": 235,
+          "height": 197,
+          "originX": 0.5688085106382977,
+          "originY": 0.4137055837563452
+        },
+        {
+          "index": 9,
+          "sourceIndex": 11,
+          "x": 964,
+          "y": 701,
+          "width": 244,
+          "height": 202,
+          "originX": 0.5491803278688525,
+          "originY": 0.4183168316831683
+        },
+        {
+          "index": 10,
+          "sourceIndex": 12,
+          "x": 41,
+          "y": 982,
+          "width": 326,
+          "height": 213,
+          "originX": 0.5,
+          "originY": 0.45774647887323944
+        },
+        {
+          "index": 11,
+          "sourceIndex": 13,
+          "x": 387,
+          "y": 920,
+          "width": 241,
+          "height": 275,
+          "originX": 0.5098340248962656,
+          "originY": 0.58
+        },
+        {
+          "index": 12,
+          "sourceIndex": 14,
+          "x": 712,
+          "y": 972,
+          "width": 221,
+          "height": 222,
+          "originX": 0.4803619909502261,
+          "originY": 0.48423423423423423
+        },
+        {
+          "index": 13,
+          "sourceIndex": 15,
+          "x": 1002,
+          "y": 996,
+          "width": 204,
+          "height": 198,
+          "originX": 0.5,
+          "originY": 0.4217171717171717
+        }
+      ],
+      "animations": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "cast": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "sweep": [
+          5,
+          6
+        ],
+        "hurt": [
+          8,
+          9
+        ],
+        "phase": [
+          10,
+          11
+        ],
+        "break": [
+          10,
+          11,
+          12
+        ],
+        "vanish": [
+          12,
+          13
+        ]
+      },
+      "displayScale": 0.336,
+      "referenceIdleHeight": 250,
+      "targetIdleHeight": 84,
+      "notes": "Two extreme sweep crops overlap neighboring silhouette bounding boxes; excluded from runtime. Sweep reuses clean thrust poses. Every runtime frame is individually cropped without changing the source PNG."
+    },
+    "flame": {
+      "file": "flame-boss-sheet.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "bytes": 1566972,
+      "sha256": "7d2ef7c39ea648ce5422e596721d144040f83c30be684e924d27baabd27fa1fc",
+      "frameCount": 16,
+      "sourcePoseCount": 16,
+      "useExplicitFrames": true,
+      "frames": [
+        {
+          "index": 0,
+          "sourceIndex": 0,
+          "x": 37,
+          "y": 70,
+          "width": 275,
+          "height": 234,
+          "originX": 0.5591272727272728,
+          "originY": 0.5448717948717948
+        },
+        {
+          "index": 1,
+          "sourceIndex": 1,
+          "x": 347,
+          "y": 70,
+          "width": 267,
+          "height": 234,
+          "originX": 0.5591011235955056,
+          "originY": 0.5448717948717948
+        },
+        {
+          "index": 2,
+          "sourceIndex": 2,
+          "x": 658,
+          "y": 70,
+          "width": 274,
+          "height": 234,
+          "originX": 0.559124087591241,
+          "originY": 0.5448717948717948
+        },
+        {
+          "index": 3,
+          "sourceIndex": 3,
+          "x": 961,
+          "y": 70,
+          "width": 266,
+          "height": 234,
+          "originX": 0.5590977443609023,
+          "originY": 0.5448717948717948
+        },
+        {
+          "index": 4,
+          "sourceIndex": 4,
+          "x": 29,
+          "y": 399,
+          "width": 289,
+          "height": 208,
+          "originX": 0.5690311418685121,
+          "originY": 0.4879807692307692
+        },
+        {
+          "index": 5,
+          "sourceIndex": 5,
+          "x": 402,
+          "y": 367,
+          "width": 228,
+          "height": 240,
+          "originX": 0.4901754385964912,
+          "originY": 0.55625
+        },
+        {
+          "index": 6,
+          "sourceIndex": 6,
+          "x": 707,
+          "y": 350,
+          "width": 213,
+          "height": 257,
+          "originX": 0.4803755868544598,
+          "originY": 0.585603112840467
+        },
+        {
+          "index": 7,
+          "sourceIndex": 7,
+          "x": 965,
+          "y": 399,
+          "width": 265,
+          "height": 209,
+          "originX": 0.5886415094339623,
+          "originY": 0.48564593301435405
+        },
+        {
+          "index": 8,
+          "sourceIndex": 8,
+          "x": 31,
+          "y": 683,
+          "width": 309,
+          "height": 213,
+          "originX": 0.5789644012944983,
+          "originY": 0.5
+        },
+        {
+          "index": 9,
+          "sourceIndex": 9,
+          "x": 377,
+          "y": 665,
+          "width": 257,
+          "height": 231,
+          "originX": 0.5,
+          "originY": 0.538961038961039
+        },
+        {
+          "index": 10,
+          "sourceIndex": 10,
+          "x": 674,
+          "y": 677,
+          "width": 271,
+          "height": 219,
+          "originX": 0.5394095940959412,
+          "originY": 0.5136986301369864
+        },
+        {
+          "index": 11,
+          "sourceIndex": 11,
+          "x": 977,
+          "y": 706,
+          "width": 255,
+          "height": 190,
+          "originX": 0.5393725490196077,
+          "originY": 0.4394736842105263
+        },
+        {
+          "index": 12,
+          "sourceIndex": 12,
+          "x": 29,
+          "y": 949,
+          "width": 302,
+          "height": 251,
+          "originX": 0.5296026490066225,
+          "originY": 0.5796812749003984
+        },
+        {
+          "index": 13,
+          "sourceIndex": 13,
+          "x": 338,
+          "y": 949,
+          "width": 292,
+          "height": 252,
+          "originX": 0.5295890410958903,
+          "originY": 0.5773809523809523
+        },
+        {
+          "index": 14,
+          "sourceIndex": 14,
+          "x": 654,
+          "y": 1001,
+          "width": 265,
+          "height": 197,
+          "originX": 0.5393962264150945,
+          "originY": 0.4746192893401015
+        },
+        {
+          "index": 15,
+          "sourceIndex": 15,
+          "x": 981,
+          "y": 958,
+          "width": 236,
+          "height": 244,
+          "originX": 0.48033898305084705,
+          "originY": 0.5594262295081968
+        }
+      ],
+      "animations": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "cast": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "sweep": [
+          8,
+          9
+        ],
+        "hurt": [
+          10,
+          11
+        ],
+        "phase": [
+          12,
+          13
+        ],
+        "break": [
+          12,
+          13,
+          14
+        ],
+        "vanish": [
+          14,
+          15
+        ]
+      },
+      "displayScale": 0.3739130434782609,
+      "referenceIdleHeight": 230,
+      "targetIdleHeight": 86,
+      "notes": "Explicit alpha-bound crops include local detached weapon/aura pieces. One uniform scale is used for all frames; torso pivots account for pose extent."
+    },
+    "sovereign": {
+      "file": "sovereign-boss-sheet.png",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "bytes": 1965168,
+      "sha256": "54862478725561c4af19cc774f34bcb7e96c4b3e6f19636c4ed82607758457c2",
+      "frameCount": 16,
+      "sourcePoseCount": 16,
+      "useExplicitFrames": true,
+      "frames": [
+        {
+          "index": 0,
+          "sourceIndex": 0,
+          "x": 86,
+          "y": 67,
+          "width": 194,
+          "height": 237,
+          "originX": 0.35309278350515466,
+          "originY": 0.5449367088607594
+        },
+        {
+          "index": 1,
+          "sourceIndex": 1,
+          "x": 395,
+          "y": 67,
+          "width": 199,
+          "height": 237,
+          "originX": 0.3530150753768844,
+          "originY": 0.5449367088607594
+        },
+        {
+          "index": 2,
+          "sourceIndex": 2,
+          "x": 705,
+          "y": 68,
+          "width": 208,
+          "height": 236,
+          "originX": 0.3528846153846153,
+          "originY": 0.5430084745762711
+        },
+        {
+          "index": 3,
+          "sourceIndex": 3,
+          "x": 1017,
+          "y": 67,
+          "width": 204,
+          "height": 237,
+          "originX": 0.35294117647058826,
+          "originY": 0.5449367088607594
+        },
+        {
+          "index": 4,
+          "sourceIndex": 4,
+          "x": 58,
+          "y": 359,
+          "width": 255,
+          "height": 256,
+          "originX": 0.38188235294117645,
+          "originY": 0.5787109374999999
+        },
+        {
+          "index": 5,
+          "sourceIndex": 5,
+          "x": 375,
+          "y": 362,
+          "width": 267,
+          "height": 253,
+          "originX": 0.3620973782771536,
+          "originY": 0.5737154150197628
+        },
+        {
+          "index": 6,
+          "sourceIndex": 6,
+          "x": 670,
+          "y": 360,
+          "width": 277,
+          "height": 255,
+          "originX": 0.4014440433212998,
+          "originY": 0.5770588235294116
+        },
+        {
+          "index": 7,
+          "sourceIndex": 7,
+          "x": 1014,
+          "y": 360,
+          "width": 208,
+          "height": 255,
+          "originX": 0.362692307692308,
+          "originY": 0.5770588235294116
+        },
+        {
+          "index": 8,
+          "sourceIndex": 8,
+          "x": 29,
+          "y": 658,
+          "width": 300,
+          "height": 243,
+          "originX": 0.42106666666666664,
+          "originY": 0.5561728395061728
+        },
+        {
+          "index": 9,
+          "sourceIndex": 9,
+          "x": 366,
+          "y": 662,
+          "width": 282,
+          "height": 239,
+          "originX": 0.4099290780141845,
+          "originY": 0.5487447698744768
+        },
+        {
+          "index": 10,
+          "sourceIndex": 10,
+          "x": 725,
+          "y": 660,
+          "width": 212,
+          "height": 241,
+          "originX": 0.36264150943396223,
+          "originY": 0.5524896265560165
+        },
+        {
+          "index": 11,
+          "sourceIndex": 11,
+          "x": 1025,
+          "y": 661,
+          "width": 205,
+          "height": 240,
+          "originX": 0.3529268292682922,
+          "originY": 0.5506249999999999
+        },
+        {
+          "index": 12,
+          "sourceIndex": 12,
+          "x": 35,
+          "y": 945,
+          "width": 275,
+          "height": 257,
+          "originX": 0.40145454545454545,
+          "originY": 0.5803501945525296
+        },
+        {
+          "index": 13,
+          "sourceIndex": 13,
+          "x": 359,
+          "y": 944,
+          "width": 285,
+          "height": 258,
+          "originX": 0.4211228070175438,
+          "originY": 0.5819767441860468
+        },
+        {
+          "index": 14,
+          "sourceIndex": 14,
+          "x": 690,
+          "y": 1015,
+          "width": 246,
+          "height": 189,
+          "originX": 0.37211382113821123,
+          "originY": 0.41878306878306926
+        },
+        {
+          "index": 15,
+          "sourceIndex": 15,
+          "x": 995,
+          "y": 954,
+          "width": 233,
+          "height": 246,
+          "originX": 0.344635193133047,
+          "originY": 0.5697154471544719
+        }
+      ],
+      "animations": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "cast": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "sweep": [
+          8,
+          9
+        ],
+        "hurt": [
+          10,
+          11
+        ],
+        "phase": [
+          12,
+          13
+        ],
+        "break": [
+          12,
+          13,
+          14
+        ],
+        "vanish": [
+          14,
+          15
+        ]
+      },
+      "displayScale": 0.40772532188841204,
+      "referenceIdleHeight": 233,
+      "targetIdleHeight": 95,
+      "notes": "Explicit alpha-bound crops include local detached weapon/aura pieces. One uniform scale is used for all frames; torso pivots account for pose extent."
+    }
+  }
+}

@@ -1,0 +1,418 @@
+{
+  "version": 1,
+  "method": "built-in image_gen generation and targeted refinement",
+  "createdAt": "2026-10-29T00:25:42+09:00",
+  "baseWorld": {
+    "width": 480,
+    "height": 270
+  },
+  "assets": {
+    "arena": {
+      "file": "arena.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1952251,
+      "sha256": "09eb52f4f30f812d546f43072f189623d74b1350cf21c879ec8ae236dff35c76",
+      "mode": "RGB"
+    },
+    "hero": {
+      "file": "hero-sheet.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1226172,
+      "sha256": "c4052d3a501dc7c6abb3636d505ed900809cc440a7b305b50390546d21cf0a04",
+      "mode": "RGBA",
+      "columns": 4,
+      "rows": 4,
+      "frameCount": 16,
+      "useExplicitFrames": true,
+      "frames": [
+        {
+          "index": 0,
+          "x": 56,
+          "y": 29,
+          "width": 179,
+          "height": 280,
+          "originX": 0.581006,
+          "originY": 0.55
+        },
+        {
+          "index": 1,
+          "x": 372,
+          "y": 29,
+          "width": 177,
+          "height": 280,
+          "originX": 0.576271,
+          "originY": 0.55
+        },
+        {
+          "index": 2,
+          "x": 685,
+          "y": 29,
+          "width": 177,
+          "height": 280,
+          "originX": 0.576271,
+          "originY": 0.55
+        },
+        {
+          "index": 3,
+          "x": 1002,
+          "y": 29,
+          "width": 174,
+          "height": 280,
+          "originX": 0.574713,
+          "originY": 0.55
+        },
+        {
+          "index": 4,
+          "x": 56,
+          "y": 346,
+          "width": 199,
+          "height": 281,
+          "originX": 0.59799,
+          "originY": 0.548043
+        },
+        {
+          "index": 5,
+          "x": 369,
+          "y": 332,
+          "width": 206,
+          "height": 263,
+          "originX": 0.587379,
+          "originY": 0.638783
+        },
+        {
+          "index": 6,
+          "x": 679,
+          "y": 353,
+          "width": 226,
+          "height": 277,
+          "originX": 0.522124,
+          "originY": 0.541516
+        },
+        {
+          "index": 7,
+          "x": 991,
+          "y": 377,
+          "width": 232,
+          "height": 258,
+          "originX": 0.517241,
+          "originY": 0.546512
+        },
+        {
+          "index": 8,
+          "x": 47,
+          "y": 656,
+          "width": 228,
+          "height": 269,
+          "originX": 0.486842,
+          "originY": 0.587361
+        },
+        {
+          "index": 9,
+          "x": 353,
+          "y": 655,
+          "width": 278,
+          "height": 270,
+          "originX": 0.420863,
+          "originY": 0.588889
+        },
+        {
+          "index": 10,
+          "x": 664,
+          "y": 656,
+          "width": 294,
+          "height": 269,
+          "originX": 0.404762,
+          "originY": 0.587361
+        },
+        {
+          "index": 11,
+          "x": 991,
+          "y": 655,
+          "width": 227,
+          "height": 270,
+          "originX": 0.506608,
+          "originY": 0.588889
+        },
+        {
+          "index": 12,
+          "x": 38,
+          "y": 958,
+          "width": 226,
+          "height": 268,
+          "originX": 0.49115,
+          "originY": 0.55597
+        },
+        {
+          "index": 13,
+          "x": 348,
+          "y": 1025,
+          "width": 230,
+          "height": 197,
+          "originX": 0.6,
+          "originY": 0.736041
+        },
+        {
+          "index": 14,
+          "x": 619,
+          "y": 1123,
+          "width": 320,
+          "height": 99,
+          "originX": 0.509375,
+          "originY": 0.676768
+        },
+        {
+          "index": 15,
+          "x": 991,
+          "y": 954,
+          "width": 232,
+          "height": 275,
+          "originX": 0.469828,
+          "originY": 0.567273
+        }
+      ],
+      "animations": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "rise": [
+          4,
+          5
+        ],
+        "fall": [
+          6,
+          7
+        ],
+        "parry": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "hurt": [
+          12
+        ],
+        "defeat": [
+          13,
+          14
+        ],
+        "absorb": [
+          15
+        ],
+        "exit": [
+          4,
+          5
+        ]
+      },
+      "displayScale": 0.15942028985507245,
+      "alphaRange": [
+        0,
+        255
+      ],
+      "notes": "Use these measured crop rectangles, not equal-grid slicing. Apply one uniform displayScale to all frames and each frame origin so crouch/defeat frames are not stretched. Two-pixel padding retains edge alpha."
+    },
+    "boss": {
+      "file": "boss-sheet.png",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 2067129,
+      "sha256": "923ed9678b90818cc0fe746e6869470b1a8d89ba42f0fb31bb3abef6b931f673",
+      "mode": "RGBA",
+      "columns": 4,
+      "rows": 4,
+      "frameCount": 16,
+      "useExplicitFrames": true,
+      "frames": [
+        {
+          "index": 0,
+          "x": 61,
+          "y": 14,
+          "width": 221,
+          "height": 302,
+          "originX": 0.357466,
+          "originY": 0.549669
+        },
+        {
+          "index": 1,
+          "x": 374,
+          "y": 14,
+          "width": 237,
+          "height": 301,
+          "originX": 0.337553,
+          "originY": 0.551495
+        },
+        {
+          "index": 2,
+          "x": 687,
+          "y": 14,
+          "width": 246,
+          "height": 298,
+          "originX": 0.325203,
+          "originY": 0.557047
+        },
+        {
+          "index": 3,
+          "x": 1001,
+          "y": 14,
+          "width": 230,
+          "height": 298,
+          "originX": 0.343478,
+          "originY": 0.557047
+        },
+        {
+          "index": 4,
+          "x": 10,
+          "y": 325,
+          "width": 305,
+          "height": 302,
+          "originX": 0.462295,
+          "originY": 0.559603
+        },
+        {
+          "index": 5,
+          "x": 309,
+          "y": 327,
+          "width": 321,
+          "height": 300,
+          "originX": 0.482866,
+          "originY": 0.556667
+        },
+        {
+          "index": 6,
+          "x": 626,
+          "y": 326,
+          "width": 321,
+          "height": 301,
+          "originX": 0.470405,
+          "originY": 0.55814
+        },
+        {
+          "index": 7,
+          "x": 989,
+          "y": 324,
+          "width": 242,
+          "height": 303,
+          "originX": 0.417355,
+          "originY": 0.561056
+        },
+        {
+          "index": 8,
+          "x": 12,
+          "y": 637,
+          "width": 308,
+          "height": 293,
+          "originX": 0.480519,
+          "originY": 0.573379
+        },
+        {
+          "index": 9,
+          "x": 328,
+          "y": 637,
+          "width": 306,
+          "height": 296,
+          "originX": 0.477124,
+          "originY": 0.567568
+        },
+        {
+          "index": 10,
+          "x": 697,
+          "y": 658,
+          "width": 250,
+          "height": 279,
+          "originX": 0.396,
+          "originY": 0.573477
+        },
+        {
+          "index": 11,
+          "x": 1011,
+          "y": 637,
+          "width": 235,
+          "height": 300,
+          "originX": 0.4,
+          "originY": 0.543333
+        },
+        {
+          "index": 12,
+          "x": 26,
+          "y": 944,
+          "width": 318,
+          "height": 294,
+          "originX": 0.421384,
+          "originY": 0.530612
+        },
+        {
+          "index": 13,
+          "x": 347,
+          "y": 947,
+          "width": 317,
+          "height": 290,
+          "originX": 0.451104,
+          "originY": 0.527586
+        },
+        {
+          "index": 14,
+          "x": 687,
+          "y": 971,
+          "width": 254,
+          "height": 266,
+          "originX": 0.397638,
+          "originY": 0.522556
+        },
+        {
+          "index": 15,
+          "x": 1011,
+          "y": 971,
+          "width": 204,
+          "height": 266,
+          "originX": 0.421569,
+          "originY": 0.56015
+        }
+      ],
+      "animations": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "cast": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "sweep": [
+          8,
+          9
+        ],
+        "hurt": [
+          10,
+          11
+        ],
+        "phase": [
+          12,
+          13
+        ],
+        "break": [
+          12,
+          13,
+          14
+        ],
+        "vanish": [
+          14,
+          15
+        ]
+      },
+      "displayScale": 0.2702702702702703,
+      "alphaRange": [
+        0,
+        255
+      ],
+      "notes": "Use these measured crop rectangles, not equal-grid slicing. Apply one uniform displayScale to all frames and each frame origin so crouch/defeat frames are not stretched. Two-pixel padding retains edge alpha."
+    }
+  }
+}
