@@ -1,11 +1,11 @@
-import {hostileSpeed,regularInterval,regularCanFire} from './difficulty.mjs?v=1.1.0';
+import {hostileSpeed,regularInterval,regularCanFire} from './difficulty.mjs?v=1.1.1';
 import {STAGES,RUN_MODES,STORM_WAVES,STORM_SPECS,POWER_DURATION,SUPPLY_INTERVAL,HOSTILE_DENSITY,isLarge,isFinal,
-  attachPods,syncPods,stormAttack,updateStormGuns,crossesLaser} from './stages.mjs?v=1.1.0';
-import {FORGE_WAVES,FORGE_EASY_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,updateForgeBomber,moveMortar,mortarArmed,mortarCrossfire,updateForgeGuns} from './forge.mjs?v=1.1.0';
-import {keyboardSpeed} from './pc-controls.mjs?v=1.1.0';
+  attachPods,syncPods,stormAttack,updateStormGuns,crossesLaser} from './stages.mjs?v=1.1.1';
+import {FORGE_WAVES,FORGE_EASY_WAVES,FORGE_SPECS,attachForgePods,forgeAttack,forgeMinorAttack,updateForgeBomber,moveMortar,mortarArmed,mortarCrossfire,updateForgeGuns} from './forge.mjs?v=1.1.1';
+import {keyboardSpeed} from './pc-controls.mjs?v=1.1.1';
 export {STAGES,RUN_MODES,POWER_DURATION,SUPPLY_INTERVAL};
 export const W = 480, H = 720, STEP = 1 / 120;
-export const VERSION = '1.1.0';
+export const VERSION = '1.1.1';
 export const PLAYER_SCALE = .72;
 export const PLAYER_HIT_RADIUS = 3.6;
 export const CHARGE_REQUIRED = 240;

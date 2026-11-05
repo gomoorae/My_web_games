@@ -48,21 +48,69 @@ export const PIXELFX_CATALOG=Object.freeze({
     "loop": false,
     "duration": 0.9
   },
-  "blast": {
-    "file": "./assets/vfx/blast-ec581620b6.png",
-    "width": 193,
-    "height": 212,
+  "blast-bloom": {
+    "file": "./assets/vfx/blast-bloom-ca949b7a40.png",
+    "width": 107,
+    "height": 103,
     "pivot": [
-      111,
-      162
+      54,
+      54
     ],
-    "cols": 7,
-    "frames": 37,
+    "cols": 6,
+    "frames": 30,
     "gap": 2,
-    "sheetWidth": 1379,
-    "sheetHeight": 1296,
+    "sheetWidth": 666,
+    "sheetHeight": 535,
     "loop": false,
-    "duration": 1.8
+    "duration": 0.95
+  },
+  "blast-split": {
+    "file": "./assets/vfx/blast-split-b520f1e4d9.png",
+    "width": 97,
+    "height": 75,
+    "pivot": [
+      52,
+      38
+    ],
+    "cols": 5,
+    "frames": 30,
+    "gap": 2,
+    "sheetWidth": 505,
+    "sheetHeight": 474,
+    "loop": false,
+    "duration": 0.95
+  },
+  "blast-shards": {
+    "file": "./assets/vfx/blast-shards-51e4ffb632.png",
+    "width": 96,
+    "height": 94,
+    "pivot": [
+      47,
+      46
+    ],
+    "cols": 6,
+    "frames": 30,
+    "gap": 2,
+    "sheetWidth": 600,
+    "sheetHeight": 490,
+    "loop": false,
+    "duration": 0.95
+  },
+  "blast-chain": {
+    "file": "./assets/vfx/blast-chain-5cbed5f268.png",
+    "width": 88,
+    "height": 88,
+    "pivot": [
+      44,
+      48
+    ],
+    "cols": 6,
+    "frames": 30,
+    "gap": 2,
+    "sheetWidth": 552,
+    "sheetHeight": 460,
+    "loop": false,
+    "duration": 0.95
   },
   "reactor": {
     "file": "./assets/vfx/reactor-8574ad5bdd.png",

@@ -1,5 +1,19 @@
 # 에셋 제작 정보
 
+## 1.1.1 공중 격추용 네 가지 폭발 · 2026-11-05
+
+PixelFX의 MIT 화염·연기·광원·파편 프리미티브를 이용해 서로 다른 공중 폭발 동작을 작성했습니다. 원본은 `source_assets/pixelfx/fx/sky-chaser/`의 네 모듈과 공통 도구이며, 기존 라이브러리를 크기·시드만 바꾼 변형이 아닙니다. 화염 팽창, 양쪽 파열, 파편 방사, 시차 연쇄의 실루엣·입자 방향·점화 순서가 다릅니다. 제작 도구는 게임 소유 원본을 임시 폴더에서 설치된 PixelFX 코어와 연결하므로 공유 라이브러리 수정 상태에 의존하지 않습니다.
+
+| 효과 | 게임 파일 SHA-256 |
+|---|---|
+| blast-bloom | `ca949b7a405ac17a99f96be184f664cdfbf26a0d33a345bc72d494348743bb73` |
+| blast-split | `b520f1e4d9b71b1e15de6b0bed3c3a8507b0443b0926ef4fe788ebfb791bce86` |
+| blast-shards | `51e4ffb6324b951d0e23b5c7fc435f673ca3aedeb3b06b7bbefb8a241986bacb` |
+| blast-chain | `5cbed5f268dccc02a6a381fb863c881c7a62e3005940c23dce4d32650a8d9228` |
+
+PixelFX / Sprite Fusion의 관련 프리미티브 출처와 MIT 표시는 각 원본 및 [라이선스 전문](assets/vfx/LICENSE.txt)에 유지했습니다. 모든 일회성 효과는 마지막 프레임에서 완전히 사라지며, 출력과 옵션은 `source_assets/pixelfx/manifest.json`에 기록했습니다. 아래는 이전 제작 이력입니다.
+
+
 ## 1.1.0 PixelFX 전투 효과 · 2026-11-05
 
 [PixelFX](https://github.com/patch-gg/pixelfx) 0.3.0, 커밋 `a84159688af3ca37a4be05a0d422b94451b2e24e`를 사용했습니다. MIT 라이선스, Copyright (c) 2026 Patch 및 Hugo Duprez. 라이선스 전문은 [assets/vfx/LICENSE.txt](assets/vfx/LICENSE.txt)에 포함합니다.

@@ -1,10 +1,11 @@
-import {pixelFXBank,CombatFX} from './pixelfx.mjs?v=1.1.0';
-import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=1.1.0';
-import {ArtBank} from './art.mjs?v=1.1.0';
-import {drawLaser} from './laser-fx.mjs?v=1.1.0';
-import {drawMortars} from './forge-fx.mjs?v=1.1.0';
-import {renderRatio} from './frame-loop.mjs?v=1.1.0';
-import {glow,flame,normalShot} from './canvas-fx.mjs?v=1.1.0';
+import {ExplosionPatterns,EXPLOSION_TEMPO} from './explosion-patterns.mjs?v=1.1.1';
+import {pixelFXBank,CombatFX} from './pixelfx.mjs?v=1.1.1';
+import {W,H,clamp,PLAYER_SCALE,POWER_DURATION,STAGES,CHARGE_REQUIRED} from './engine.mjs?v=1.1.1';
+import {ArtBank} from './art.mjs?v=1.1.1';
+import {drawLaser} from './laser-fx.mjs?v=1.1.1';
+import {drawMortars} from './forge-fx.mjs?v=1.1.1';
+import {renderRatio} from './frame-loop.mjs?v=1.1.1';
+import {glow,flame,normalShot} from './canvas-fx.mjs?v=1.1.1';
 const TAU=Math.PI*2;
 const mix=(a,b,t)=>a+(b-a)*t;
 const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
@@ -41,7 +42,7 @@ export class Renderer {
     this.motion=true;this.clouds=[0,1,2,3].map(makeCloud);this.reset();this.resize();
     this.ready=Promise.all([this.art.load().then(()=>this.prepareScenery()),this.pixelBank.load()]);
   }
-  reset(){this.fx=new CombatFX(this.pixelBank);this.particles=[];this.rings=[];this.blasts=[];this.wrecks=[];this.bombBeams=[];this.damageTexts=[];this.trail=[];this.flash=0;this.shake=0;this.fxTime=0;this.lastTrail=0;this.lastTime=0;}
+  reset(){this.explosionPatterns=new ExplosionPatterns();this.blastSerial=0;this.fx=new CombatFX(this.pixelBank);this.particles=[];this.rings=[];this.blasts=[];this.wrecks=[];this.bombBeams=[];this.damageTexts=[];this.trail=[];this.flash=0;this.shake=0;this.fxTime=0;this.lastTrail=0;this.lastTime=0;}
   hasEffects(){return this.fx.active||this.flash>0||this.shake>.1||[this.particles,this.rings,this.blasts,this.wrecks,this.bombBeams,this.damageTexts].some(a=>a.length>0);}
   prepareScenery(){
     this.groundTiles={};
@@ -73,21 +74,26 @@ export class Renderer {
     }
     if(this.particles.length>450)this.particles.splice(0,this.particles.length-450);
   }
+  addBlast(spec){
+    const pattern=spec.variant||(spec.reactor?'reactor':this.explosionPatterns.next()),rotation=spec.reactor?0:(seed(++this.blastSerial+811)-.5)*1.1;
+    const blast={...spec,pattern,rotation,life:spec.life*(EXPLOSION_TEMPO[pattern]||1)};
+    this.blasts.push(blast);return blast;
+  }
   explosion(x,y,large=false,type='scout',phase=1){
     const reactor=type==='tempest'&&phase===3;
-    this.burst(x,y,this.pixelBank?.has('blast')?(large?26:7):(large?64:16),large);
-    this.blasts.push({x,y,age:0,life:large?1.3:.6,size:large?92:type==='bomber'?42:type==='turret'?32:26,reactor});
-    if(!this.pixelBank?.has('blast'))this.rings.push({x,y,age:0,life:large?.9:.4,size:large?180:48,color:reactor?'#b9fff0':'#ffe7a2'});
+    const main=this.addBlast({x,y,age:0,life:large?1.3:.6,size:large?92:type==='bomber'?42:type==='turret'?32:26,reactor});
+    this.burst(x,y,this.pixelBank?.has(main.pattern)?(large?26:7):(large?64:16),large);
+    if(!this.pixelBank?.has(main.pattern))this.rings.push({x,y,age:0,life:large?.9:.4,size:large?180:48,color:reactor?'#b9fff0':'#ffe7a2'});
     if(type==='boss'){
-      for(let i=0;i<9;i++)this.blasts.push({x:x+(seed(i+4)-.5)*230,y:y+(seed(i+5)-.5)*190,age:-i*.13,life:1.2,size:60+seed(i+7)*45});
+      for(let i=0;i<9;i++)this.addBlast({x:x+(seed(i+4)-.5)*230,y:y+(seed(i+5)-.5)*190,age:-i*.13,life:1.2,size:60+seed(i+7)*45});
       this.wrecks.push({type:'raven',x,y,age:0,life:2.6,width:326});
     }else if(type==='ignis'){
       this.wrecks.push({type:phase===1?'ignisArmor':'ignisOpen',x,y,age:0,life:2.4,
         width:phase===1?180:334,coreWidth:phase===3?76:phase===2?52:0});
-      for(let i=0;i<7;i++)this.blasts.push({x:x+(seed(i+54)-.5)*215,y:y+(seed(i+61)-.5)*180,age:-i*.13,life:1,size:42+seed(i+28)*32});
+      for(let i=0;i<7;i++)this.addBlast({x:x+(seed(i+54)-.5)*215,y:y+(seed(i+61)-.5)*180,age:-i*.13,life:1,size:42+seed(i+28)*32});
     }else if(reactor){
       this.wrecks.push({type:'tempestCore',x,y,age:0,life:1.8,width:171});
-      for(let i=0;i<5;i++)this.blasts.push({x:x+(seed(i+91)-.5)*100,y:y+(seed(i+97)-.5)*110,age:-.12-i*.12,life:.8,size:35+seed(i+2)*24,reactor:true});
+      for(let i=0;i<5;i++)this.addBlast({x:x+(seed(i+91)-.5)*100,y:y+(seed(i+97)-.5)*110,age:-.12-i*.12,life:.8,size:35+seed(i+2)*24,reactor:true,variant:['critical','reactor','rune','critical','rune'][i]});
     }else if(type!=='player')this.wrecks.push({type,x,y,age:0,life:large?1.1:.5,width:sizes[type]||60});
     this.shake=Math.max(this.shake,large?8:1.8);
   }
@@ -130,7 +136,7 @@ export class Renderer {
       }
       if(e.kind==='transform'){
         this.flash=.16;this.shake=5;
-        for(let i=0;i<7;i++)this.blasts.push({x:e.x+(seed(i+20)-.5)*185,y:e.y+(seed(i+30)-.5)*160,age:-.15-i*.12,life:.55,size:31+seed(i+2)*20});
+        for(let i=0;i<7;i++)this.addBlast({x:e.x+(seed(i+20)-.5)*185,y:e.y+(seed(i+30)-.5)*160,age:-.15-i*.12,life:.55,size:31+seed(i+2)*20});
         this.burst(e.x,e.y,35,true);
       }
       if(e.kind==='impact')this.burst(e.x,e.y,3);
@@ -517,7 +523,7 @@ export class Renderer {
     this.wrecks=this.wrecks.filter(w=>w.age<w.life);
     for(const b of this.blasts){
       if(!paused)b.age+=dt;if(b.age<0)continue;const p=b.age/b.life;
-      if(this.pixelBank?.draw(c,b.reactor?'reactor':'blast',p,b.x,b.y,{sx:b.size/(b.reactor?72:60),alpha:.9}))continue;
+      if(this.pixelBank?.draw(c,b.pattern||(b.reactor?'reactor':'blast-bloom'),p,b.x,b.y,{sx:b.size/(b.reactor?72:38),angle:b.rotation||0,alpha:.9}))continue;
       glow(c,b.x,b.y,b.size*(.3+p),b.reactor?'#49e8ee':'#ffad4e',(1-p)*.8);
       for(let i=0;i<7;i++){
         const a=i*2.4,dist=b.size*p*.55,x=b.x+Math.cos(a)*dist,y=b.y+Math.sin(a)*dist,r=b.size*(.14+Math.sin(Math.PI*p)*.2);
