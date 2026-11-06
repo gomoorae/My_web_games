@@ -4,7 +4,7 @@ gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 
 
 | 게임 | 경로 |
 |---|---|
-| 무혼 비동 · 경공과 반격 액션 | [게임](games/muhon-bidong/index.html?v=1.28.0) · [조작과 제작 자료](games/muhon-bidong/README.md) |
+| 무혼 비동 · 경공과 반격 액션 | [게임](games/muhon-bidong/index.html?v=1.29.0) · [조작과 제작 자료](games/muhon-bidong/README.md) |
 | 마지막 표행 · 무협 보따리 로그라이크 | [게임](games/last-delivery/) · [플레이 안내](games/last-delivery/README.md) |
 | 스카이 체이서 · 세로 슈팅 | [게임](games/sky-chaser/index.html) · [플레이 안내](games/sky-chaser/README.md) |
 | 별냠 · 별 수집 도약 게임 | [게임](games/star-munch/index.html) · [규칙과 소스 안내](games/star-munch/README.md) |
@@ -18,9 +18,11 @@ gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 
 
 ## 무혼 비동
 
+1.29.0은 마지막 지역 발사원의 첫 탄만 주인공을 조준하고, 후속탄은 상·중·하로 퍼지게 했습니다. 첫 반격의 폭발 뒤에도 분산된 탄이 남습니다.
+
 1.28.0은 호신강기 피격에 짧은 자세 반동·타격 섬광·화면 흔들림·방어음을 더했습니다. 진기 소비도 눈에 잘 띄게 표시하며, 피격 직후 경공과 반격을 계속 조작할 수 있습니다.
 
-**[무혼 비동 1.28.0 플레이](https://gomoorae.github.io/My_web_games/games/muhon-bidong/?v=1.28.0)** — 경공으로 장애물과 특수기를 피하고, 날아오는 무기를 반격해 네 무혼을 꺾는 픽셀 무협 액션입니다. 네 지역, 이어받는 능력, 성장 보상, 자동 저장과 여명 엔딩을 제공합니다.
+**[무혼 비동 1.29.0 플레이](https://gomoorae.github.io/My_web_games/games/muhon-bidong/?v=1.29.0)** — 경공으로 장애물과 특수기를 피하고, 날아오는 무기를 반격해 네 무혼을 꺾는 픽셀 무협 액션입니다. 네 지역, 이어받는 능력, 성장 보상, 자동 저장과 여명 엔딩을 제공합니다.
 
 PC는 Space로 상승하고 J로 반격합니다. 메뉴는 방향키·Tab으로 이동하고 Space·Enter로 선택합니다. 휴대폰은 화면 왼쪽을 누르고 있으면 상승, 오른쪽을 터치하면 반격합니다. [자세한 조작과 제작 자료](games/muhon-bidong/README.md)
 
