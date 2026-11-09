@@ -94,8 +94,40 @@ body {
 <link rel="apple-touch-icon" href="duel-v1.0.0.apple-touch-icon.png"/>
 <meta name="description" content="장수를 고르고 기마 일기토의 승부를 지켜보는 픽셀 게임"><meta name="theme-color" content="#14162a"><style>#status-progress{width:min(14rem,38vw);height:0.45rem;accent-color:#edc477}</style>
 	<style>
+body {
+	--window-height: 100vh;
+	height: var(--window-height);
+	display: grid;
+	grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+	place-items: center;
+	background: #101419;
+}
+@supports (height: 100dvh) {
+	body { --window-height: 100dvh; }
+}
+#duel-frame {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background: #000;
+}
+@media (any-hover: hover) and (any-pointer: fine), (min-width: 1280px) and (min-height: 720px) {
+	#duel-frame {
+		/* The 640 × 360 battlefield gets at most two CSS pixels per source pixel. */
+		width: min(100%, calc(var(--window-height) * 16 / 9), 1280px);
+		height: auto;
+		aspect-ratio: 16 / 9;
+	}
+}
+#canvas {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+}
 .arcade-home {
-	position: fixed;
+	position: absolute;
 	z-index: 2;
 	top: env(safe-area-inset-top, 0px);
 	left: 50%;
@@ -136,11 +168,32 @@ body {
 </style>
 	</head>
 	<body>
+	<main id="duel-frame">
 		<a class="arcade-home" href="../../#games" aria-label="게임 목록으로 돌아가기" title="게임 목록으로 돌아가기 (Alt+G)" aria-keyshortcuts="Alt+G" accesskey="g"><span><span aria-hidden="true">←</span>게임 목록</span></a>
 		<canvas id="canvas">
 			이 브라우저에서는 게임 화면을 표시할 수 없습니다.
 		</canvas>
 		<script>
+(() => {
+	const frame = document.getElementById("duel-frame");
+	const canvas = document.getElementById("canvas");
+	function sizeCanvas() {
+		const rect = frame.getBoundingClientRect();
+		const ratio = window.devicePixelRatio || 1;
+		const width = Math.max(1, Math.round(rect.width * ratio));
+		const height = Math.max(1, Math.round(rect.height * ratio));
+		if (canvas.width !== width) canvas.width = width;
+		if (canvas.height !== height) canvas.height = height;
+	}
+	// A window can move between displays without changing its CSS size.
+	function watchPixelRatio() {
+		sizeCanvas();
+		matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`)
+			.addEventListener("change", watchPixelRatio, { once: true });
+	}
+	watchPixelRatio();
+	new ResizeObserver(sizeCanvas).observe(frame);
+})();
 document.getElementById("canvas").addEventListener("keydown", event => {
 	if (event.code === "KeyG" && event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
 		event.preventDefault();
@@ -163,7 +216,7 @@ document.getElementById("canvas").addEventListener("keydown", event => {
 		<script src="duel-v1.0.0.js"></script>
 		<script src="duel-v1.0.0.pages.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"duel-v1.0.0","experimentalVK":false,"fileSizes":{"duel-v1.0.0.pck":146964464,"duel-v1.0.0.wasm":39513091},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":0,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"duel-v1.0.0","experimentalVK":false,"fileSizes":{"duel-v1.0.0.pck":146964464,"duel-v1.0.0.wasm":39513091},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 
 
@@ -267,5 +320,6 @@ const GODOT_THREADS_ENABLED = false;
 	}
 }());
 		</script>
+	</main>
 	</body>
 </html>
