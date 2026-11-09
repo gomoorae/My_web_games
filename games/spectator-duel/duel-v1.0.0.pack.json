@@ -1,0 +1,223 @@
+{
+  "file": "duel-v1.0.0.pck",
+  "bytes": 146964464,
+  "sha256": "8c03444dccb170a61783b262bfb4479c15dc58c6411071a976b54c7c36d4f2cf",
+  "parts": [
+    {
+      "path": "pack/duel-v1.0.0/000-c68ac2ee16f0.bin",
+      "offset": 0,
+      "bytes": 4194304,
+      "sha256": "c68ac2ee16f0ebd39acdb571bf41eefd661e9034caca86ee9fa352e42dc95e26"
+    },
+    {
+      "path": "pack/duel-v1.0.0/001-7aeb6ae42319.bin",
+      "offset": 4194304,
+      "bytes": 4194304,
+      "sha256": "7aeb6ae42319e57c7d8dbb31e48940aca17948a815e514fdb6d26091c92212c1"
+    },
+    {
+      "path": "pack/duel-v1.0.0/002-b3666beb4e6e.bin",
+      "offset": 8388608,
+      "bytes": 4194304,
+      "sha256": "b3666beb4e6e47690f759cbb9db162b3b25c3975ff65d6fbfbf24fb46f2fbc64"
+    },
+    {
+      "path": "pack/duel-v1.0.0/003-7a8282eac892.bin",
+      "offset": 12582912,
+      "bytes": 4194304,
+      "sha256": "7a8282eac892f192b8c7135ef8e674bec8be8b4cd8994570660fb0d5552c721b"
+    },
+    {
+      "path": "pack/duel-v1.0.0/004-1d62b5168288.bin",
+      "offset": 16777216,
+      "bytes": 4194304,
+      "sha256": "1d62b51682881fdefbf4186013f74ad3ee85416ee3b0dace4b603ebfbba3f47e"
+    },
+    {
+      "path": "pack/duel-v1.0.0/005-1ff69844bc1b.bin",
+      "offset": 20971520,
+      "bytes": 4194304,
+      "sha256": "1ff69844bc1b47164ee77d1030e3e3156948d0601fbf5d0b1b4c9c5206b93d6d"
+    },
+    {
+      "path": "pack/duel-v1.0.0/006-c76cfce98da7.bin",
+      "offset": 25165824,
+      "bytes": 4194304,
+      "sha256": "c76cfce98da790b556297427612f31ed2913a575848a4901df33977aef95affe"
+    },
+    {
+      "path": "pack/duel-v1.0.0/007-290e49f8951f.bin",
+      "offset": 29360128,
+      "bytes": 4194304,
+      "sha256": "290e49f8951f3772fbe0542b92c7bb5a0fe0e0e2b9460ed408092880d4dc3726"
+    },
+    {
+      "path": "pack/duel-v1.0.0/008-cafd31dbe15b.bin",
+      "offset": 33554432,
+      "bytes": 4194304,
+      "sha256": "cafd31dbe15b18bbe7dbe867ec066fcdb8c6e507d45a78c0c293753aee5e3842"
+    },
+    {
+      "path": "pack/duel-v1.0.0/009-4b99d78bf610.bin",
+      "offset": 37748736,
+      "bytes": 4194304,
+      "sha256": "4b99d78bf610ea49c55d064edcda92617a702320b63cfc33ea5437a4f00cb125"
+    },
+    {
+      "path": "pack/duel-v1.0.0/010-b44026239fcb.bin",
+      "offset": 41943040,
+      "bytes": 4194304,
+      "sha256": "b44026239fcbb6bd56df9b09c69988f6bbf02f1971027f65804f56feefe23668"
+    },
+    {
+      "path": "pack/duel-v1.0.0/011-046c2c7c1dbb.bin",
+      "offset": 46137344,
+      "bytes": 4194304,
+      "sha256": "046c2c7c1dbb2db33b3a6a5ad05af3854131b88587032a1c0509156ec99fb92a"
+    },
+    {
+      "path": "pack/duel-v1.0.0/012-fbf07c0a1089.bin",
+      "offset": 50331648,
+      "bytes": 4194304,
+      "sha256": "fbf07c0a1089a0c26aeaa3bfb1312062f50216757df68a5a37eed8801c7120f5"
+    },
+    {
+      "path": "pack/duel-v1.0.0/013-4ff99ea38e59.bin",
+      "offset": 54525952,
+      "bytes": 4194304,
+      "sha256": "4ff99ea38e5960c14200c64cd456803dc3d31e04958c93d1321c9e52a4a0ac24"
+    },
+    {
+      "path": "pack/duel-v1.0.0/014-bd6ed20e52a2.bin",
+      "offset": 58720256,
+      "bytes": 4194304,
+      "sha256": "bd6ed20e52a27d0386f34feb5973d375356ac5fd33bbb5e1c36ea4f90d959c97"
+    },
+    {
+      "path": "pack/duel-v1.0.0/015-e22a3d6d0812.bin",
+      "offset": 62914560,
+      "bytes": 4194304,
+      "sha256": "e22a3d6d0812a8361d8101f8c463a31537ec1897b25642669cdc5609c0131ecd"
+    },
+    {
+      "path": "pack/duel-v1.0.0/016-4df0886f6af7.bin",
+      "offset": 67108864,
+      "bytes": 4194304,
+      "sha256": "4df0886f6af7dc93b8647cde2a2cfc834dc7545f256d29b89a1da415933d2dd8"
+    },
+    {
+      "path": "pack/duel-v1.0.0/017-d1498fede5a5.bin",
+      "offset": 71303168,
+      "bytes": 4194304,
+      "sha256": "d1498fede5a5a69c9d10f87dcd4c0a04f8571b69dd14e68a1aa47d222f7d5f8b"
+    },
+    {
+      "path": "pack/duel-v1.0.0/018-c9e1279ba245.bin",
+      "offset": 75497472,
+      "bytes": 4194304,
+      "sha256": "c9e1279ba2459de28562a9b51ed3be12ce67727f46a43a51f02be6603ae16f4e"
+    },
+    {
+      "path": "pack/duel-v1.0.0/019-8e3e5fb77538.bin",
+      "offset": 79691776,
+      "bytes": 4194304,
+      "sha256": "8e3e5fb775388a7591ad78620558a96f12281f9c529d2c14abb30950e50fafa8"
+    },
+    {
+      "path": "pack/duel-v1.0.0/020-b5cfce440fc5.bin",
+      "offset": 83886080,
+      "bytes": 4194304,
+      "sha256": "b5cfce440fc5863fbc723864ab9151b5010906908c1361c0b98357be39f145ce"
+    },
+    {
+      "path": "pack/duel-v1.0.0/021-006295c3c580.bin",
+      "offset": 88080384,
+      "bytes": 4194304,
+      "sha256": "006295c3c580250c49ac09192385ad8b319aea863ae044b3c3da2ef6ab987b95"
+    },
+    {
+      "path": "pack/duel-v1.0.0/022-c8aa4ce5a0f5.bin",
+      "offset": 92274688,
+      "bytes": 4194304,
+      "sha256": "c8aa4ce5a0f5322cdaf740f8de344e0be54af7b33a8922c64be6a6702f20c8de"
+    },
+    {
+      "path": "pack/duel-v1.0.0/023-760d15100c4d.bin",
+      "offset": 96468992,
+      "bytes": 4194304,
+      "sha256": "760d15100c4d95a05077f50905a6321e4862d579d2ed37ca8cb1638660ab4ac1"
+    },
+    {
+      "path": "pack/duel-v1.0.0/024-592208c5095f.bin",
+      "offset": 100663296,
+      "bytes": 4194304,
+      "sha256": "592208c5095f14d408e5651ef032ff1b80beee43721ddcb606e3c7b4edfb4693"
+    },
+    {
+      "path": "pack/duel-v1.0.0/025-a0d7e0156148.bin",
+      "offset": 104857600,
+      "bytes": 4194304,
+      "sha256": "a0d7e01561482590841aea089cbc39a21522447135c10c9489b5992404f03108"
+    },
+    {
+      "path": "pack/duel-v1.0.0/026-8d2449f05f86.bin",
+      "offset": 109051904,
+      "bytes": 4194304,
+      "sha256": "8d2449f05f86dec2e58126288b6a9e6c6d787b755e2a54d58de31de964274f21"
+    },
+    {
+      "path": "pack/duel-v1.0.0/027-9f80d65afbd1.bin",
+      "offset": 113246208,
+      "bytes": 4194304,
+      "sha256": "9f80d65afbd1d06413a2f2ad6e6491d27cceae76862cbe5098b397e4c50671df"
+    },
+    {
+      "path": "pack/duel-v1.0.0/028-0edc500011ee.bin",
+      "offset": 117440512,
+      "bytes": 4194304,
+      "sha256": "0edc500011ee5137107184913bebdd2eb8e7e1aeff3b861c8201e9789f74f6d2"
+    },
+    {
+      "path": "pack/duel-v1.0.0/029-518a27a34d72.bin",
+      "offset": 121634816,
+      "bytes": 4194304,
+      "sha256": "518a27a34d72932a8a4c46a78e4a590c8c3490f45c49d9fc725c558d5bc5bcf1"
+    },
+    {
+      "path": "pack/duel-v1.0.0/030-7a24b353a2c4.bin",
+      "offset": 125829120,
+      "bytes": 4194304,
+      "sha256": "7a24b353a2c4707693b6cb1d7b8c1efa0393d1f19cd8176306a3fda2cc69a2cb"
+    },
+    {
+      "path": "pack/duel-v1.0.0/031-9a9a005d666a.bin",
+      "offset": 130023424,
+      "bytes": 4194304,
+      "sha256": "9a9a005d666a28d363a5ffa1314a3429aec29989b41ec7d9b2cde18c21a8bfde"
+    },
+    {
+      "path": "pack/duel-v1.0.0/032-4c5e27201b16.bin",
+      "offset": 134217728,
+      "bytes": 4194304,
+      "sha256": "4c5e27201b16258f5a367655354e77545160b9abecf2e13888d2348fd1b17d2b"
+    },
+    {
+      "path": "pack/duel-v1.0.0/033-a063a59999a2.bin",
+      "offset": 138412032,
+      "bytes": 4194304,
+      "sha256": "a063a59999a28a98f245dfffb59df0b5dafe0f4006a42de4c06d2e3f8c8de163"
+    },
+    {
+      "path": "pack/duel-v1.0.0/034-bde870f82381.bin",
+      "offset": 142606336,
+      "bytes": 4194304,
+      "sha256": "bde870f823810828f63d6d1facf720a61f82daffb6df5df383dd4744f5dedd59"
+    },
+    {
+      "path": "pack/duel-v1.0.0/035-1b0d474070e4.bin",
+      "offset": 146800640,
+      "bytes": 163824,
+      "sha256": "1b0d474070e401e65a37730e5f8b14d508252bf75370e3cccb5a050548692b3f"
+    }
+  ]
+}
