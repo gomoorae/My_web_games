@@ -93,9 +93,50 @@ body {
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="duel-v1.0.0.icon.png" />
 <link rel="apple-touch-icon" href="duel-v1.0.0.apple-touch-icon.png"/>
 <meta name="description" content="장수를 고르고 기마 일기토의 승부를 지켜보는 픽셀 게임"><meta name="theme-color" content="#14162a"><style>#status-progress{width:min(14rem,38vw);height:0.45rem;accent-color:#edc477}</style>
-	<style>.arcade-home{position:absolute;top:max(10px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));z-index:2;padding:7px 12px;border-radius:4px;background:#191b2d;color:#ffe4ab;font:15px system-ui,sans-serif;text-decoration:none}</style>
+	<style>
+.arcade-home {
+	position: fixed;
+	z-index: 2;
+	top: env(safe-area-inset-top, 0px);
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	min-height: 44px;
+	color: #f6e1b4;
+	font: 600 clamp(12px, 2vh, 15px)/1 system-ui, sans-serif;
+	text-decoration: none;
+	touch-action: manipulation;
+}
+.arcade-home > span {
+	display: inline-flex;
+	align-items: center;
+	gap: .45em;
+	box-sizing: border-box;
+	height: clamp(23px, 4.5vh, 32px);
+	padding-inline: 12px;
+	border: 1px solid #a88b5f;
+	border-top: 0;
+	border-radius: 0 0 6px 6px;
+	background: #172329;
+	white-space: nowrap;
+}
+.arcade-home:hover > span, .arcade-home:focus-visible > span {
+	background: #304044;
+	border-color: #f6d89d;
+}
+.arcade-home:focus-visible {
+	outline: none;
+}
+.arcade-home:focus-visible > span {
+	outline: 2px solid #ffe2a1;
+	outline-offset: 1px;
+}
+</style>
 	</head>
 	<body>
+		<a class="arcade-home" href="../../#games" aria-label="게임 목록으로 돌아가기" accesskey="g"><span><span aria-hidden="true">←</span>게임 목록</span></a>
 		<canvas id="canvas">
 			이 브라우저에서는 게임 화면을 표시할 수 없습니다.
 		</canvas>
@@ -105,7 +146,6 @@ body {
 		</noscript>
 
 		<div id="status">
-			<a class="arcade-home" href="../../">‹ 게임 목록</a>
 			<img id="status-splash" class="show-image--true fullsize--true use-filter--false" src="duel-v1.0.0.png" alt="">
 			<progress id="status-progress" aria-label="게임 불러오는 중"></progress>
 			<div id="status-notice"></div>
