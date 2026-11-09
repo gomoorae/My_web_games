@@ -136,10 +136,19 @@ body {
 </style>
 	</head>
 	<body>
-		<a class="arcade-home" href="../../#games" aria-label="게임 목록으로 돌아가기" accesskey="g"><span><span aria-hidden="true">←</span>게임 목록</span></a>
+		<a class="arcade-home" href="../../#games" aria-label="게임 목록으로 돌아가기" title="게임 목록으로 돌아가기 (Alt+G)" aria-keyshortcuts="Alt+G" accesskey="g"><span><span aria-hidden="true">←</span>게임 목록</span></a>
 		<canvas id="canvas">
 			이 브라우저에서는 게임 화면을 표시할 수 없습니다.
 		</canvas>
+		<script>
+document.getElementById("canvas").addEventListener("keydown", event => {
+	if (event.code === "KeyG" && event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+		event.preventDefault();
+		event.stopImmediatePropagation();
+		document.querySelector(".arcade-home").click();
+	}
+}, true);
+</script>
 
 		<noscript>
 			게임을 실행하려면 자바스크립트를 켜 주세요.
