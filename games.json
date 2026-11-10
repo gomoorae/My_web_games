@@ -28,7 +28,7 @@
     "title": "일기토 - 무장결투",
     "description": "40명의 장수로 기마 일기토를 관전하세요. 단판 대결과 8·16·32강 토너먼트. 장수를 직접 편성하거나 추첨하고, 승자의 체력을 이어 결승까지 지켜보세요.",
     "thumbnail": "thumbs/spectator-duel-v1.webp",
-    "url": "games/spectator-duel/?v=1.1.2",
+    "url": "games/spectator-duel/?v=1.1.3",
     "category": "DUEL · 관전형 일기토",
     "detail": "MOUSE + TOUCH"
   },
