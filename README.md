@@ -8,7 +8,7 @@ gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 
 | 마지막 표행 · 무협 보따리 로그라이크 | [게임](games/last-delivery/) · [플레이 안내](games/last-delivery/README.md) |
 | 개울 RC 보트 랠리 · 보트 레이싱 | [게임](games/creek-rc-rally/index.html?v=0.12.0) |
 | 스카이 체이서 · 세로 슈팅 | [게임](games/sky-chaser/index.html) · [플레이 안내](games/sky-chaser/README.md) |
-| 일기토 - 무장결투 · 기마 일기토 관전 | [게임](games/spectator-duel/?v=1.1.3) · [플레이 안내](games/spectator-duel/README.md) |
+| 일기토 - 무장결투 · 기마 일기토 관전 | [게임](games/spectator-duel/?v=1.1.4) · [플레이 안내](games/spectator-duel/README.md) |
 | 별냠 · 별 수집 도약 게임 | [게임](games/star-munch/index.html) · [규칙과 소스 안내](games/star-munch/README.md) |
 | NEON TERRITORY · 10스테이지 땅따먹기 | [게임](games/neon_territory/index.html) · [규칙과 조작](games/neon_territory/README.md) |
 | 월하무쌍 · 세 전장의 무협 생존 액션 | [게임과 조작 안내](games/moonfall/index.html) |
