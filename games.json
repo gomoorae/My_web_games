@@ -18,11 +18,11 @@
   },
   {
     "title": "개울 RC 보트 랠리",
-    "description": "세 갈래 물길에서 부스터 전지를 모으고 나무판 보트를 트윈 모터보트로 개조하세요. 첫 개울부터 3.2km 방조제까지 열 코스가 이어집니다.",
+    "description": "세 갈래 물길에서 부스터 전지를 모으고 나무판 보트를 트윈 모터보트로 개조하세요. 연꽃 수상정원, 등불 야시장, 폭풍 관측 해안까지 열다섯 코스를 달립니다.",
     "thumbnail": "thumbs/creek-rc-rally.webp",
-    "url": "games/creek-rc-rally/index.html?v=0.11.0",
+    "url": "games/creek-rc-rally/index.html?v=0.12.0",
     "category": "RACING · RC 보트",
-    "detail": "KEYBOARD + TOUCH · 10 STAGES"
+    "detail": "KEYBOARD + TOUCH · 15 STAGES"
   },
   {
     "title": "스카이 체이서 · SKY CHASER",
