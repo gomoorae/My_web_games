@@ -6,6 +6,7 @@ gomoorae의 웹 게임 모음입니다. 어두운 아케이드 테마의 메인 
 |---|---|
 | 무혼 비동 · 경공과 반격 액션 | [게임](games/muhon-bidong/index.html?v=1.31.0) · [조작과 제작 자료](games/muhon-bidong/README.md) |
 | 마지막 표행 · 무협 보따리 로그라이크 | [게임](games/last-delivery/) · [플레이 안내](games/last-delivery/README.md) |
+| 개울 RC 보트 랠리 · 보트 레이싱 | [게임](games/creek-rc-rally/index.html?v=0.10.2) |
 | 스카이 체이서 · 세로 슈팅 | [게임](games/sky-chaser/index.html) · [플레이 안내](games/sky-chaser/README.md) |
 | 일기토 - 무장결투 · 기마 일기토 관전 | [게임](games/spectator-duel/?v=1.1.3) · [플레이 안내](games/spectator-duel/README.md) |
 | 별냠 · 별 수집 도약 게임 | [게임](games/star-munch/index.html) · [규칙과 소스 안내](games/star-munch/README.md) |

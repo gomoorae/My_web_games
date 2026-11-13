@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#203f3d">
+  <meta name="description" content="열 코스에서 물살을 읽고 부스터 전지를 모아 보트를 개조하는 RC 보트 랠리.">
+  <title>버드나무 개울 · RC 보트 랠리</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23f48646'/%3E%3Cpath d='M20 5L30 31L20 26L10 31Z' fill='%23233f3d'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./game.css">
+  <script defer src="./rally.js"></script>
+</head>
+<body>
+  <main id="game" data-mode="ready" aria-busy="true">
+    <div id="opening" role="status">선착장을 여는 중…</div>
+    <canvas id="creek" aria-label="버드나무 개울 주행 화면. 스페이스바나 출발 버튼을 누르면 최대 출력으로 출발합니다. 좌우 방향키나 드래그로 조향합니다."></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+    <header class="mast">
+      <div class="identity">
+        <i class="crest" aria-hidden="true"></i>
+        <div><div class="series">RC 보트 랠리</div><h1 id="stage-name">버드나무 개울</h1></div>
+      </div>
+      <div class="tools">
+        <button class="icon-button map-button" id="map-button" aria-label="항로 지도" title="항로 지도">지도</button>
+        <button class="icon-button" id="sound" aria-label="소리 끄기" aria-pressed="true" title="소리 끄기"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i></span></button>
+        <button class="icon-button info" id="help" aria-label="조작법과 일시정지" title="조작법과 일시정지">?</button>
+      </div>
+    </header>
+    <section class="instruments" id="instruments" aria-label="주행 계기" hidden>
+      <div class="display-line"><div><span class="metric-name">거리</span><strong id="distance">0</strong><small id="finish-distance"> / 1,440 m</small></div><span class="zone" id="zone">출발</span></div>
+      <div class="gauge progress"><i id="progress-fill"></i></div>
+      <div class="instrument-line"><span>주 배터리 <b id="battery">100%</b></span><span>속도 <b id="speed">0</b> km/h</span></div>
+      <div class="gauge cell"><i id="battery-fill"></i></div>
+      <div class="course-cue" id="course-cue" hidden></div>
+      <div id="overhead-cue" class="overhead-cue" hidden></div>
+    </section>
+    <section class="launch-card paper" id="launch-card" aria-label="선착장">
+      <div class="course-stats"><button class="course-button" id="course-picker" aria-haspopup="dialog">코스 선택 <span aria-hidden="true">⌄</span></button><span id="dock-length">1.44 km</span><span id="best">최고 기록 —</span></div>
+      <button id="continue-course" class="continue-course" hidden></button>
+      <p id="stage-tip" class="stage-tip" hidden></p>
+      <details id="arrival" hidden><summary id="arrival-title"></summary><p id="arrival-info"></p></details>
+      <div class="boat-title"><h2 id="boat-name">나무판 보트</h2><span id="boat-level">1 / 10단계</span></div>
+      <p class="instruction fine"><kbd>Space</kbd> 출발 · <kbd>←</kbd> <kbd>→</kbd> 조향</p>
+      <p class="instruction touch">출발 후 화면을 좌우로 밀어 조향하세요.</p>
+      <button class="cell-inventory" id="cell-map" aria-haspopup="dialog"><span><i class="battery-icon" aria-hidden="true"></i>부스터 전지 <b id="dock-cells">0 / 3</b></span><span>위치 보기 ›</span></button>
+      <div class="wallet"><span id="specs">순항 42 km/h · 동력 약 11초</span><b id="dock-parts">부품 0개</b></div>
+      <div class="dock-actions"><button class="secondary upgrade" id="dock-upgrade" disabled>2단계 개조 · 15개</button><button id="launch" class="primary" aria-keyshortcuts="Space" disabled>출발 <span aria-hidden="true">↗</span></button></div>
+      <a class="arcade-link" href="../../">← 게임 목록</a>
+    </section>
+    <button id="boost" class="boost" aria-label="보조 부스터 사용" disabled hidden><i aria-hidden="true"></i><span id="boost-label">전지 필요</span><small><b id="boost-remaining">0회</b><em class="fine">SPACE</em></small></button>
+    <div id="impact-note" class="impact-note" hidden></div>
+    <div class="shade" id="result-layer" hidden>
+      <section id="result" class="sheet paper" role="dialog" aria-modal="true" aria-labelledby="result-title">
+        <div class="course-stats"><span><i class="route-pin"></i> <span id="result-course">버드나무 개울</span></span><span id="result-length">1.44 km</span></div>
+        <h2 id="result-title">주행 기록</h2>
+        <div class="big-reading"><strong id="result-distance">0.0</strong><span>m</span></div>
+        <p class="run-meta" id="result-meta"></p>
+        <p class="run-meta" id="result-features"></p>
+        <div class="split" id="split"></div>
+        <div class="wallet result-wallet"><span id="earned"></span><b id="result-parts"></b></div>
+        <details id="history"><summary>최근 주행 비교</summary><ol id="history-list"></ol></details>
+        <button class="secondary upgrade" id="result-upgrade" disabled>보트 개조</button>
+        <div class="actions"><button class="primary" id="next-course" hidden>다음 코스</button><button class="primary" id="retry" aria-keyshortcuts="Space">재출발 <span aria-hidden="true">↗</span></button><button class="secondary" id="dock">선착장으로</button></div>
+      </section>
+    </div>
+    <div class="shade" id="help-layer" hidden>
+      <section class="sheet paper" role="dialog" aria-modal="true" aria-labelledby="help-title">
+        <h2 id="help-title">조작법</h2>
+        <nav id="course-panel" aria-label="코스 목록" hidden></nav>
+        <p id="course-rule" hidden>다른 코스로 옮기면 1단계 보트, 부품 0개, 부스터 전지 0개로 시작해요.</p>
+        <div id="map-panel" hidden>
+          <canvas id="route-map" role="img" aria-label="세 물길과 현재 보트 위치"></canvas>
+          <div class="map-cell-title">부스터 전지 <b id="map-cells-count">0 / 3</b></div>
+          <ul class="cell-locations" id="cell-locations" aria-label="물길별 부스터 전지"></ul>
+          <p id="map-caption" hidden>물길 위의 숫자는 그 갈래의 최고 거리예요.</p>
+        </div>
+        <dl class="guide" id="guide"><dt>출발</dt><dd><kbd>Space</kbd> 또는 출발 버튼을 누르면 즉시 최대 출력으로 출발해요.</dd>
+        <dt>조향</dt><dd>짧게 밀면 조금씩 조향하고, 멀리 밀면 크게 돌아요. <kbd>←</kbd> <kbd>→</kbd> 또는 <kbd>A</kbd> <kbd>D</kbd>를 짧게 누르면 조금, 길게 누르면 크게 움직여요.</dd>
+        <dt>보조 부스터</dt><dd>세 갈래에 번개 전지가 하나씩 떠 있어요. 보트로 닿으면 즉시 1회를 얻고, 매번 출발할 때 모은 개수만큼 충전돼요(최대 3회). 주 배터리가 0%여도 물 위에서 버튼이나 <kbd>Space</kbd>로 가속할 수 있어요. 정지 직후에는 2초 동안 쓸 수 있어요.</dd>
+        <dt>지도</dt><dd>현재 위치와 물길별 최고 거리, 모은 전지와 남은 전지의 위치를 볼 수 있어요.</dd>
+        <dt>관성</dt><dd>방전 뒤에도 수문과 도약대는 보트를 밀어줘요. 주황 띠가 있는 나무 도약대는 짧게, 주황색 도약대는 더 강하게 가속해요. 돌여울은 진입 속도로 뛰고 내리막에서는 중력으로 가속해요.</dd>
+        <dt>수면 장애물</dt><dd>기둥이나 부표에 부딪히면 속도가 줄어요. 도약대는 낮은 입구로 올라타세요. 바위 여울에선 두 돌줄 사이로 들어가세요. 옆면에 닿으면 선체가 밀리고 속도가 줄어요.</dd>
+        <dt>공중 충돌</dt><dd>다리의 보나 난간에 선체가 닿으면 그 자리에서 주행이 끝나요. 낮은 구조물과 그쪽 발판 가장자리에는 노랑·검정 사선이 있어요.</dd>
+        <dt>코스</dt><dd>완주하면 다음 코스의 선착장으로 이동해요. 완주한 코스는 다시 고를 수 있고, 코스를 바꿀 때마다 보트, 부품과 부스터 전지를 처음부터 모아요.</dd>
+        <dt>개조</dt><dd>코스 전체 거리의 1%마다 부품 1개를 받아요. 선체와 모터를 10단계까지 개조하면 배터리가 오래가고, 방전 뒤에도 속도를 오래 유지해요.</dd></dl>
+        <button class="primary" id="resume">돌아가기</button>
+        <button class="secondary" id="abort" hidden>여기서 정산</button>
+      </section>
+    </div>
+    <div class="shade" id="error-layer" hidden><section class="sheet paper" role="alert"><h2>3D 화면을 열 수 없어요</h2><p id="error-message"></p><button class="primary" id="reload">다시 열기</button></section></div>
+    <div class="sr" aria-live="polite" id="announce"></div>
+    <noscript>게임을 실행하려면 브라우저의 자바스크립트를 켜 주세요.</noscript>
+  </main>
+</body>
+</html>
